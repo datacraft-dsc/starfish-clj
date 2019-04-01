@@ -8,12 +8,15 @@
 
 (def BYTE-ARRAY-CLASS (Class/forName "[B"))
 
+(def ^:dynamic *ocean* (Ocean/connect))
+
 (defn json-string 
   "Coerces the argument to a JSON string"
   (^{:tag String} [json]
     (cond
       (string? json) json
       (map? json) (json/write-str json)
+      (vector? json) (json/write-str json)
       :else (throw (IllegalArgumentException. (str "Can't convert to JSON: " (class json)))))))
 
 (defn to-bytes 
@@ -30,3 +33,9 @@
     (let [meta-str (json-string meta)
           byte-data (to-bytes data)]
       (MemoryAsset/create meta-str byte-data))))
+
+(defn content
+  "Gets ths content for a given asset"
+  ([^Asset asset]
+    (let []
+      (.getContent asset))))
