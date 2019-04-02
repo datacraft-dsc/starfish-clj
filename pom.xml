@@ -34,7 +34,26 @@
 			<artifactId>data.json</artifactId>
 			<version>0.2.6</version>
 		</dependency>
+		<dependency>
+			<groupId>org.clojure</groupId>
+			<artifactId>data.csv</artifactId>
+			<version>0.1.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.mikera</groupId>
+			<artifactId>cljunit</artifactId>
+			<version>0.6.0</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>clojars.org</id>
+			<url>https://clojars.org/repo</url>
+		</repository>
+	</repositories>
 
 	<build>
 		<resources>
@@ -54,5 +73,7 @@
 				<directory>src/test/resources</directory>
 			</testResource>
 		</testResources>
+		
+		<testSourceDirectory>src/test/java</testSourceDirectory>  
 	</build>
 </project>
