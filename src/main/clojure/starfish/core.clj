@@ -112,13 +112,20 @@
           meta (merge meta (stringify-keys additional-metadata))]
       (ClojureOperation/create (json-string meta) wrapped-fn))))
 
+(defn format-params
+  "Format parameters into a parameter map of string->asset according to the requirements of the operation."
+  (^java.util.Map [operation params]
+    (cond 
+      (map? params) params
+      (asset? params) {:input params}
+      :else (throw (IllegalArgumentException. (str "Params type not supported: " (class params)))))))
+
 (defn invoke 
   "Invoke an operation with the given parameters. Parameters may be either a positional list
    or a map of name / value pairs"
   (^Job [^Operation operation params]
-    (cond
-      (map? params) (.invoke operation ^java.util.Map (stringify-keys params))
-      :else (throw (Error. "Not yet supported")))))
+    (let [params (format-params operation params)]
+      (.invoke operation ^java.util.Map (stringify-keys params)))))
 
 (defn invoke-result 
   "Invokes an operation and wait for the result" 
