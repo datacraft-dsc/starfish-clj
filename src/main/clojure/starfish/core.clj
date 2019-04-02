@@ -1,6 +1,8 @@
 (ns starfish.core
-  (:import [sg.dex.starfish Asset Invokable Job Listing Ocean Operation Purchase])
+  (:import [sg.dex.starfish Asset Invokable Agent Job Listing Ocean Operation Purchase])
+  (:import [sg.dex.starfish.util DID Hex Utils])
   (:import [sg.dex.starfish.impl.memory MemoryAsset])
+  (:import [sg.dex.starfish.impl.remote RemoteAgent Surfer])
   (:import [java.nio.charset StandardCharsets])
   (:require [clojure.walk :refer [keywordize-keys stringify-keys]])
   (:require [clojure.data.json :as json]))
@@ -44,12 +46,35 @@
   ([a]
     (instance? Asset a)))
 
+(defn create-operation 
+  "Create an in-memory operation with the given parameter spec and function."
+  ([params f]
+    ))
+
 (defn memory-asset
   "Create an in-memory asset with the given metadata and data"
   (^Asset [meta data]
     (let [meta-str (json-string meta)
           byte-data (to-bytes data)]
       (MemoryAsset/create meta-str byte-data))))
+
+(defn remote-agent
+  "Gets a remote agent with the provided DID"
+  ([did]
+    (RemoteAgent/create *ocean* did)))
+
+(defn surfer
+  "Gets a surfer remote agent for the given Host string in the form 'http://www.mysurfer.com:8080'"
+  ([host]
+    (Surfer/getSurfer host)))
+
+(defn get-asset
+  ([^Agent agent ^String asset-id]
+    (.getAsset agent asset-id)))
+
+(defn upload
+  ([^Agent agent ^Asset asset]
+    (.uploadAsset agent asset)))
 
 (defn metadata
   "Gets the metadata for an asset as a Clojure map"
