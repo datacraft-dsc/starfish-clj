@@ -15,7 +15,7 @@
 
 (def ^:dynamic *ocean* (Ocean/connect))
 
-(declare content asset?)
+(declare content asset? get-asset get-agent)
 
 (defn json-string 
   "Coerces the argument to a JSON string"
@@ -48,6 +48,16 @@
   ([a]
     (instance? Asset a)))
 
+(defn agent? 
+  "Returns true if the argument is an Agent"
+  ([a]
+    (instance? Agent a)))
+
+(defn did? 
+  "Returns true if the argument is a W3C DID"
+  ([a]
+    (instance? DID a)))
+
 (defn create-operation 
   "Create an in-memory operation with the given parameter list and function."
   ([params ^IFn f]
@@ -71,16 +81,18 @@
       (.awaitResult job))))
 
 (defn asset
-  "Coerces this input data to an asset.
+  "Coerces input data to an asset.
    - Existing assets are unchanged
+   - DID are resolved to appropriate assets if possible
    - Strings and numbers are converted to memory assets containing the string representation
-   - Map data structures are converted to JSON"
+   - Map data structures are converted to JSON strings"
   (^Asset [data]
     (cond
       (asset? data) data
       (string? data) (MemoryAsset/create ^String data)
       (number? data) (MemoryAsset/create (str data))
       (map? data) (json-string data)
+      (did? data) (get-asset (get-agent ^DID data))
       :else (throw (Error. (str "Not yet supported: " (class data)))))))
 
 (defn memory-asset
@@ -97,12 +109,30 @@
 
 (defn surfer
   "Gets a surfer remote agent for the given Host string in the form 'http://www.mysurfer.com:8080'"
-  ([host]
+  (^Agent [host]
     (Surfer/getSurfer host)))
 
 (defn get-asset
   ([^Agent agent ^String asset-id]
     (.getAsset agent asset-id)))
+
+(defn did
+  "Gets the DID for the given input
+   - DID is returned for Agents or assets
+   - Strings are intrepreted as DIDs if possible"
+  ([a]
+    (cond 
+      (asset? a) (.getAssetDID ^Asset a)
+      (agent? a) (.getDID ^Agent a)
+      (string? a) (DID/parse ^String a)
+      :else (throw (IllegalArgumentException. (str "Can't get DID: " (class a)))))))
+
+(defn get-agent
+  (^Agent [agent-did]
+    (cond 
+      (agent? agent-did) agent-did
+      (did? agent-did) (.getAgent *ocean* ^DID agent-did)
+      :else (throw (IllegalArgumentException. (str "Invalid did: " (class agent-did)))))))
 
 (defn upload
   ([^Agent agent ^Asset asset]
