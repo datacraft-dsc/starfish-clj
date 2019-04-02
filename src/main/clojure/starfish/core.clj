@@ -13,7 +13,7 @@
 
 (def BYTE-ARRAY-CLASS (Class/forName "[B"))
 
-(def ^:dynamic *ocean* (Ocean/connect))
+(def ^{:dynamic true :tag Ocean}  *ocean* (Ocean/connect))
 
 (declare content asset? get-asset get-agent)
 
@@ -96,6 +96,11 @@
       :else (throw (Error. (str "Not yet supported: " (class data)))))))
 
 (defn asset-id 
+  "Gets the Asset ID for an asset. 
+
+   The asset ID is meaningful mainly  in the context of an agent that has the asset registered. It is
+   preferable to use (did asset) for the asset DID if the intent is to obtain a full reference to the asset
+   that includes the agent location."
   ([^Asset a]
     (.getAssetID a)))
 
