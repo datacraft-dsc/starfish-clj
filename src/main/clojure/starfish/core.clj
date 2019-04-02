@@ -95,6 +95,10 @@
       (did? data) (get-asset (get-agent ^DID data))
       :else (throw (Error. (str "Not yet supported: " (class data)))))))
 
+(defn asset-id 
+  ([^Asset a]
+    (.getAssetID a)))
+
 (defn memory-asset
   "Create an in-memory asset with the given metadata and data"
   (^Asset [meta data]
@@ -135,7 +139,7 @@
       :else (throw (IllegalArgumentException. (str "Invalid did: " (class agent-did)))))))
 
 (defn upload
-  ([^Agent agent ^Asset asset]
+  (^Asset [^Agent agent ^Asset asset]
     (.uploadAsset agent asset)))
 
 (defn metadata
