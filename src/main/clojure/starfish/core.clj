@@ -2,6 +2,7 @@
   (:import [sg.dex.starfish Asset Invokable Job Listing Ocean Operation Purchase])
   (:import [sg.dex.starfish.impl.memory MemoryAsset])
   (:import [java.nio.charset StandardCharsets])
+  (:require [clojure.walk :refer [keywordize-keys stringify-keys]])
   (:require [clojure.data.json :as json]))
 
 (set! *warn-on-reflection* true)
@@ -38,8 +39,6 @@
       (string? data) data
       (asset? data) (to-string (content data)))))
 
-
-
 (defn asset? 
   "Returns true if the argument is an Asset"
   ([a]
@@ -47,10 +46,16 @@
 
 (defn memory-asset
   "Create an in-memory asset with the given metadata and data"
-  ([meta data]
+  (^Asset [meta data]
     (let [meta-str (json-string meta)
           byte-data (to-bytes data)]
       (MemoryAsset/create meta-str byte-data))))
+
+(defn metadata
+  "Gets the metadata for an asset as a Clojure map"
+  ([^Asset asset]
+    (let [md (.getMetadata asset)]
+      (keywordize-keys (into {} md)))))
 
 (defn content
   "Gets ths content for a given asset"
