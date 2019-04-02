@@ -65,18 +65,22 @@
       :else (throw (Error. "Not yet supported")))))
 
 (defn invoke-result 
-  "Invoke an operation and wait for the result" 
+  "Invokes an operation and wait for the result" 
   (^Asset [^Operation operation params]
     (let [job (invoke operation params)]
       (.awaitResult job))))
 
 (defn asset
   "Coerces this input data to an asset.
-   - Existing assets are unchanged"
+   - Existing assets are unchanged
+   - Strings and numbers are converted to memory assets containing the string representation
+   - Map data structures are converted to JSON"
   (^Asset [data]
     (cond
       (asset? data) data
       (string? data) (MemoryAsset/create ^String data)
+      (number? data) (MemoryAsset/create (str data))
+      (map? data) (json-string data)
       :else (throw (Error. (str "Not yet supported: " (class data)))))))
 
 (defn memory-asset
