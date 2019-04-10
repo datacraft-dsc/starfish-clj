@@ -2,7 +2,7 @@
   (:require [starfish.core :as s]
             [clojure.test :refer [is are testing deftest run-all-tests]]))
 
-(deftest register-with-surfer
+(deftest ^:integration register-with-surfer
   (testing "registration "
     (let [a1 (s/asset "test asset")
           sf (s/surfer "http://localhost:8080/")

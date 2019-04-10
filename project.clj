@@ -12,7 +12,8 @@
   :java-source-paths ["src/main/java"]
   :source-paths ["src/main/clojure"]
   :test-paths ["src/test/clojure"]
-  :test-selectors {:default (constantly true)}
+  :test-selectors {:default (complement :integration)
+                   :integration :integration}
   :profiles {:dev {:dependencies [[org.clojure/clojure "1.10.0"]]
                    ;; :resource-paths ["src/main/resources"]
                    }
