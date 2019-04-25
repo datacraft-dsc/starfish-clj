@@ -42,30 +42,30 @@
   ;; Operations
   
   ;; define a new operation
-  #_(def op (create-operation [:input] 
+  (def op (create-operation [:input] 
                             (fn [{input :input}]
                               (asset (.toUpperCase (to-string input))))))
   
   
-  #_(pprint (metadata op))
+  (pprint (metadata op))
   
   ;; compute the result
-  #_(def result (invoke-result op {:input as2}))
+  (def result (invoke-result op {:input as2}))
   
   ;; see the reuslt
-  #_(println (to-string (content result)))
+  (println (to-string (content result)))
   
   ;; ======================================================================================
   ;; Register new asset on our agent
   
   ;; upload the result of our invoke
-  #_(def as3 (upload my-agent result)) 
+  (def as3 (upload my-agent result)) 
   
   ;; asset now has a full remote DID
-  #_(str (did as3)) 
+  (str (did as3)) 
   
   ;; double check remote content
-  #_(println (to-string (content as3)))
+  (println (to-string (content as3)))
  
 )
  
