@@ -217,7 +217,7 @@
                 "dateCreated" (str (Instant/now))
                 "params" paramspec}
           meta (merge meta (stringify-keys additional-metadata))]
-      (ClojureOperation/create (json-string meta) wrapped-fn))))
+      (ClojureOperation/create meta wrapped-fn))))
 
 (defn format-params
   "Format parameters into a parameter map of string->asset according to the requirements of the operation."
