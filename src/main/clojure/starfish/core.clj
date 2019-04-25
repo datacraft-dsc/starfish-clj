@@ -203,7 +203,7 @@
 ;; =================================================
 ;; Operations
 
-(defn create-operation
+#_(defn create-operation
   "Create an in-memory operation with the given parameter list and function."
   ([params ^IFn f]
     (create-operation params f nil))
