@@ -6,14 +6,14 @@ import clojure.lang.IFn;
 import clojure.lang.Keyword;
 
 import sg.dex.starfish.Asset;
-import sg.dex.starfish.impl.memory.MemoryOperation;
+import sg.dex.starfish.impl.memory.AMemoryOperation;
 
-public class ClojureOperation extends MemoryOperation {
+public class ClojureOperation extends AMemoryOperation {
 
 	private IFn function;
 	
 	protected ClojureOperation(Map<String,Object> meta, IFn function) {
-		super(meta);
+      super(AMemoryOperation.buildMetaData("",meta));
 		this.function=function;
 	}
 	

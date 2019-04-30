@@ -16,7 +16,7 @@
            [sg.dex.starfish.impl.memory
             MemoryAsset ClojureOperation]
            [sg.dex.starfish.impl.remote
-            RemoteAgent Surfer]))
+            RemoteAgent Surfer RemoteAccount]))
 
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
@@ -201,6 +201,15 @@
     (.getAssetID a)))
 
 ;; =================================================
+;; Account
+
+(defn remote-account
+  [username password]
+  (RemoteAccount/create (Utils/createRandomHexString 32)
+                        {"username" username
+                         "password" password}))
+
+;; =================================================
 ;; Operations
 
 (defn create-operation
@@ -276,13 +285,13 @@
 
 (defn remote-agent
   "Gets a remote agent with the provided DID"
-  ([did]
-    (RemoteAgent/create *ocean* did)))
+  ([did account]
+    (RemoteAgent/create *ocean* did account)))
 
 (defn surfer
   "Gets a surfer remote agent for the given Host string in the form 'http://www.mysurfer.com:8080'"
-  (^Agent [host]
-    (Surfer/getSurfer host)))
+  (^Agent [host account]
+    (Surfer/getSurfer host account)))
 
 (defn get-asset
   ([^Agent agent ^String asset-id]

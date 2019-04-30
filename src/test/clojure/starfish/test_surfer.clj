@@ -5,7 +5,7 @@
 (deftest ^:integration register-with-surfer
   (testing "registration "
     (let [a1 (s/asset "test asset")
-          sf (s/surfer "http://localhost:8080/")
+          sf (s/surfer "http://localhost:8080/" (s/remote-account "Aladdin" "OpenSesame"))
           remote-asset (s/register sf a1)]
       (is (s/asset? remote-asset))
       (is (s/did? (s/did remote-asset))))))
