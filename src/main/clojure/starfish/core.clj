@@ -14,7 +14,7 @@
            [sg.dex.starfish
             Asset Invokable Agent Job Listing Ocean Operation Purchase]
            [sg.dex.starfish.impl.memory
-            MemoryAsset ]
+            MemoryAsset ClojureOperation MemoryAgent]
            [sg.dex.starfish.impl.remote
             RemoteAgent RemoteAccount]))
 
@@ -217,7 +217,7 @@
 ;; =================================================
 ;; Operations
 
-#_(defn create-operation
+(defn create-operation
   "Create an in-memory operation with the given parameter list and function."
   ([params ^IFn f]
     (create-operation params f nil))
@@ -231,7 +231,7 @@
                 "dateCreated" (str (Instant/now))
                 "params" paramspec}
           meta (merge meta (stringify-keys additional-metadata))]
-      (ClojureOperation/create meta wrapped-fn))))
+      (ClojureOperation/create meta (MemoryAgent/create) wrapped-fn ))))
 
 (defn format-params
   "Format parameters into a parameter map of string->asset according to the requirements of the operation."
@@ -241,14 +241,14 @@
       (asset? params) {:input params}
       :else (throw (IllegalArgumentException. (str "Params type not supported: " (class params)))))))
 
-#_(defn invoke
+(defn invoke
   "Invoke an operation with the given parameters. Parameters may be either a positional list
    or a map of name / value pairs"
   (^Job [^Operation operation params]
     (let [params (format-params operation params)]
       (.invoke operation ^java.util.Map (stringify-keys params)))))
 
-#_(defn invoke-result
+(defn invoke-result
   "Invokes an operation and wait for the result"
   (^Asset [^Operation operation params]
     (let [job (invoke operation params)]
@@ -292,11 +292,6 @@
   "Gets a remote agent with the provided DID"
   ([did ddo username password]
    (RemoteAgentConfig/getRemoteAgent ddo did username password)))
-
-#_(defn surfer
-  "Gets a surfer remote agent for the given Host string in the form 'http://www.mysurfer.com:8080'"
-  (^Agent [host account]
-    (Surfer/getSurfer host account)))
 
 (defn get-asset
   ([^Agent agent ^String asset-id]
