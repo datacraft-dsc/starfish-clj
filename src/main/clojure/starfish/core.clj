@@ -14,7 +14,7 @@
            [sg.dex.starfish
             Asset Invokable Agent Job Listing Ocean Operation Purchase]
            [sg.dex.starfish.impl.memory
-            MemoryAsset ClojureOperation]
+            MemoryAsset ]
            [sg.dex.starfish.impl.remote
             RemoteAgent Surfer RemoteAccount]))
 
@@ -212,7 +212,7 @@
 ;; =================================================
 ;; Operations
 
-(defn create-operation
+#_(defn create-operation
   "Create an in-memory operation with the given parameter list and function."
   ([params ^IFn f]
     (create-operation params f nil))
@@ -236,14 +236,14 @@
       (asset? params) {:input params}
       :else (throw (IllegalArgumentException. (str "Params type not supported: " (class params)))))))
 
-(defn invoke
+#_(defn invoke
   "Invoke an operation with the given parameters. Parameters may be either a positional list
    or a map of name / value pairs"
   (^Job [^Operation operation params]
     (let [params (format-params operation params)]
       (.invoke operation ^java.util.Map (stringify-keys params)))))
 
-(defn invoke-result
+#_(defn invoke-result
   "Invokes an operation and wait for the result"
   (^Asset [^Operation operation params]
     (let [job (invoke operation params)]
