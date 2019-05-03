@@ -10,13 +10,13 @@
            [sg.dex.crypto
             Hash]
            [sg.dex.starfish.util
-            DID Hex Utils]
+            DID Hex Utils RemoteAgentConfig]
            [sg.dex.starfish
             Asset Invokable Agent Job Listing Ocean Operation Purchase]
            [sg.dex.starfish.impl.memory
             MemoryAsset ]
            [sg.dex.starfish.impl.remote
-            RemoteAgent Surfer RemoteAccount]))
+            RemoteAgent RemoteAccount]))
 
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
@@ -70,6 +70,7 @@
        (vector? json) (write-json json)
        (number? json) (write-json json)
        (boolean? json) (write-json json)
+       (instance? java.util.Map json) (write-json (into {} json))
        (nil? json) (write-json json)
        :else (throw (IllegalArgumentException. (str "Can't convert to JSON: " (class json))))))))
 
@@ -200,6 +201,10 @@
   ([^Asset a]
     (.getAssetID a)))
 
+(defn default-ddo
+  [host]
+  (json-string (RemoteAgentConfig/createDDO host)))
+
 ;; =================================================
 ;; Account
 
@@ -285,10 +290,10 @@
 
 (defn remote-agent
   "Gets a remote agent with the provided DID"
-  ([did account]
-    (RemoteAgent/create *ocean* did account)))
+  ([did ddo username password]
+   (RemoteAgentConfig/getRemoteAgent ddo did username password)))
 
-(defn surfer
+#_(defn surfer
   "Gets a surfer remote agent for the given Host string in the form 'http://www.mysurfer.com:8080'"
   (^Agent [host account]
     (Surfer/getSurfer host account)))
