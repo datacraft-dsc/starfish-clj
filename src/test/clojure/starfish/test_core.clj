@@ -68,6 +68,16 @@
       "a08302ed7c06ecccbbc8eb73b91f9a57e097e9c79cff0bfbb2597a9c25a1c439"
       "Niki")))
 
+(deftest asset-creation
+  (testing "memory asset without metadata"
+    (let [ast (memory-asset "abc")]
+      (is (= "abc" (to-string (content ast))))))
+  (testing "memory asset with metadata"
+    (let [tagdata ["test" "data"]
+          mdata {:tags tagdata}
+          ast (memory-asset mdata "abc")]
+      (is (= tagdata (:tags (metadata ast))))
+      (is (= "abc" (to-string (content ast)))))))
 
 (comment
   (run-all-tests)
