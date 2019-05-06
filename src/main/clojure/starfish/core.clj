@@ -283,7 +283,7 @@
   (^Asset [meta data]
     (let [^java.util.Map meta-map (stringify-keys meta)
           byte-data (to-bytes data)]
-      (MemoryAsset/create meta-map byte-data))))
+      (MemoryAsset/create byte-data meta-map ))))
 
 ;; =======================================================
 ;; Agent functionality
