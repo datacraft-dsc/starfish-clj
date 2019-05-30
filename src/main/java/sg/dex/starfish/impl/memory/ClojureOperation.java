@@ -23,27 +23,27 @@ public class ClojureOperation extends AMemoryOperation implements Operation{
         return new ClojureOperation(meta,memoryAgent,function);
     }
 
-    private Map<Keyword,Asset> makeParamMap(Map<String,Asset> params){
-        Map<Keyword,Asset> kparams=new HashMap<>(params.size());
-        for (Map.Entry<String,Asset> e: params.entrySet()) {
+    private Map<Keyword,Object> makeParamMap(Map<String,Object> params){
+        Map<Keyword,Object> kparams=new HashMap<>(params.size());
+        for (Map.Entry<String,Object> e: params.entrySet()) {
             Keyword k=Keyword.intern(e.getKey());
-            Asset v=e.getValue();
+            Object v=e.getValue();
             kparams.put(k,v);
         }
         return kparams;
     }
 
-    public Job invokeAsync(Map<String,Asset> params){
-        Map<Keyword,Asset> kparams=makeParamMap(params);
+    public Job invokeAsync(Map<String,Object> params){
+        Map<Keyword,Object> kparams=makeParamMap(params);
         return (Job) function.invoke(kparams);
     }
 
     public Map<String,Object> invokeResult(Map<String, Object> params){
         return null;
     }
-    public Job invoke(Map<String,Asset> params){
-        Map<Keyword,Asset> kparams=makeParamMap(params);
+
+    public Job invoke(Map<String,Object> params){
+        Map<Keyword,Object> kparams=makeParamMap(params);
         return (Job) function.invoke(kparams);
     }
-
 }

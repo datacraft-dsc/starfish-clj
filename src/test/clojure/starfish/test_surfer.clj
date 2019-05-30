@@ -4,12 +4,40 @@
   (:import [sg.dex.starfish.util
             JSON DID Hex Utils RemoteAgentConfig]))
 
+(defn get-remote-agent
+  []
+  (let [did (s/random-did)
+        ddostring (s/create-ddo "http://localhost:8080/")
+        sf (s/remote-agent did ddostring "Aladdin" "OpenSesame")]
+    sf))
+
 (deftest ^:integration register-with-surfer
   (testing "registration "
     (let [a1 (s/asset "test asset")
-          did (s/random-did)
-          ddostring (s/default-ddo "http://localhost:8080/")
-          sf (s/remote-agent did ddostring "Aladdin" "OpenSesame")
+          sf (get-remote-agent)
           remote-asset (s/register sf a1)]
       (is (s/asset? remote-asset))
       (is (s/did? (s/did remote-asset))))))
+
+(deftest ^:integration prov-metadata
+  (testing "publish case  "
+    (let [mdata (s/publish-prov-metadata {"hello" "world"} "abc" "def")
+          a1 (s/asset (s/memory-asset mdata "content"))
+          sf (get-remote-agent)
+          remote-asset (s/register sf a1)]
+      (is (every? #{"entity" "agent" "wasGeneratedBy" "activity" "prefix" "wasAssociatedWith"}
+                  (-> remote-asset s/metadata :provenance keys)))))
+  (testing "invoke case(without actually invoking operation)  "
+    (let [a1 (s/asset (s/memory-asset "content"))
+          sf (get-remote-agent)
+          remote-asset (s/register sf a1)
+          mdata (s/invoke-prov-metadata {"hello" "world"} "abc" "def"
+                                        [remote-asset]
+                                        "input params encoded"
+                                        "output-param-name")
+          a1 (s/asset (s/memory-asset mdata "content2"))
+          remote-asset (s/register sf a1)]
+      (is (every? #{"entity" "agent" "wasGeneratedBy" "activity" "prefix"
+                      "wasAssociatedWith" "wasDerivedFrom"}
+                  (-> remote-asset s/metadata :provenance keys)))))
+  )

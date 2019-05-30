@@ -10,7 +10,7 @@
            [sg.dex.crypto
             Hash]
            [sg.dex.starfish.util
-            DID Hex Utils RemoteAgentConfig]
+            DID Hex Utils RemoteAgentConfig ProvUtil DDOUtil JSON]
            [sg.dex.starfish
             Asset Invokable Agent Job Listing Ocean Operation Purchase]
            [sg.dex.starfish.impl.memory
@@ -201,9 +201,9 @@
   ([^Asset a]
     (.getAssetID a)))
 
-(defn default-ddo
+(defn create-ddo
   [host]
-  (json-string (RemoteAgentConfig/createDDO host)))
+  (json-string (DDOUtil/getDDO host)))
 
 ;; =================================================
 ;; Account
@@ -249,11 +249,17 @@
       (.invoke operation ^java.util.Map (stringify-keys params)))))
 
 (defn invoke-result
-  "Invokes an operation and wait for the result"
+  "Invokes an operation and wait 10 seconds for the result"
   (^Asset [^Operation operation params]
-    (let [job (invoke operation params)]
-      (.awaitResult job))))
+   (let [job (invoke operation params)
+         resp (.awaitResult job (* 10 1000))]
+     (JSON/toMap (.toString resp)))))
 
+(defn invoke-sync
+  "Invokes an operation synchronously"
+  ([^Operation operation params]
+   ;;convert from java Hashmap to Clojure map
+   (into {} (.invokeResult operation params))))
 
 ;; ==============================================================
 ;; Asset functionality
@@ -336,3 +342,20 @@
   (^bytes [^Asset asset]
     (let []
       (.getContent asset))))
+
+(defn publish-prov-metadata
+  "Creates provenance metadata. If the first argument is a map with raw metadata, it adds a provenance
+  section"
+  ([^String activityId ^String agentId]
+   (publish-prov-metadata {} activityId agentId))
+  ([metadata ^String activityId ^String agentId]
+   (merge metadata {"provenance" (ProvUtil/createPublishProvenance activityId agentId)})))
+
+(defn invoke-prov-metadata
+  ([^String activityId ^String agentId asset-dependencies ^String params ^String result-param-name]
+   (invoke-prov-metadata {} activityId agentId asset-dependencies params result-param-name))
+  ([metadata ^String activityId ^String agentId asset-dependencies ^String params ^String result-param-name]
+   (merge metadata {"provenance" (ProvUtil/createInvokeProvenance activityId agentId
+                                                                  asset-dependencies
+                                                                  params result-param-name)})))
+

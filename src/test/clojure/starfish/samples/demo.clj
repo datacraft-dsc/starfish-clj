@@ -1,6 +1,8 @@
-(ns starfish.samples.demo;
-  (:use [starfish.core :refer :all])
-  (:require [clojure.pprint :refer [pprint]]))
+(ns starfish.samples.demo
+  (:use [starfish.core :refer :all]
+        [clojure.data.json :as json :exclude [pprint]])
+  (:require [clojure.pprint :refer [pprint]])
+  (:import [sg.dex.starfish.util DDOUtil JSON]))
 
 (fn [] ;; Quick hack to compile this file without executing on load
   
@@ -25,7 +27,7 @@
   ;; USING REMOTE AGENTS
   ;; Agents are remote services providing asset and capabilities to the Ocean ecosystem
   (def my-agent (let [did (random-did)
-                      ddostring (default-ddo "http://localhost:8080/")]
+                      ddostring (create-ddo "http://localhost:8080/")]
                   (remote-agent did ddostring "Aladdin" "OpenSesame")))
   
   ;; agents have a DID
@@ -44,30 +46,54 @@
   ;; Operations
   
   ;; define a new operation
-  #_(def op (create-operation [:input] 
+  (def op (create-operation [:input] 
                             (fn [{input :input}]
                               (asset (.toUpperCase (to-string input))))))
   
   
-  ;;(pprint (metadata op))
+  (pprint (metadata op))
   
   ;; compute the result
-  ;;(def result (invoke-result op {:input as2}))
+  (def result (invoke-result op {:input as2}))
   
   ;; see the reuslt
-  ;;(println (to-string (content result)))
+  (println (to-string (content result)))
   
   ;; ======================================================================================
   ;; Register new asset on our agent
   
   ;; upload the result of our invoke
-  ;;(def as3 (upload my-agent result)) 
+  (def as3 (upload my-agent result)) 
   
   ;; asset now has a full remote DID
-  ;;(str (did as3)) 
+  (str (did as3)) 
   
   ;; double check remote content
-  ;;(println (to-string (content as3)))
- 
+  (println (to-string (content as3)))
+
+  ;; ======================================================================================
+  ;;invoke a remote operation
+  (def inv-ddo
+    (let [k (json/read-str (DDOUtil/getDDO "http://localhost:8080"))]
+      (update-in k ["service" 2]
+                 (fn[i] (update-in i ["serviceEndpoint"] (fn[_] "http://localhost:3000/api/v1"))) )
+      ))
+
+  ;;ddo points to koi-clj for invoke, and Surfer for the rest
+  (-> inv-ddo)
+
+  (def invkres 
+    (let [did (random-did)
+          rema (remote-agent did (json-string inv-ddo) "Aladdin" "OpenSesame")
+          oper (get-asset rema "0e48ad0c07f6fe87762e24cba3e013a029b7cd734310bface8b3218280366791")
+          res (invoke-sync oper {"first-n" "20"})]
+      res))
+
+  ;;response is a map
+  (-> invkres)
+  ;;view the content
+  (to-string (content (invkres "primes")))
+  ;;view the metadata with added provenance
+  (metadata (invkres "primes"))
 )
  
