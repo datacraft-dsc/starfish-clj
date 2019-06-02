@@ -304,6 +304,7 @@
     (.getAsset agent asset-id)))
 
 (defn get-agent
+  "Gets a Ocean agent for the given DID" 
   (^Agent [agent-did]
     (cond
       (agent? agent-did) agent-did
