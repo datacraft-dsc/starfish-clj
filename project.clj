@@ -15,6 +15,7 @@
   :test-paths ["src/test/clojure"]
   :test-selectors {:default (complement :integration)
                    :integration :integration}
+  :lein-release {:deploy-via :clojars}
   :profiles {:dev {:dependencies [[org.clojure/clojure "1.10.0"]]
                    ;; :resource-paths ["src/main/resources"]
                    }
