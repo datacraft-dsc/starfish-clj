@@ -1,4 +1,7 @@
 # starfish-clj
+
+[![Build Status](https://travis-ci.com/DEX-Company/starfish-clj.svg?token=g26KMSqk9yTWH8J1QLSN&branch=master)](https://travis-ci.com/DEX-Company/starfish-clj)
+
 Ocean protocol developer toolkit for Clojure
 
 
