@@ -300,7 +300,7 @@
    (RemoteAgentConfig/getRemoteAgent ddo did username password)))
 
 (defn get-asset
-  ([^Agent agent ^String asset-id]
+  ([^Agent agent asset-id]
     (.getAsset agent asset-id)))
 
 (defn get-agent

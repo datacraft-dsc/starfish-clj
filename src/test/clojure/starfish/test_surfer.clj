@@ -7,7 +7,7 @@
 (defn get-remote-agent
   []
   (let [did (s/random-did)
-        ddostring (s/create-ddo "http://localhost:8080/")
+        ddostring (s/create-ddo "http://52.187.164.74:8080/")
         sf (s/remote-agent did ddostring "Aladdin" "OpenSesame")]
     sf))
 
@@ -17,7 +17,16 @@
           sf (get-remote-agent)
           remote-asset (s/register sf a1)]
       (is (s/asset? remote-asset))
-      (is (s/did? (s/did remote-asset))))))
+      (is (s/did? (s/did remote-asset)))))
+  (testing "upload "
+    (let [con-str "test asset2"
+          a1 (s/asset con-str)
+          sf (get-remote-agent)
+          remote-asset (s/register sf a1)]
+      (s/upload sf a1)
+      (is (s/asset? remote-asset))
+      (is (s/did? (s/did remote-asset)))
+      (is (= con-str (s/to-string (s/content remote-asset)))))))
 
 (deftest ^:integration prov-metadata
   (testing "publish case  "
