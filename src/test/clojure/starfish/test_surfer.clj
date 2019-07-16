@@ -1,13 +1,17 @@
 (ns starfish.test-surfer
   (:require [starfish.core :as s]
+            [clojurewerkz.propertied.properties :as p]
+            [clojure.java.io :as io]
             [clojure.test :refer [is are testing deftest run-all-tests]])
   (:import [sg.dex.starfish.util
             JSON DID Hex Utils RemoteAgentConfig]))
 
 (defn get-remote-agent
   []
-  (let [did (s/random-did)
-        ddostring (s/create-ddo "http://52.187.164.74:8080/")
+  (let [props (p/load-from (io/resource "squid_test.properties"))
+        surfer-host (str (get props "surfer.host") ":" (get props "surfer.port"))
+        did (s/random-did)
+        ddostring (s/create-ddo surfer-host)
         sf (s/remote-agent did ddostring "Aladdin" "OpenSesame")]
     sf))
 
