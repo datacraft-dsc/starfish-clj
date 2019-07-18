@@ -1,0 +1,11 @@
+language: clojure
+lein: lein
+dist: xenial
+addons:
+  ssh_known_hosts: shrimp.octet.services
+
+script: lein do clean, test :integration :default
+
+branches:
+  only:
+    - master
