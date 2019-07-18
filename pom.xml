@@ -24,7 +24,7 @@
 		<dependency>
 			<groupId>sg.dex</groupId>
 			<artifactId>starfish-java</artifactId>
-			<version>0.0.8</version>
+			<version>0.6.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.clojure</groupId>
@@ -74,6 +74,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		
 		<resources>
 			<resource>
 				<directory>src/main/clojure</directory>
