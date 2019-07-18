@@ -1,4 +1,4 @@
-(defproject sg.dex/starfish-clj "0.5.1-SNAPSHOT"
+(defproject sg.dex/starfish-clj "0.5.1"
   :url "https://github.com/DEX-Company/starfish-clj"
   :dependencies [
                  [sg.dex/starfish-java "0.6.0"]
