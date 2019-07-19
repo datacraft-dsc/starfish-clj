@@ -11,7 +11,10 @@
   ;; Let's talk about assets
  
   ;; create a new asset
-  (def as1 (memory-asset {:name "My Asset"} "This is a test"))
+  (def as1 (memory-asset             ;; type of asset to construct
+             {:name "My Asset"}      ;; metadata
+             "This is a test")       ;; content (as a String))
+    )
   
   ;; display the metadata
   (pprint (metadata as1))
@@ -27,15 +30,15 @@
   ;; USING REMOTE AGENTS
   ;; Agents are remote services providing asset and capabilities to the Ocean ecosystem
   (def my-agent (let [did (random-did)
-                      ddostring (create-ddo "http://localhost:8080/")]
+                      ddostring (create-ddo "http://52.187.164.74:8080/")]
                   (remote-agent did ddostring "Aladdin" "OpenSesame")))
   
   ;; agents have a DID
   (str (did my-agent))
   
   ;; Get an asset
-  (def as2 (get-asset my-agent "68895130aa3105381c67f7e71107f81d46c849f1968db8665e80bc06dd790fd2"))
-  
+  (def as2 (get-asset my-agent "10bc529b730b9372689af7c8848256c75b61e1c25addc0dc100059dcceb05d03"))
+ 
   ;; assets also have a DID, starting with the DID of the agent
   (str (did as2))
   
@@ -48,7 +51,7 @@
   ;; define a new operation
   (def op (create-operation [:input] 
                             (fn [{input :input}]
-                              (asset (.toUpperCase (to-string input))))))
+                              {:result (asset (.toUpperCase (to-string input)))})))
   
   
   (pprint (metadata op))

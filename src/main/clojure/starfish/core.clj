@@ -226,12 +226,12 @@
                        (f params))
           params (mapv name params)
           paramspec (reduce #(assoc %1 %2 {"type" "asset"}) {} params)
-          meta {"name" "Unnamed Clojure Operation"
+          meta {"name" "Unnamed Operation"
                 "type" "operation"
                 "dateCreated" (str (Instant/now))
                 "params" paramspec}
           meta (merge meta (stringify-keys additional-metadata))]
-      (ClojureOperation/create meta (MemoryAgent/create) wrapped-fn ))))
+      (ClojureOperation/create (json-string meta) (MemoryAgent/create) wrapped-fn ))))
 
 (defn format-params
   "Format parameters into a parameter map of string->asset according to the requirements of the operation."
@@ -253,7 +253,7 @@
   (^Asset [^Operation operation params]
    (let [job (invoke operation params)
          resp (.awaitResult job (* 10 1000))]
-     (JSON/toMap (.toString resp)))))
+     resp)))
 
 (defn invoke-sync
   "Invokes an operation synchronously"
@@ -304,6 +304,7 @@
     (.getAsset agent asset-id)))
 
 (defn get-agent
+  "Gets a Ocean agent for the given DID" 
   (^Agent [agent-did]
     (cond
       (agent? agent-did) agent-did

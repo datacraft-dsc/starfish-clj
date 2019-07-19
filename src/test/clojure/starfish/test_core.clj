@@ -72,6 +72,7 @@
   (testing "memory asset without metadata"
     (let [ast (memory-asset "abc")]
       (is (= "abc" (to-string (content ast))))))
+  
   (testing "memory asset with metadata"
     (let [tagdata ["test" "data"]
           mdata {:tags tagdata}

@@ -2,6 +2,8 @@ package sg.dex.starfish.impl.memory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+
 import clojure.lang.IFn;
 import clojure.lang.Keyword;
 
@@ -12,7 +14,7 @@ import sg.dex.starfish.impl.memory.AMemoryOperation;
 
 public class ClojureOperation extends AMemoryOperation implements Operation{
 
-    private IFn function;
+    private final IFn function;
 	
     protected ClojureOperation(String meta, MemoryAgent memoryAgent, IFn function) {
         super(meta,memoryAgent);
@@ -33,17 +35,24 @@ public class ClojureOperation extends AMemoryOperation implements Operation{
         return kparams;
     }
 
-    public Job invokeAsync(Map<String,Object> params){
-        Map<Keyword,Object> kparams=makeParamMap(params);
-        return (Job) function.invoke(kparams);
+    @Override
+	public Job invokeAsync(final Map<String,Object> params){
+    	@SuppressWarnings("unchecked")
+		CompletableFuture<Map<String,Object>> cf = CompletableFuture.supplyAsync(() -> 
+    		(Map<String, Object>) function.invoke((Object)params)
+        );
+        return MemoryJob.create(cf);
     }
 
-    public Map<String,Object> invokeResult(Map<String, Object> params){
-        return null;
+    @SuppressWarnings("unchecked")
+	@Override
+	public Map<String,Object> invokeResult(Map<String, Object> params){
+        return (Map<String, Object>) function.invoke(params);
     }
 
-    public Job invoke(Map<String,Object> params){
-        Map<Keyword,Object> kparams=makeParamMap(params);
-        return (Job) function.invoke(kparams);
-    }
+	@Override
+	public Job invoke(Map<String, Object> params) {
+		return invokeAsync(params);
+	}
+
 }
