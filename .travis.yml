@@ -1,6 +1,10 @@
 language: clojure
 lein: lein
 dist: xenial
+jdk:
+  - oraclejdk11
+  - openjdk11
+
 addons:
   ssh_known_hosts: shrimp.octet.services
 

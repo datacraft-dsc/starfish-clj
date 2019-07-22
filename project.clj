@@ -17,6 +17,7 @@
                    :integration :integration}
   :plugins [[lein-codox "0.10.7"]]
   :codox {:output-path "codox"}
+  :min-lein-version "2.8.1"
   :lein-release {:deploy-via :clojars}
   :profiles {:dev {:dependencies [[org.clojure/clojure "1.10.0"]]
                    :resource-paths ["src/test/resources"]
