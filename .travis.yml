@@ -12,4 +12,4 @@ script: lein do clean, test :integration :default
 
 branches:
   only:
-    - master
+    - develop
