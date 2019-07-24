@@ -8,7 +8,7 @@
   :exclusions [commons-logging/commons-logging]
   :managed-dependencies [[com.fasterxml.jackson.core/jackson-databind "2.9.8"]]
 
-  :javac-options ["-target" "1.8", "-source" "1.8"]
+  :javac-options ["-target" "11", "-source" "11"]
   :target-path "target/%s/"
   :java-source-paths ["src/main/java"]
   :source-paths ["src/main/clojure"]
