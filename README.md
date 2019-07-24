@@ -9,7 +9,7 @@ Toolkit for Decentralised Data Ecosystem development Clojure
 * [Overview](#overview)
 * [Installation](#installation)
 * [Configuration](#configuration)
-* [Documentation](#documentation)
+* [Example](#example)
 * [Testing](#testing)
 * [License](#license)
 
@@ -29,9 +29,55 @@ Add a dependency in your build tool for [![Clojars Project](https://img.shields.
 
 Here's an [example of a configuration file](https://github.com/DEX-Company/starfish-clj/blob/master/src/test/resources/squid_test.properties).
 
-# Documentation 
+# Example 
 
-TBD
+Starfish-clj is a thin wrapper on top of Starfish-java. 
+Here's an example of creating and managing assets using starfish-clj
+```clj
+  ;;define a memory asset
+  (def as1 (memory-asset             ;; type of asset to construct
+             {:name "My Asset"}      ;; metadata
+             "This is a test")       ;; content (as a String))
+    )
+    
+  ;; display the metadata
+  
+  (s/metadata as1)
+  ;;{:dateCreated "2019-07-24T08:02:52.738504Z", :size "14", :name "My Asset", :type "dataset", :contentType "application/octet-stream", :contentHash "93b90fab55adf4e98787d33a38e71106e8c016f1a124dfc784f3cca4d938b1af"}
+
+  ;; validate the content hash
+  (digest "This is a test")
+  ;;"93b90fab55adf4e98787d33a38e71106e8c016f1a124dfc784f3cca4d938b1af"
+
+  ;; Print the content
+  (to-string (content as1))
+  ;;"This is a test"
+
+  ;; ======================================================================================
+  ;; USING REMOTE AGENTS
+  ;; Agents are remote services providing asset and capabilities to the Ocean ecosystem
+  (def my-agent (let [did (random-did)
+                      ddostring (create-ddo "http://52.187.164.74:8080/")]
+                  (remote-agent did ddostring "Aladdin" "OpenSesame")))
+  
+
+  ;; agents have a DID
+  (str (did my-agent))
+  ;;"did:op:d394d2e1a211ba61f6f7543bd36df59994a5cb99e7d863405117b4c42c5cb2e9"
+
+  ;; Get an asset
+  (def as2 (get-asset my-agent "10bc529b730b9372689af7c8848256c75b61e1c25addc0dc100059dcceb05d03"))
+
+  ;; assets also have a DID, starting with the DID of the agent
+  (str (did as2))
+  ;;"did:op:d394d2e1a211ba61f6f7543bd36df59994a5cb99e7d863405117b4c42c5cb2e9/10bc529b730b9372689af7c8848256c75b61e1c25addc0dc100059dcceb05d03"
+ 
+  ;; print the content of asset data, which happens to be JSON
+  (json/read-str (s/to-string (content as2)))
+  ;;{"age_derived" "12", "ownerManual" "", "age_score" "2"}
+
+
+```
 
 # Testing
 
