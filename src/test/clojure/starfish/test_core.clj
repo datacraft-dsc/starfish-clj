@@ -56,7 +56,10 @@
          "Foo"
          {:A "Foo" :B "Bar"}
          [1 2 3]
-         ["A" {} [] 0]
+         true
+         false
+         nil
+         ["A" {} [] 0 true false [1] {:a "Baz"} nil]
          0.0)
     )) 
 
