@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.com/DEX-Company/starfish-clj.svg?token=g26KMSqk9yTWH8J1QLSN&branch=master)](https://travis-ci.com/DEX-Company/starfish-clj) [![Clojars Project](https://img.shields.io/clojars/v/sg.dex/starfish-clj.svg)](https://clojars.org/sg.dex/starfish-clj)
 
-Toolkit for Decentralised Data Ecosystem development Clojure
+Toolkit for Decentralised Data Ecosystem development in Clojure
 
 ## Table of Contents
 
@@ -15,7 +15,7 @@ Toolkit for Decentralised Data Ecosystem development Clojure
 
 # Overview
 
-Starfish-clj is an open-sourced developer toolkit for the data economy. It allows developers, data scientists and enterprises to create, interact, integrate and manage a data supply line through standardised and simple-to-use APIs.
+Starfish-clj is an open source developer toolkit for the data economy. It allows developers, data scientists and enterprises to create, interact, integrate and manage decentralised data supply lines through standardised and simple-to-use APIs.
 
 Based on an underlying data ecosystem standard, Starfish provides high-level APIs for common tasks within the data economy, for example, registering/publishing an asset, for subsequent use in a data supply line. In this case, an asset can be any data set, model or data service. The high-level API also allows developers to invoke operation on an asset, e.g. computing a predictive model or anonymising sensitive personal information, among other capabilities. 
 
