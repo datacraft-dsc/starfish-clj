@@ -50,6 +50,16 @@
       ;; 9223372036854775807 Long/MAX_VALUE ERROR with Long in int->hex
       )))
 
+(deftest test-json-roundtrip
+  (let [rt #(read-json-string (json-string %))]
+    (are [x] (= x (rt x))
+         "Foo"
+         {:A "Foo" :B "Bar"}
+         [1 2 3]
+         ["A" {} [] 0]
+         0.0)
+    )) 
+
 ;;===================================
 ;; Hash digest keccak
 

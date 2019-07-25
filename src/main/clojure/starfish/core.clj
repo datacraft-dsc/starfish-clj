@@ -50,7 +50,7 @@
 
 (defn- json-key-fn
   "Convert to string function - suitable for producing JSON keys from Clojure symbols and keywords"
-  String [k]
+  ^String [k]
   (cond
     (symbol? k) (name k)
     (keyword? k) (subs (str k) 1) ;; do NOT interpret / for namespaced keywords
@@ -65,7 +65,7 @@
                       #(with-out-str (json/pprint %))
                       #(json/write-str % :key-fn json-key-fn))]
      (cond
-       (string? json) json
+       (string? json) (json/write-str json)
        (map? json) (write-json json)
        (vector? json) (write-json json)
        (number? json) (write-json json)
@@ -80,7 +80,7 @@
    (json-string json true)))
 
 (defn read-json-string
-  "Parses JSON string to a Clojure Map"
+  "Parses JSON string to a Clojure Map. Converts map keys to Clojure keywords."
   ([json-str]
    (json/read-str json-str :key-fn keyword)))
 
