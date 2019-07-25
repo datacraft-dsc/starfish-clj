@@ -44,6 +44,8 @@
   
   ;; print the content of asset data
   (println (to-string (content as2)))
+ 
+  
   
   ;; ======================================================================================
   ;; Operations
