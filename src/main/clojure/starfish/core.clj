@@ -49,15 +49,15 @@
 ;; Utility functions, coercion etc.
 
 (defn- json-key-fn
-  "Convert JSON keys function"
-  [k]
+  "Convert to string function - suitable for producing JSON keys from Clojure symbols and keywords"
+  String [k]
   (cond
     (symbol? k) (name k)
     (keyword? k) (subs (str k) 1) ;; do NOT interpret / for namespaced keywords
     :else (str k)))
 
 (defn json-string
-  "Coerces the argument to a JSON string"
+  "Coerces the argument to a valid JSON string"
   (^String [json]
    (json-string json false))
   (^String [json pprint?]
