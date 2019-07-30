@@ -22,7 +22,7 @@
   :profiles {:dev {:dependencies [[org.clojure/clojure "1.10.0"]]
                    :resource-paths ["src/test/resources"]
                    }
-             :test {:dependencies [[net.mikera/cljunit "0.6.0" :scope "test"]
+             :test {:dependencies [[net.mikera/cljunit "0.6.1-SNAPSHOT" :scope "test"]
                                    ]
                     :java-source-paths ["src/main/java" "src/test/java"]
                     ;; :source-paths ["src/main/clojure" "src/test/clojure"]
