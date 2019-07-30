@@ -301,7 +301,7 @@
 
 (defn get-asset
   ([^Agent agent asset-id]
-    (.getAsset agent asset-id)))
+    (.getAsset agent (str asset-id))))
 
 (defn get-agent
   "Gets a Ocean agent for the given DID" 

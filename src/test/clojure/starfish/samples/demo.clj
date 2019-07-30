@@ -1,7 +1,7 @@
 (ns starfish.samples.demo
-  (:use [starfish.core :refer :all]
-        [clojure.data.json :as json :exclude [pprint]])
-  (:require [clojure.pprint :refer [pprint]])
+  (:use [starfish.core :refer :all])
+  (:require [clojure.pprint :refer [pprint]]
+    [clojure.data.json :as json ])
   (:import [sg.dex.starfish.util DDOUtil JSON]))
 
 (fn [] ;; Quick hack to compile this file without executing on load
