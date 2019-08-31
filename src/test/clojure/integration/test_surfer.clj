@@ -1,4 +1,4 @@
-(ns starfish.test-surfer
+(ns integration.test-surfer
   (:require [starfish.core :as s]
             [clojurewerkz.propertied.properties :as p]
             [clojure.java.io :as io]

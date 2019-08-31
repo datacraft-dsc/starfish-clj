@@ -24,7 +24,7 @@
 		<dependency>
 			<groupId>sg.dex</groupId>
 			<artifactId>starfish-java</artifactId>
-			<version>0.6.0</version>
+			<version>0.6.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.clojure</groupId>
@@ -42,6 +42,11 @@
 			<artifactId>cljunit</artifactId>
 			<version>0.6.1-SNAPSHOT</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>clojurewerkz</groupId>
+			<artifactId>propertied</artifactId>
+			<version>1.3.0</version>
 		</dependency>
 	</dependencies>
 
