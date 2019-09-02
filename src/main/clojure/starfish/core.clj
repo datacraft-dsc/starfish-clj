@@ -201,9 +201,14 @@
   ([^Asset a]
     (.getAssetID a)))
 
-(defn create-ddo
+
+;; =================================================
+;; DDO handling
+
+(defn create-ddo-string
+  "Create a new DDO String with DEP Standard endpoints defined for the given host" 
   [host]
-  (json-string (DDOUtil/getDDO host)))
+  (DDOUtil/getDDO host))
 
 ;; =================================================
 ;; Account
