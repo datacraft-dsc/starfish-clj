@@ -1,6 +1,6 @@
 (defproject sg.dex/starfish-clj "0.5.2-SNAPSHOT"
   :url "https://github.com/DEX-Company/starfish-clj"
-  :dependencies [[sg.dex/starfish-java "0.6.0"]
+  :dependencies [[sg.dex/starfish-java "0.6.1-SNAPSHOT"]
                  [org.slf4j/jcl-over-slf4j "1.8.0-alpha2"]
                  [org.clojure/data.json "0.2.6"]
                  [clojurewerkz/propertied "1.3.0"]
@@ -19,7 +19,7 @@
   :codox {:output-path "codox"}
   :min-lein-version "2.8.1"
   :lein-release {:deploy-via :clojars}
-  :profiles {:dev {:dependencies [[org.clojure/clojure "1.10.0"]]
+  :profiles {:dev {:dependencies [[org.clojure/clojure "1.10.1"]]
                    :resource-paths ["src/test/resources"]
                    }
              :test {:dependencies [[net.mikera/cljunit "0.6.1-SNAPSHOT" :scope "test"]
