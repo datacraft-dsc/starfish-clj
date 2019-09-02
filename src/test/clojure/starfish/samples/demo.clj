@@ -32,7 +32,7 @@
   ;; USING REMOTE AGENTS
   ;; Agents are remote services providing asset and capabilities to the Ocean ecosystem
   (def my-agent (let [did (random-did)
-                      ddostring (create-ddo-string "http://52.187.164.74:8080/")]
+                      ddostring (create-ddo-string "http://52.187.164.74:8080")]
                   (remote-agent did ddostring "Aladdin" "OpenSesame")))
   
   ;; agents have a DID

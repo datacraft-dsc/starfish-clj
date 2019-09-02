@@ -207,8 +207,12 @@
 
 (defn create-ddo-string
   "Create a new DDO String with DEP Standard endpoints defined for the given host" 
-  [host]
-  (DDOUtil/getDDO host))
+  (^String [^String host]
+    (DDOUtil/getDDO host)))
+
+(defn create-ddo
+  (^java.util.Map [^String host]
+    (read-json-string (create-ddo-string host)))) 
 
 ;; =================================================
 ;; Account
