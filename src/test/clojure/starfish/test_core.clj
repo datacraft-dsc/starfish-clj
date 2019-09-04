@@ -69,16 +69,16 @@
 (deftest test-hash-digest-keccak
   (testing "Hash digest keccak"
     (are [output input] (= output (digest input))
-      "c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
+      "a7ffc6f8bf1ed76651c14756a061d662f580ff4de43b49fa82d80a4b80f8434a"
       ""
 
-      "4e03657aea45a94fc7d47ba826c8d667c0d1e6e33a64a036ec44f58fa12d6c45"
+      "3a985da74fe225b2045c172d6bd390bd855f086e3e9d525b46bfe24511431532"
       "abc"
 
-      "953d0c27f84a9649b0e121099ffa9aeb7ed83e65eaed41d3627f895790c72d41"
+      "6b6ec8a93f763079ff903b707c7b28ca46da38c4d5b18b6fc11e9c8d8a97ca83"
       "EVWithdraw(address,uint256,bytes32)"
 
-      "a08302ed7c06ecccbbc8eb73b91f9a57e097e9c79cff0bfbb2597a9c25a1c439"
+      "97121be303a9ad92d0927e4a2effa527cd49fe45de1a4c9e967ef22b223f50af"
       "Niki")))
 
 (deftest asset-creation

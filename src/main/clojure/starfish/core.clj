@@ -312,7 +312,7 @@
       :else (throw (IllegalArgumentException. (str "Invalid did: " (class agent-did)))))))
 
 (defn digest
-  "Computes the keccak256 hash of the byte representation of some data and returns this as a hex string.
+  "Computes the sha3_256 String hash of the byte representation of some data and returns this as a hex string.
 
   Handles
    - byte arrays - hashed as-is
@@ -321,7 +321,8 @@
   "
   (^String [data]
     (let [bytes (to-bytes data)]
-      (Hash/keccak256String bytes))))
+      (Hash/sha3_256String bytes))))
+
 
 (defn upload
   (^Asset [^Agent agent ^Asset asset]

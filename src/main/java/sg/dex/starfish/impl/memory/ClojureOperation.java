@@ -1,16 +1,13 @@
 package sg.dex.starfish.impl.memory;
 
+import clojure.lang.IFn;
+import clojure.lang.Keyword;
+import sg.dex.starfish.Job;
+import sg.dex.starfish.Operation;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-
-import clojure.lang.IFn;
-import clojure.lang.Keyword;
-
-import sg.dex.starfish.Asset;
-import sg.dex.starfish.Job;
-import sg.dex.starfish.Operation;
-import sg.dex.starfish.impl.memory.AMemoryOperation;
 
 public class ClojureOperation extends AMemoryOperation implements Operation{
 
@@ -44,15 +41,16 @@ public class ClojureOperation extends AMemoryOperation implements Operation{
         return MemoryJob.create(cf);
     }
 
-    @SuppressWarnings("unchecked")
-	@Override
-	public Map<String,Object> invokeResult(Map<String, Object> params){
-        return (Map<String, Object>) function.invoke(params);
-    }
+
 
 	@Override
 	public Job invoke(Map<String, Object> params) {
 		return invokeAsync(params);
 	}
+
+    @Override
+    protected Map<String, Object> compute(Map<String, Object> map) {
+        return null;
+    }
 
 }
