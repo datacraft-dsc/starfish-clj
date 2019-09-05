@@ -57,7 +57,7 @@
     :else (str k)))
 
 (defn json-string
-  "Coerces the argument to a valid JSON string"
+  "Coerces a JSON value argument to a valid JSON string format"
   (^String [json]
    (json-string json false))
   (^String [json pprint?]
@@ -186,8 +186,8 @@
   (.getID (did a)))
 
 (defn did-path
-  ^String "Return the DID path"
-  [a]
+  "Return the DID path"
+  ^String [a]
   (.getPath (did a)))
 
 (defn did-fragment
@@ -351,7 +351,7 @@
       (keywordize-keys (into {} md)))))
 
 (defn content
-  "Gets the content for a given asset as raw byte data"
+  "Gets the raw content for a given asset as a byte array"
   (^bytes [^Asset asset]
     (let []
       (.getContent asset))))
