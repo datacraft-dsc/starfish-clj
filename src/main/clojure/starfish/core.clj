@@ -85,9 +85,9 @@
    (json/read-str json-str :key-fn keyword)))
 
 (defn to-bytes
-  "Coerces the data to a byte array.
+  "Coerces the given data to a byte array.
     - byte arrays are returned unchanged
-    - Strings converted to UTF-8 byte representation
+    - Strings are converted to UTF-8 byte representation
     - Assets have their raw byte content returned"
   (^{:tag bytes} [data]
     (cond
@@ -97,7 +97,10 @@
       :else (throw (IllegalArgumentException. (str "Can't convert to bytes: " (class data)))))))
 
 (defn to-string
-  "Coerces data to a string format."
+  "Coerces data to a string format.
+    - bytes arrays are converted to a String from their UTF-8 byte representation
+    - existing Strings are returned unchanges
+    - Assets have their raw content converted to a string assuming UTF-8 representation"
   (^String [data]
     (cond
       (bytes? data) (String. ^bytes data StandardCharsets/UTF_8)
@@ -106,12 +109,12 @@
       :else (throw (IllegalArgumentException. (str "Can't convert to string: " (class data)))))))
 
 (defn hex->bytes
-  "Convert hex string to bytes"
+  "Convert a hex string to a byte array"
   (^bytes [^String h]
    (Hex/toBytes h)))
 
 (defn bytes->hex
-  "Convert bytes to hex string"
+  "Convert a byte array to a hex string"
   (^String [^bytes b]
    (Hex/toString b)))
 
@@ -169,21 +172,21 @@
 
 (defn did-scheme
   "Return the DID scheme"
-  [a]
+  ^String [a]
   (.getScheme (did a)))
 
 (defn did-method
   "Return the DID method"
-  [a]
+  ^String [a]
   (.getMethod (did a)))
 
 (defn did-id
   "Return the DID ID"
-  [a]
+  ^String [a]
   (.getID (did a)))
 
 (defn did-path
-  "Return the DID path"
+  ^String "Return the DID path"
   [a]
   (.getPath (did a)))
 
