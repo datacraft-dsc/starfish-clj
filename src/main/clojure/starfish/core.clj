@@ -317,7 +317,7 @@
   Handles
    - byte arrays - hashed as-is
    - Strings - converted to UTF-8 representation
-   - Assets - compute the hash of asset content
+   - Assets - compute the hash of asset metadata
   "
   (^String [data]
     (let [bytes (to-bytes data)]
