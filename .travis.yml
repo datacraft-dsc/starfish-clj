@@ -8,7 +8,7 @@ jdk:
 addons:
   ssh_known_hosts: shrimp.octet.services
 
-script: lein do clean, test :integration :default
+script: lein do clean, test :default
 
 branches:
   only:
