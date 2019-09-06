@@ -6,7 +6,7 @@
     [clojure.data.json :as json ])
   (:import [sg.dex.starfish.util DDOUtil JSON]))
 
-(fn [] ;; Quick hack to compile this file without executing on load
+#_(fn [] ;; Quick hack to compile this file without executing on load
   
   ;; ======================================================================================
   ;; BASIC ASSETS

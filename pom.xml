@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>sg.dex</groupId>
 	<artifactId>starfish-clj</artifactId>
-	<version>0.5.2-SNAPSHOT</version>
+	<version>0.0.6-SNAPSHOT</version>
 
 	<properties>
 		<maven.compiler.target>1.8</maven.compiler.target>
@@ -40,7 +40,7 @@
 		<dependency>
 			<groupId>net.mikera</groupId>
 			<artifactId>cljunit</artifactId>
-			<version>0.6.1-SNAPSHOT</version>
+			<version>0.6.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

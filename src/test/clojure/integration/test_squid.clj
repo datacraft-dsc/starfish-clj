@@ -16,7 +16,7 @@
 
 (defn get-squid-agent
   []
-  (let [props (get-properties) 
+  (let [props (get-properties)
         ocean (Ocean/connect (OceanAPI/getInstance props))
         did1 (s/random-did)
         squid-agent (SquidAgent/create props ocean did1)]
@@ -25,7 +25,7 @@
 (defn get-surfer-agent
   []
   (let [did (s/random-did)
-        props (get-properties) 
+        props (get-properties)
         surfer-host (str (get props "surfer.host") ":" (get props "surfer.port"))
         ddostring (s/create-ddo surfer-host)
         sf (s/remote-agent did ddostring "Aladdin" "OpenSesame")]
