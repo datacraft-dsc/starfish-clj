@@ -33,17 +33,17 @@
 (defn asset?
   "Returns true if the argument is an Asset"
   ([a]
-    (instance? Asset a)))
+   (instance? Asset a)))
 
 (defn agent?
   "Returns true if the argument is an Agent"
   ([a]
-    (instance? Agent a)))
+   (instance? Agent a)))
 
 (defn did?
   "Returns true if the argument is a W3C DID"
   ([a]
-    (instance? DID a)))
+   (instance? DID a)))
 
 ;;===================================
 ;; Utility functions, coercion etc.
@@ -57,7 +57,7 @@
     :else (str k)))
 
 (defn json-string
-  "Coerces a JSON value argument to a valid JSON string format"
+  "Coerces the argument to a valid JSON string"
   (^String [json]
    (json-string json false))
   (^String [json pprint?]
@@ -85,36 +85,33 @@
    (json/read-str json-str :key-fn keyword)))
 
 (defn to-bytes
-  "Coerces the given data to a byte array.
+  "Coerces the data to a byte array.
     - byte arrays are returned unchanged
-    - Strings are converted to UTF-8 byte representation
+    - Strings converted to UTF-8 byte representation
     - Assets have their raw byte content returned"
   (^{:tag bytes} [data]
-    (cond
-      (bytes? data) ^bytes data
-      (string? data) (.getBytes ^String data StandardCharsets/UTF_8)
-      (asset? data) (.getBytes ^String data StandardCharsets/UTF_8)
-      :else (throw (IllegalArgumentException. (str "Can't convert to bytes: " (class data)))))))
+   (cond
+     (bytes? data) ^bytes data
+     (string? data) (.getBytes ^String data StandardCharsets/UTF_8)
+     (asset? data) (.getBytes ^String data StandardCharsets/UTF_8)
+     :else (throw (IllegalArgumentException. (str "Can't convert to bytes: " (class data)))))))
 
 (defn to-string
-  "Coerces data to a string format.
-    - bytes arrays are converted to a String from their UTF-8 byte representation
-    - existing Strings are returned unchanges
-    - Assets have their raw content converted to a string assuming UTF-8 representation"
+  "Coerces data to a string format."
   (^String [data]
-    (cond
-      (bytes? data) (String. ^bytes data StandardCharsets/UTF_8)
-      (string? data) data
-      (asset? data) (to-string (content data))
-      :else (throw (IllegalArgumentException. (str "Can't convert to string: " (class data)))))))
+   (cond
+     (bytes? data) (String. ^bytes data StandardCharsets/UTF_8)
+     (string? data) data
+     (asset? data) (to-string (content data))
+     :else (throw (IllegalArgumentException. (str "Can't convert to string: " (class data)))))))
 
 (defn hex->bytes
-  "Convert a hex string to a byte array"
+  "Convert hex string to bytes"
   (^bytes [^String h]
    (Hex/toBytes h)))
 
 (defn bytes->hex
-  "Convert a byte array to a hex string"
+  "Convert bytes to hex string"
   (^String [^bytes b]
    (Hex/toString b)))
 
@@ -141,12 +138,12 @@
    - DID is returned for Agents or Assets
    - Strings are intrepreted as DIDs if possible"
   (^DID [a]
-    (cond
-      (did? a)    a
-      (asset? a)  (.getAssetDID ^Asset a)
-      (agent? a)  (.getDID ^Agent a)
-      (string? a) (DID/parse ^String a)
-      :else (throw (IllegalArgumentException. (str "Can't get DID: " (class a)))))))
+   (cond
+     (did? a)    a
+     (asset? a)  (.getAssetDID ^Asset a)
+     (agent? a)  (.getDID ^Agent a)
+     (string? a) (DID/parse ^String a)
+     :else (throw (IllegalArgumentException. (str "Can't get DID: " (class a)))))))
 
 (defn random-did-string
   "Creates a random Ocean-compliant DID as a string, of the format:
@@ -168,26 +165,26 @@
         (did a)
         true
         (catch Exception _
-            false))))
+          false))))
 
 (defn did-scheme
   "Return the DID scheme"
-  ^String [a]
+  [a]
   (.getScheme (did a)))
 
 (defn did-method
   "Return the DID method"
-  ^String [a]
+  [a]
   (.getMethod (did a)))
 
 (defn did-id
   "Return the DID ID"
-  ^String [a]
+  [a]
   (.getID (did a)))
 
 (defn did-path
   "Return the DID path"
-  ^String [a]
+  [a]
   (.getPath (did a)))
 
 (defn did-fragment
@@ -202,20 +199,11 @@
    preferable to use (did asset) for the asset DID if the intent is to obtain a full reference to the asset
    that includes the agent location."
   ([^Asset a]
-    (.getAssetID a)))
-
-
-;; =================================================
-;; DDO handling
-
-(defn create-ddo-string
-  "Create a new DDO String with DEP Standard endpoints defined for the given host"
-  (^String [^String host]
-    (DDOUtil/getDDO host)))
+   (.getAssetID a)))
 
 (defn create-ddo
-  (^java.util.Map [^String host]
-    (read-json-string (create-ddo-string host))))
+  [host]
+  (json-string (DDOUtil/getDDO host)))
 
 ;; =================================================
 ;; Account
@@ -232,45 +220,45 @@
 (defn create-operation
   "Create an in-memory operation with the given parameter list and function."
   ([params ^IFn f]
-    (create-operation params f nil))
+   (create-operation params f nil))
   ([params ^IFn f additional-metadata]
-    (let [wrapped-fn (fn [params]
-                       (f params))
-          params (mapv name params)
-          paramspec (reduce #(assoc %1 %2 {"type" "asset"}) {} params)
-          meta {"name" "Unnamed Operation"
-                "type" "operation"
-                "dateCreated" (str (Instant/now))
-                "params" paramspec}
-          meta (merge meta (stringify-keys additional-metadata))]
-      (ClojureOperation/create (json-string meta) (MemoryAgent/create) wrapped-fn ))))
+   (let [wrapped-fn (fn [params]
+                      (f params))
+         params (mapv name params)
+         paramspec (reduce #(assoc %1 %2 {"type" "asset"}) {} params)
+         meta {"name" "Unnamed Operation"
+               "type" "operation"
+               "dateCreated" (str (Instant/now))
+               "params" paramspec}
+         meta (merge meta (stringify-keys additional-metadata))]
+     (ClojureOperation/create (json-string meta) (MemoryAgent/create) wrapped-fn ))))
 
 (defn format-params
   "Format parameters into a parameter map of string->asset according to the requirements of the operation."
   (^java.util.Map [operation params]
-    (cond
-      (map? params) params
-      (asset? params) {:input params}
-      :else (throw (IllegalArgumentException. (str "Params type not supported: " (class params)))))))
+   (cond
+     (map? params) params
+     (asset? params) {:input params}
+     :else (throw (IllegalArgumentException. (str "Params type not supported: " (class params)))))))
 
 (defn invoke
   "Invoke an operation with the given parameters. Parameters may be either a positional list
    or a map of name / value pairs"
   (^Job [^Operation operation params]
-    (let [params (format-params operation params)]
-      (.invoke operation ^java.util.Map (stringify-keys params)))))
+   (let [params (format-params operation params)]
+     (.invoke operation ^java.util.Map (stringify-keys params)))))
 
 (defn invoke-result
   "Invokes an operation and wait 10 seconds for the result"
-  (^java.util.Map [^Operation operation params]
-   (let [^Job job (invoke operation params)
-         resp (.get job (long (* 10 1000)))]
+  (^Asset [^Operation operation params]
+   (let [job (invoke operation params)
+         resp (.awaitResult job (* 10 1000))]
      resp)))
 
 (defn invoke-sync
   "Invokes an operation synchronously"
   ([^Operation operation params]
-   ;;convert from java Hashmap to Clojure map
+    ;;convert from java Hashmap to Clojure map
    (into {} (.invokeResult operation params))))
 
 ;; ==============================================================
@@ -283,25 +271,25 @@
    - Strings and numbers are converted to memory assets containing the string representation
    - Map data structures are converted to JSON strings"
   (^Asset [data]
-    (cond
-      (asset? data) data
-      (string? data) (MemoryAsset/createFromString ^String data)
-      (number? data) (MemoryAsset/createFromString (str data))
-      (map? data) (json-string data)
-      (did? data) (get-asset (get-agent ^DID data))
-      :else (throw (Error. (str "Not yet supported: " (class data)))))))
+   (cond
+     (asset? data) data
+     (string? data) (MemoryAsset/create ^String data)
+     (number? data) (MemoryAsset/create (str data))
+     (map? data) (json-string data)
+     (did? data) (get-asset (get-agent ^DID data))
+     :else (throw (Error. (str "Not yet supported: " (class data)))))))
 
 (defn memory-asset
   "Create an in-memory asset with the given metadata and raw data.
 
    If no metadata is supplied, default metadata is generated."
   (^Asset [data]
-    (let [byte-data (to-bytes data)]
-      (MemoryAsset/create byte-data)))
+   (let [byte-data (to-bytes data)]
+     (MemoryAsset/create byte-data)))
   (^Asset [meta data]
-    (let [^java.util.Map meta-map (stringify-keys meta)
-          byte-data (to-bytes data)]
-      (MemoryAsset/create byte-data meta-map ))))
+   (let [^java.util.Map meta-map (stringify-keys meta)
+         byte-data (to-bytes data)]
+     (MemoryAsset/create byte-data meta-map ))))
 
 ;; =======================================================
 ;; Agent functionality
@@ -313,19 +301,18 @@
 
 (defn get-asset
   ([^Agent agent asset-id]
-    (.getAsset agent (str asset-id))))
+   (.getAsset agent asset-id)))
 
 (defn get-agent
-  "Gets a Ocean agent for the given DID" 
+  "Gets a Ocean agent for the given DID"
   (^Agent [agent-did]
-    (cond
-      (agent? agent-did) agent-did
-      (did? agent-did) (.getAgent *ocean* ^DID agent-did)
-      :else (throw (IllegalArgumentException. (str "Invalid did: " (class agent-did)))))))
+   (cond
+     (agent? agent-did) agent-did
+     (did? agent-did) (.getAgent *ocean* ^DID agent-did)
+     :else (throw (IllegalArgumentException. (str "Invalid did: " (class agent-did)))))))
 
 (defn digest
   "Computes the sha3_256 String hash of the byte representation of some data and returns this as a hex string.
-  "Computes the sha3-256 hash of the byte representation of some data and returns this as a hex string.
 
   Handles
    - byte arrays - hashed as-is
@@ -333,31 +320,30 @@
    - Assets - compute the hash of asset metadata
   "
   (^String [data]
-    (let [bytes (to-bytes data)]
-      (Hash/sha3_256String bytes))))
+   (let [bytes (to-bytes data)]
+     (Hash/sha3_256String bytes))))
 
-      (Hash/sha3_256String bytes))))
 
 (defn upload
   (^Asset [^Agent agent ^Asset asset]
-    (.uploadAsset agent asset)))
+   (.uploadAsset agent asset)))
 
 (defn register
   "Registers an asset with an agent"
   (^Asset [^Agent agent ^Asset asset]
-    (.registerAsset agent asset)))
+   (.registerAsset agent asset)))
 
 (defn metadata
   "Gets the metadata for an asset as a Clojure map"
   ([^Asset asset]
-    (let [md (.getMetadata asset)]
-      (keywordize-keys (into {} md)))))
+   (let [md (.getMetadata asset)]
+     (keywordize-keys (into {} md)))))
 
 (defn content
-  "Gets the raw content for a given asset as a byte array"
+  "Gets the content for a given asset as raw byte data"
   (^bytes [^Asset asset]
-    (let []
-      (.getContent asset))))
+   (let []
+     (.getContent asset))))
 
 (defn publish-prov-metadata
   "Creates provenance metadata. If the first argument is a map with raw metadata, it adds a provenance
