@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>sg.dex</groupId>
 	<artifactId>starfish-clj</artifactId>
-	<version>0.7.0</version>
+	<version>0.6.0</version>
 
 	<properties>
 		<maven.compiler.target>1.8</maven.compiler.target>
@@ -24,7 +24,7 @@
 		<dependency>
 			<groupId>sg.dex</groupId>
 			<artifactId>starfish-java</artifactId>
-			<version>0.7.1-SNAPSHOT</version>
+			<version>0.7.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.clojure</groupId>
