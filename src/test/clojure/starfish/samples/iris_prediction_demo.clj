@@ -1,8 +1,9 @@
 (ns starfish.samples.iris-prediction-demo
   (:use [starfish.core :refer :all]
         [clojure.walk :refer [keywordize-keys stringify-keys]]
-        [clojure.data.json :as json :exclude [pprint]])
-  (:require [clojure.pprint :refer [pprint]]))
+        )
+  (:require [clojure.pprint :refer [pprint]]
+            [clojure.data.json :as json :exclude [pprint]]))
 
 (def ddo-surfer-koi
   {"service" [{"type" "Ocean.Meta.v1", "serviceEndpoint" "http://localhost:8080/api/v1/meta"}

@@ -25,6 +25,18 @@
       "{}"
       "{\"foo\\/bar\":{}}"
       ))
+  (are [json-val] (= json-val (-> json-val json-string read-json-string))
+      1
+      1.0 
+      nil
+      false
+      "just a string" 
+      ["foo" "bar"]
+      [1 2 3]
+      {:a 1 :b 2}
+      {}
+      {:a {:b 1} :c []} 
+      ) 
   (testing "test DID"
     (let [full-did "did:ocn:1234/foo/bar#fragment"]
       (is (= "did" (did-scheme full-did)))

@@ -1,7 +1,9 @@
 (ns starfish.samples.demo
-  (:use [starfish.core :refer :all]
-        [clojure.data.json :as json :exclude [pprint]])
-  (:require [clojure.pprint :refer [pprint]])
+  (:use [starfish.core :refer :all])
+  (:require 
+    [clojure.repl :refer :all]
+    [clojure.pprint :refer [pprint]]
+    [clojure.data.json :as json ])
   (:import [sg.dex.starfish.util DDOUtil JSON]))
 
 (fn [] ;; Quick hack to compile this file without executing on load
@@ -30,7 +32,7 @@
   ;; USING REMOTE AGENTS
   ;; Agents are remote services providing asset and capabilities to the Ocean ecosystem
   (def my-agent (let [did (random-did)
-                      ddostring (create-ddo "http://52.187.164.74:8080/")]
+                      ddostring (create-ddo-string "http://52.187.164.74:8080")]
                   (remote-agent did ddostring "Aladdin" "OpenSesame")))
   
   ;; agents have a DID

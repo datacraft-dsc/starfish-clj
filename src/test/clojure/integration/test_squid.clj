@@ -1,4 +1,4 @@
-(ns starfish.test-squid
+(ns integration.test-squid
   (:require [starfish.core :as s]
             [clojurewerkz.propertied.properties :as p]
             [clojure.java.io :as io]
