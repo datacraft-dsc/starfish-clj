@@ -5,7 +5,6 @@
                  [clojurewerkz/propertied "1.3.0"]
                  [org.clojure/data.csv "0.1.4"]]
   :exclusions [commons-logging/commons-logging]
-  :managed-dependencies [[com.fasterxml.jackson.core/jackson-databind "2.9.8"]]
 
   :javac-options ["-target" "11", "-source" "11"]
   :target-path "target/%s/"
