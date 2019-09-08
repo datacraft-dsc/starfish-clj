@@ -3,6 +3,7 @@
             [clojure.data.json :as json])
   (:import [java.nio.charset
             StandardCharsets]
+           [java.io InputStream] 
            [java.time
             Instant]
            [clojure.lang
@@ -12,7 +13,7 @@
            [sg.dex.starfish.util
             DID Hex Utils RemoteAgentConfig ProvUtil DDOUtil JSON]
            [sg.dex.starfish
-            Asset Invokable Agent Job Listing Ocean Operation Purchase]
+            Asset DataAsset Invokable Agent Job Listing Ocean Operation Purchase]
            [sg.dex.starfish.impl.memory
             MemoryAsset ClojureOperation MemoryAgent]
            [sg.dex.starfish.impl.remote
@@ -336,7 +337,7 @@
    (.uploadAsset agent asset)))
 
 (defn register
-  "Registers an asset with an agent"
+  "Registers an Asset with an Agent"
   (^Asset [^Agent agent ^Asset asset]
    (.registerAsset agent asset)))
 
@@ -351,6 +352,12 @@
   (^bytes [^Asset asset]
    (let []
      (.getContent asset))))
+
+(defn content-stream
+  "Gets the content for a given asset as an input stream."
+  (^java.io.InputStream [^Asset asset]
+   (let []
+     (.getContentStream ^DataAsset asset))))
 
 (defn publish-prov-metadata
   "Creates provenance metadata. If the first argument is a map with raw metadata, it adds a provenance
