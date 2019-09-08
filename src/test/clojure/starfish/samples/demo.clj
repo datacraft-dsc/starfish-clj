@@ -6,12 +6,12 @@
     [clojure.data.json :as json ])
   (:import [sg.dex.starfish.util DDOUtil JSON]))
 
-#_(fn [] ;; Quick hack to compile this file without executing on load
-  
+(fn [] ;; Quick hack to compile this file without executing on load
+ 
   ;; ======================================================================================
   ;; BASIC ASSETS
   ;; Let's talk about assets
- 
+
   ;; create a new asset
   (def as1 (memory-asset             ;; type of asset to construct
              {:name "My Asset"}      ;; metadata
@@ -32,28 +32,28 @@
   ;; USING REMOTE AGENTS
   ;; Agents are remote services providing asset and capabilities to the Ocean ecosystem
   (def my-agent (let [did (random-did)
-                      ddostring (create-ddo-string "http://52.187.164.74:8080")]
+                      ddostring (create-ddo "http://52.187.164.74:8080")]
                   (remote-agent did ddostring "Aladdin" "OpenSesame")))
   
   ;; agents have a DID
-  (str (did my-agent))
+ (str (did my-agent))
   
   ;; Get an asset
-  (def as2 (get-asset my-agent "10bc529b730b9372689af7c8848256c75b61e1c25addc0dc100059dcceb05d03"))
+ (def as2 (get-asset my-agent "10bc529b730b9372689af7c8848256c75b61e1c25addc0dc100059dcceb05d03"))
  
   ;; assets also have a DID, starting with the DID of the agent
-  (str (did as2))
+ (str (did as2))
   
   ;; print the content of asset data
-  (println (to-string (content as2)))
+ (println (to-string (content as2)))
  
   
   
   ;; ======================================================================================
-  ;; Operations
-  
+ ;; Operations
+ 
   ;; define a new operation
-  (def op (create-operation [:input] 
+ (def op (create-operation [:input] 
                             (fn [{input :input}]
                               {:result (asset (.toUpperCase (to-string input)))})))
   
@@ -61,33 +61,33 @@
   (pprint (metadata op))
   
   ;; compute the result
-  (def result (invoke-result op {:input as2}))
+ (def result (invoke-result op {:input as2}))
   
   ;; see the reuslt
-  (println (to-string (content result)))
+ (println (to-string (content result)))
   
   ;; ======================================================================================
-  ;; Register new asset on our agent
-  
+ ;; Register new asset on our agent
+ 
   ;; upload the result of our invoke
-  (def as3 (upload my-agent result)) 
+ (def as3 (upload my-agent result)) 
   
   ;; asset now has a full remote DID
-  (str (did as3)) 
+ (str (did as3)) 
   
   ;; double check remote content
-  (println (to-string (content as3)))
+ (println (to-string (content as3)))
 
   ;; ======================================================================================
-  ;;invoke a remote operation
-  (def inv-ddo
+ ;;invoke a remote operation
+ (def inv-ddo
     (let [k (json/read-str (DDOUtil/getDDO "http://localhost:8080"))]
       (update-in k ["service" 2]
                  (fn[i] (update-in i ["serviceEndpoint"] (fn[_] "http://localhost:3000/api/v1"))) )
       ))
 
   ;;ddo points to koi-clj for invoke, and Surfer for the rest
-  (-> inv-ddo)
+ (-> inv-ddo)
 
   (def invkres 
     (let [did (random-did)
@@ -97,10 +97,10 @@
       res))
 
   ;;response is a map
-  (-> invkres)
+ (-> invkres)
   ;;view the content
-  (to-string (content (invkres "primes")))
+ (to-string (content (invkres "primes")))
   ;;view the metadata with added provenance
-  (metadata (invkres "primes"))
+ (metadata (invkres "primes"))
 )
  

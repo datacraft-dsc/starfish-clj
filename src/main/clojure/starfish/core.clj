@@ -219,7 +219,9 @@
 ;; Operations
 
 (defn create-operation
-  "Create an in-memory operation with the given parameter list and function."
+  "Create an in-memory operation with the given parameter list and function.
+
+   The function provided should accept a map of inputs"
   ([params ^IFn f]
    (create-operation params f nil))
   ([params ^IFn f additional-metadata]
