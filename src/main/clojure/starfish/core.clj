@@ -234,7 +234,7 @@
          meta (merge meta (stringify-keys additional-metadata))]
      (ClojureOperation/create (json-string meta) (MemoryAgent/create) wrapped-fn ))))
 
-(defn format-params
+(defn- format-params
   "Format parameters into a parameter map of string->asset according to the requirements of the operation."
   (^java.util.Map [operation params]
    (cond
