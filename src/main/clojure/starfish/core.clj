@@ -249,11 +249,17 @@
      (.invoke operation ^java.util.Map (stringify-keys params)))))
 
 (defn invoke-result
-  "Invokes an operation and wait 10 seconds for the result"
+  "Invokes an operation and wait for the result.
+
+   An optional timeout may be provided."
   (^Asset [^Operation operation params]
-   (let [job (invoke operation params)
-         resp (.awaitResult job (* 10 1000))]
-     resp)))
+    (let [job (invoke operation params)
+          resp (.getResult job)]
+      resp))
+  (^Asset [^Operation operation params timeout]
+    (let [job (invoke operation params)
+          resp (.getResult job (long timeout))]
+      resp)))
 
 (defn invoke-sync
   "Invokes an operation synchronously"
@@ -273,8 +279,8 @@
   (^Asset [data]
    (cond
      (asset? data) data
-     (string? data) (MemoryAsset/create ^String data)
-     (number? data) (MemoryAsset/create (str data))
+     (string? data) (MemoryAsset/createFromString ^String data)
+     (number? data) (MemoryAsset/createFromString (str data))
      (map? data) (json-string data)
      (did? data) (get-asset (get-agent ^DID data))
      :else (throw (Error. (str "Not yet supported: " (class data)))))))
