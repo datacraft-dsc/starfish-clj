@@ -169,28 +169,28 @@
 
 (defn did-scheme
   "Return the DID scheme"
-  [a]
-  (.getScheme (did a)))
+  (^String [a]
+    (.getScheme (did a))))
 
 (defn did-method
   "Return the DID method"
-  [a]
-  (.getMethod (did a)))
+  (^String [a]
+    (.getMethod (did a))))
 
 (defn did-id
   "Return the DID ID"
-  [a]
-  (.getID (did a)))
+  (^String [a]
+    (.getID (did a))))
 
 (defn did-path
   "Return the DID path"
-  [a]
-  (.getPath (did a)))
+  (^String [a]
+   (.getPath (did a))))
 
 (defn did-fragment
   "Return the DID fragment"
-  [a]
-  (.getFragment (did a)))
+  (^String [a]
+    (.getFragment (did a))))
 
 (defn asset-id
   "Gets the Asset ID for an asset.
@@ -306,7 +306,8 @@
    (RemoteAgentConfig/getRemoteAgent ddo did username password)))
 
 (defn get-asset
-  ([^Agent agent asset-id]
+  "Gets an asset from a remote agent, given as Asset ID as a string." 
+  ([^Agent agent ^String asset-id]
    (.getAsset agent asset-id)))
 
 (defn get-agent
