@@ -3,13 +3,14 @@
   (:require [starfish.core :refer :all]))
 
 
-(deftest asset-creation
+(deftest simple-memory-assets
   (testing "memory asset with default metadata"
     (let [a1 (memory-asset "abc")]
       (is (= "abc" (to-string (content a1))))
       (is (= "abc" (slurp (content-stream a1))))
       (let [m1 (metadata a1)]
-        (is (= "dataset" (:type m1))))))
+        (is (= "dataset" (:type m1)))
+        (is (= "3" (:size m1))))))
   
   (testing "memory asset with metadata"
     (let [tagdata ["test" "data"]
