@@ -14,9 +14,12 @@
   (testing "memory asset with metadata"
     (let [tagdata ["test" "data"]
           mdata {:tags tagdata}
-          ast (memory-asset mdata "abc")]
-      (is (= tagdata (:tags (metadata ast))))
-      (is (= "abc" (to-string (content ast)))))))
+          a1 (memory-asset mdata "abc")]
+      (is (= tagdata (:tags (metadata a1))))
+      (is (= "abc" (to-string (content a1))))
+      (let [m1 (metadata a1)]
+        (is (= "dataset" (:type m1)))
+        (is (= ["test" "data"] (:tags m1)))))))
 
 
 
