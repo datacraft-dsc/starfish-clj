@@ -59,7 +59,6 @@
 
 (defn json-string
   "Coerces the argument to a valid JSON string.
-
    Optional pprint parameter may be used to pretty-print the JSON (default false)"
   (^String [json]
    (json-string json false))
@@ -173,7 +172,7 @@
 (defn did-scheme
   "Return the DID scheme"
   (^String [a]
-   (.getScheme (did a))))
+    (.getScheme (did a))))
 
 (defn did-method
   "Return the DID method"
@@ -193,7 +192,7 @@
 (defn did-fragment
   "Return the DID fragment"
   (^String [a]
-   (.getFragment (did a))))
+    (.getFragment (did a))))
 
 (defn asset-id
   "Gets the Asset ID for an asset.
@@ -219,6 +218,7 @@
   "Creates a default DDO as a String for the given host address"
   (^String [host]
    (DDOUtil/getDDO host)))
+
 
 ;; =================================================
 ;; Account
@@ -278,6 +278,7 @@
          resp (.getResult job (long timeout))]
      resp)))
 
+
 (defn invoke-sync
   "Invokes an operation synchronously"
   ([^Operation operation params]
@@ -325,6 +326,7 @@
 
 (defn get-asset
   "Gets an asset from a remote agent, given as Asset ID as a string."
+
   ([^Agent agent ^String asset-id]
    (.getAsset agent asset-id)))
 
