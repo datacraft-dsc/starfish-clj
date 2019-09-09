@@ -352,6 +352,7 @@
 
 
 (defn upload
+  "Uploads any asset to an Agent. Returns an Asset referring to the uploaded Asset." 
   (^Asset [^Agent agent ^Asset asset]
    (.uploadAsset agent asset)))
 
