@@ -3,6 +3,7 @@
             [clojure.data.json :as json])
   (:import [java.nio.charset
             StandardCharsets]
+           [java.io InputStream]
            [java.time
             Instant]
            [clojure.lang
@@ -12,7 +13,7 @@
            [sg.dex.starfish.util
             DID Hex Utils RemoteAgentConfig ProvUtil DDOUtil JSON]
            [sg.dex.starfish
-            Asset Invokable Agent Job Listing Ocean Operation Purchase]
+            Asset DataAsset Invokable Agent Job Listing Ocean Operation Purchase]
            [sg.dex.starfish.impl.memory
             MemoryAsset ClojureOperation MemoryAgent]
            [sg.dex.starfish.impl.remote
@@ -57,7 +58,9 @@
     :else (str k)))
 
 (defn json-string
-  "Coerces a JSON value argument to a valid JSON string format"
+  "Coerces the argument to a valid JSON string.
+
+   Optional pprint parameter may be used to pretty-print the JSON (default false)"
   (^String [json]
    (json-string json false))
   (^String [json pprint?]
@@ -85,9 +88,9 @@
    (json/read-str json-str :key-fn keyword)))
 
 (defn to-bytes
-  "Coerces the given data to a byte array.
+  "Coerces the data to a byte array.
     - byte arrays are returned unchanged
-    - Strings are converted to UTF-8 byte representation
+    - Strings converted to UTF-8 byte representation
     - Assets have their raw byte content returned"
   (^{:tag bytes} [data]
    (cond
@@ -97,10 +100,7 @@
      :else (throw (IllegalArgumentException. (str "Can't convert to bytes: " (class data)))))))
 
 (defn to-string
-  "Coerces data to a string format.
-    - bytes arrays are converted to a String from their UTF-8 byte representation
-    - existing Strings are returned unchanges
-    - Assets have their raw content converted to a string assuming UTF-8 representation"
+  "Coerces data to a string format."
   (^String [data]
    (cond
      (bytes? data) (String. ^bytes data StandardCharsets/UTF_8)
@@ -109,12 +109,12 @@
      :else (throw (IllegalArgumentException. (str "Can't convert to string: " (class data)))))))
 
 (defn hex->bytes
-  "Convert a hex string to a byte array"
+  "Convert hex string to bytes"
   (^bytes [^String h]
    (Hex/toBytes h)))
 
 (defn bytes->hex
-  "Convert a byte array to a hex string"
+  "Convert bytes to hex string"
   (^String [^bytes b]
    (Hex/toString b)))
 
@@ -172,28 +172,28 @@
 
 (defn did-scheme
   "Return the DID scheme"
-  ^String [a]
-  (.getScheme (did a)))
+  (^String [a]
+    (.getScheme (did a))))
 
 (defn did-method
   "Return the DID method"
-  ^String [a]
-  (.getMethod (did a)))
+  (^String [a]
+    (.getMethod (did a))))
 
 (defn did-id
   "Return the DID ID"
-  ^String [a]
-  (.getID (did a)))
+  (^String [a]
+    (.getID (did a))))
 
 (defn did-path
   "Return the DID path"
-  ^String [a]
-  (.getPath (did a)))
+  (^String [a]
+   (.getPath (did a))))
 
 (defn did-fragment
   "Return the DID fragment"
-  [a]
-  (.getFragment (did a)))
+  (^String [a]
+    (.getFragment (did a))))
 
 (defn asset-id
   "Gets the Asset ID for an asset.
@@ -204,18 +204,21 @@
   ([^Asset a]
    (.getAssetID a)))
 
+;; DDO management
 
-;; =================================================
-;; DDO handling
-
-(defn create-ddo-string
-  "Create a new DDO String with DEP Standard endpoints defined for the given host"
-  (^String [^String host]
-   (DDOUtil/getDDO host)))
+(defn ddo
+  "Gets a DDO for the given DID as a String. Uses the default resolver if resolver is not specified."
+  (^String [did-value]
+    (ddo (Ocean/connect) did-value))
+  (^String [^Ocean resolver did-value]
+    (let [^DID d (did did-value)
+          ddo-value (.getDDO resolver d)]
+      (when ddo-value (json-string ddo-value)))))
 
 (defn create-ddo
-  (^java.util.Map [^String host]
-   (read-json-string (create-ddo-string host))))
+ "Creates a default DDO as a String for the given host address"
+  (^String [host]
+     (DDOUtil/getDDO host)))
 
 ;; =================================================
 ;; Account
@@ -230,7 +233,9 @@
 ;; Operations
 
 (defn create-operation
-  "Create an in-memory operation with the given parameter list and function."
+  "Create an in-memory operation with the given parameter list and function.
+
+   The function provided should accept a map of inputs"
   ([params ^IFn f]
    (create-operation params f nil))
   ([params ^IFn f additional-metadata]
@@ -245,7 +250,7 @@
          meta (merge meta (stringify-keys additional-metadata))]
      (ClojureOperation/create (json-string meta) (MemoryAgent/create) wrapped-fn ))))
 
-(defn format-params
+(defn- format-params
   "Format parameters into a parameter map of string->asset according to the requirements of the operation."
   (^java.util.Map [operation params]
    (cond
@@ -261,11 +266,17 @@
      (.invoke operation ^java.util.Map (stringify-keys params)))))
 
 (defn invoke-result
-  "Invokes an operation and wait 10 seconds for the result"
-  (^java.util.Map [^Operation operation params]
-   (let [^Job job (invoke operation params)
-         resp (.get job (long (* 10 1000)))]
-     resp)))
+  "Invokes an operation and wait for the result.
+
+   An optional timeout may be provided."
+  (^Asset [^Operation operation params]
+    (let [job (invoke operation params)
+          resp (.getResult job)]
+      resp))
+  (^Asset [^Operation operation params timeout]
+    (let [job (invoke operation params)
+          resp (.getResult job (long timeout))]
+      resp)))
 
 (defn invoke-sync
   "Invokes an operation synchronously"
@@ -279,16 +290,17 @@
 (defn asset
   "Coerces input data to an asset.
    - Existing assets are unchanged
-   - DID are resolved to appropriate assets if possible
+   - DIDs are resolved to appropriate assets if possible
    - Strings and numbers are converted to memory assets containing the string representation
-   - Map data structures are converted to JSON strings"
+   - Map and Vector data structures are converted to JSON strings"
   (^Asset [data]
    (cond
      (asset? data) data
+     (did? data) (get-asset (get-agent ^DID data))
      (string? data) (MemoryAsset/createFromString ^String data)
      (number? data) (MemoryAsset/createFromString (str data))
      (map? data) (json-string data)
-     (did? data) (get-asset (get-agent ^DID data))
+     (vector? data) (json-string data)
      :else (throw (Error. (str "Not yet supported: " (class data)))))))
 
 (defn memory-asset
@@ -312,8 +324,9 @@
    (RemoteAgentConfig/getRemoteAgent ddo did username password)))
 
 (defn get-asset
-  ([^Agent agent asset-id]
-   (.getAsset agent (str asset-id))))
+  "Gets an asset from a remote agent, given as Asset ID as a string."
+  ([^Agent agent ^String asset-id]
+   (.getAsset agent asset-id)))
 
 (defn get-agent
   "Gets a Ocean agent for the given DID"
@@ -324,23 +337,24 @@
      :else (throw (IllegalArgumentException. (str "Invalid did: " (class agent-did)))))))
 
 (defn digest
-  "Computes the sha3-256 hash of the byte representation of some data and returns this as a hex string.
+  "Computes the sha3_256 String hash of the byte representation of some data and returns this as a hex string.
 
   Handles
    - byte arrays - hashed as-is
    - Strings - converted to UTF-8 representation
-   - Assets - gets content hash
+   - Assets - compute the hash of asset metadata
   "
   (^String [data]
    (let [bytes (to-bytes data)]
      (Hash/sha3_256String bytes))))
+
 
 (defn upload
   (^Asset [^Agent agent ^Asset asset]
    (.uploadAsset agent asset)))
 
 (defn register
-  "Registers an asset with an agent"
+  "Registers an Asset with an Agent"
   (^Asset [^Agent agent ^Asset asset]
    (.registerAsset agent asset)))
 
@@ -351,10 +365,16 @@
      (keywordize-keys (into {} md)))))
 
 (defn content
-  "Gets the raw content for a given asset as a byte array"
+  "Gets the content for a given asset as raw byte data"
   (^bytes [^Asset asset]
    (let []
      (.getContent asset))))
+
+(defn content-stream
+  "Gets the content for a given asset as an input stream."
+  (^java.io.InputStream [^Asset asset]
+   (let []
+     (.getContentStream ^DataAsset asset))))
 
 (defn publish-prov-metadata
   "Creates provenance metadata. If the first argument is a map with raw metadata, it adds a provenance
