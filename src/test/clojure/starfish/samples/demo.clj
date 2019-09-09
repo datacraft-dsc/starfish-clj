@@ -36,18 +36,17 @@
                   (remote-agent did ddostring "Aladdin" "OpenSesame")))
   
   ;; agents have a DID
- (str (did my-agent))
+  (str (did my-agent))
   
   ;; Get an asset
- (def as2 (get-asset my-agent "10bc529b730b9372689af7c8848256c75b61e1c25addc0dc100059dcceb05d03"))
+  (def as2 (get-asset my-agent "10bc529b730b9372689af7c8848256c75b61e1c25addc0dc100059dcceb05d03"))
  
   ;; assets also have a DID, starting with the DID of the agent
- (str (did as2))
+  (str (did as2))
   
   ;; print the content of asset data
- (println (to-string (content as2)))
+  (println (to-string (content as2)))
  
-  
   
   ;; ======================================================================================
  ;; Operations
