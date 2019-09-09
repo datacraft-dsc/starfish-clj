@@ -203,8 +203,9 @@
    (.getAssetID a)))
 
 (defn create-ddo
-  [host]
-  (json-string (DDOUtil/getDDO host)))
+  "Creates a default DDO for the given host address" 
+  ([host]
+     (DDOUtil/getDDO host)))
 
 ;; =================================================
 ;; Account
