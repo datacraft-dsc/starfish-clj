@@ -58,7 +58,9 @@
     :else (str k)))
 
 (defn json-string
-  "Coerces the argument to a valid JSON string"
+  "Coerces the argument to a valid JSON string. 
+
+   Optional pprint parameter may be used to pretty-print the JSON (default false)"
   (^String [json]
    (json-string json false))
   (^String [json pprint?]
@@ -202,9 +204,20 @@
   ([^Asset a]
    (.getAssetID a)))
 
+;; DDO management
+
+(defn ddo 
+  "Gets a DDO for the given DID as a String. Uses the default resolver if resolver is not specified."
+  (^String [did-value]
+    (ddo (Ocean/connect) did-value))
+  (^String [^Ocean resolver did-value]
+    (let [^DID d (did did-value)
+          ddo-value (.getDDO resolver d)]
+      (when ddo-value (json-string ddo-value)))))
+
 (defn create-ddo
-  "Creates a default DDO for the given host address" 
-  ([host]
+ "Creates a default DDO as a String for the given host address" 
+  (^String [host]
      (DDOUtil/getDDO host)))
 
 ;; =================================================
@@ -277,16 +290,17 @@
 (defn asset
   "Coerces input data to an asset.
    - Existing assets are unchanged
-   - DID are resolved to appropriate assets if possible
+   - DIDs are resolved to appropriate assets if possible
    - Strings and numbers are converted to memory assets containing the string representation
-   - Map data structures are converted to JSON strings"
+   - Map and Vector data structures are converted to JSON strings"
   (^Asset [data]
    (cond
      (asset? data) data
+     (did? data) (get-asset (get-agent ^DID data))
      (string? data) (MemoryAsset/createFromString ^String data)
      (number? data) (MemoryAsset/createFromString (str data))
      (map? data) (json-string data)
-     (did? data) (get-asset (get-agent ^DID data))
+     (vector? data) (json-string data)
      :else (throw (Error. (str "Not yet supported: " (class data)))))))
 
 (defn memory-asset
