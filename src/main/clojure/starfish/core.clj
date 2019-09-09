@@ -57,7 +57,7 @@
     :else (str k)))
 
 (defn json-string
-  "Coerces the argument to a valid JSON string"
+  "Coerces a JSON value argument to a valid JSON string format"
   (^String [json]
    (json-string json false))
   (^String [json pprint?]
@@ -85,9 +85,9 @@
    (json/read-str json-str :key-fn keyword)))
 
 (defn to-bytes
-  "Coerces the data to a byte array.
+  "Coerces the given data to a byte array.
     - byte arrays are returned unchanged
-    - Strings converted to UTF-8 byte representation
+    - Strings are converted to UTF-8 byte representation
     - Assets have their raw byte content returned"
   (^{:tag bytes} [data]
    (cond
@@ -97,7 +97,10 @@
      :else (throw (IllegalArgumentException. (str "Can't convert to bytes: " (class data)))))))
 
 (defn to-string
-  "Coerces data to a string format."
+  "Coerces data to a string format.
+    - bytes arrays are converted to a String from their UTF-8 byte representation
+    - existing Strings are returned unchanges
+    - Assets have their raw content converted to a string assuming UTF-8 representation"
   (^String [data]
    (cond
      (bytes? data) (String. ^bytes data StandardCharsets/UTF_8)
@@ -106,12 +109,12 @@
      :else (throw (IllegalArgumentException. (str "Can't convert to string: " (class data)))))))
 
 (defn hex->bytes
-  "Convert hex string to bytes"
+  "Convert a hex string to a byte array"
   (^bytes [^String h]
    (Hex/toBytes h)))
 
 (defn bytes->hex
-  "Convert bytes to hex string"
+  "Convert a byte array to a hex string"
   (^String [^bytes b]
    (Hex/toString b)))
 
@@ -169,22 +172,22 @@
 
 (defn did-scheme
   "Return the DID scheme"
-  [a]
+  ^String [a]
   (.getScheme (did a)))
 
 (defn did-method
   "Return the DID method"
-  [a]
+  ^String [a]
   (.getMethod (did a)))
 
 (defn did-id
   "Return the DID ID"
-  [a]
+  ^String [a]
   (.getID (did a)))
 
 (defn did-path
   "Return the DID path"
-  [a]
+  ^String [a]
   (.getPath (did a)))
 
 (defn did-fragment
@@ -201,9 +204,18 @@
   ([^Asset a]
    (.getAssetID a)))
 
+
+;; =================================================
+;; DDO handling
+
+(defn create-ddo-string
+  "Create a new DDO String with DEP Standard endpoints defined for the given host"
+  (^String [^String host]
+   (DDOUtil/getDDO host)))
+
 (defn create-ddo
-  [host]
-  (json-string (DDOUtil/getDDO host)))
+  (^java.util.Map [^String host]
+   (read-json-string (create-ddo-string host))))
 
 ;; =================================================
 ;; Account
@@ -250,9 +262,9 @@
 
 (defn invoke-result
   "Invokes an operation and wait 10 seconds for the result"
-  (^Asset [^Operation operation params]
-   (let [job (invoke operation params)
-         resp (.awaitResult job (* 10 1000))]
+  (^java.util.Map [^Operation operation params]
+   (let [^Job job (invoke operation params)
+         resp (.get job (long (* 10 1000)))]
      resp)))
 
 (defn invoke-sync
@@ -273,8 +285,8 @@
   (^Asset [data]
    (cond
      (asset? data) data
-     (string? data) (MemoryAsset/create ^String data)
-     (number? data) (MemoryAsset/create (str data))
+     (string? data) (MemoryAsset/createFromString ^String data)
+     (number? data) (MemoryAsset/createFromString (str data))
      (map? data) (json-string data)
      (did? data) (get-asset (get-agent ^DID data))
      :else (throw (Error. (str "Not yet supported: " (class data)))))))
@@ -301,7 +313,7 @@
 
 (defn get-asset
   ([^Agent agent asset-id]
-   (.getAsset agent asset-id)))
+   (.getAsset agent (str asset-id))))
 
 (defn get-agent
   "Gets a Ocean agent for the given DID"
@@ -312,17 +324,16 @@
      :else (throw (IllegalArgumentException. (str "Invalid did: " (class agent-did)))))))
 
 (defn digest
-  "Computes the sha3_256 String hash of the byte representation of some data and returns this as a hex string.
+  "Computes the sha3-256 hash of the byte representation of some data and returns this as a hex string.
 
   Handles
    - byte arrays - hashed as-is
    - Strings - converted to UTF-8 representation
-   - Assets - compute the hash of asset metadata
+   - Assets - gets content hash
   "
   (^String [data]
    (let [bytes (to-bytes data)]
      (Hash/sha3_256String bytes))))
-
 
 (defn upload
   (^Asset [^Agent agent ^Asset asset]
@@ -340,7 +351,7 @@
      (keywordize-keys (into {} md)))))
 
 (defn content
-  "Gets the content for a given asset as raw byte data"
+  "Gets the raw content for a given asset as a byte array"
   (^bytes [^Asset asset]
    (let []
      (.getContent asset))))
