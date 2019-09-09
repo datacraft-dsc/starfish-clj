@@ -3,7 +3,7 @@
             [clojure.data.json :as json])
   (:import [java.nio.charset
             StandardCharsets]
-           [java.io InputStream] 
+           [java.io InputStream]
            [java.time
             Instant]
            [clojure.lang
@@ -58,8 +58,7 @@
     :else (str k)))
 
 (defn json-string
-  "Coerces the argument to a valid JSON string. 
-
+  "Coerces the argument to a valid JSON string.
    Optional pprint parameter may be used to pretty-print the JSON (default false)"
   (^String [json]
    (json-string json false))
@@ -178,12 +177,12 @@
 (defn did-method
   "Return the DID method"
   (^String [a]
-    (.getMethod (did a))))
+   (.getMethod (did a))))
 
 (defn did-id
   "Return the DID ID"
   (^String [a]
-    (.getID (did a))))
+   (.getID (did a))))
 
 (defn did-path
   "Return the DID path"
@@ -206,19 +205,20 @@
 
 ;; DDO management
 
-(defn ddo 
+(defn ddo
   "Gets a DDO for the given DID as a String. Uses the default resolver if resolver is not specified."
   (^String [did-value]
-    (ddo (Ocean/connect) did-value))
+   (ddo (Ocean/connect) did-value))
   (^String [^Ocean resolver did-value]
-    (let [^DID d (did did-value)
-          ddo-value (.getDDO resolver d)]
-      (when ddo-value (json-string ddo-value)))))
+   (let [^DID d (did did-value)
+         ddo-value (.getDDO resolver d)]
+     (when ddo-value (json-string ddo-value)))))
 
 (defn create-ddo
- "Creates a default DDO as a String for the given host address" 
+  "Creates a default DDO as a String for the given host address"
   (^String [host]
-     (DDOUtil/getDDO host)))
+   (DDOUtil/getDDO host)))
+
 
 ;; =================================================
 ;; Account
@@ -270,13 +270,14 @@
 
    An optional timeout may be provided."
   (^Asset [^Operation operation params]
-    (let [job (invoke operation params)
-          resp (.getResult job)]
-      resp))
+   (let [job (invoke operation params)
+         resp (.getResult job)]
+     resp))
   (^Asset [^Operation operation params timeout]
-    (let [job (invoke operation params)
-          resp (.getResult job (long timeout))]
-      resp)))
+   (let [job (invoke operation params)
+         resp (.getResult job (long timeout))]
+     resp)))
+
 
 (defn invoke-sync
   "Invokes an operation synchronously"
@@ -324,7 +325,8 @@
    (RemoteAgentConfig/getRemoteAgent ddo did username password)))
 
 (defn get-asset
-  "Gets an asset from a remote agent, given as Asset ID as a string." 
+  "Gets an asset from a remote agent, given as Asset ID as a string."
+
   ([^Agent agent ^String asset-id]
    (.getAsset agent asset-id)))
 
