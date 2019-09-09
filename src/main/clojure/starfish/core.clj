@@ -173,17 +173,17 @@
 (defn did-scheme
   "Return the DID scheme"
   (^String [a]
-    (.getScheme (did a))))
+   (.getScheme (did a))))
 
 (defn did-method
   "Return the DID method"
   (^String [a]
-    (.getMethod (did a))))
+   (.getMethod (did a))))
 
 (defn did-id
   "Return the DID ID"
   (^String [a]
-    (.getID (did a))))
+   (.getID (did a))))
 
 (defn did-path
   "Return the DID path"
@@ -193,7 +193,7 @@
 (defn did-fragment
   "Return the DID fragment"
   (^String [a]
-    (.getFragment (did a))))
+   (.getFragment (did a))))
 
 (defn asset-id
   "Gets the Asset ID for an asset.
@@ -209,16 +209,16 @@
 (defn ddo
   "Gets a DDO for the given DID as a String. Uses the default resolver if resolver is not specified."
   (^String [did-value]
-    (ddo (Ocean/connect) did-value))
+   (ddo (Ocean/connect) did-value))
   (^String [^Ocean resolver did-value]
-    (let [^DID d (did did-value)
-          ddo-value (.getDDO resolver d)]
-      (when ddo-value (json-string ddo-value)))))
+   (let [^DID d (did did-value)
+         ddo-value (.getDDO resolver d)]
+     (when ddo-value (json-string ddo-value)))))
 
 (defn create-ddo
- "Creates a default DDO as a String for the given host address"
+  "Creates a default DDO as a String for the given host address"
   (^String [host]
-     (DDOUtil/getDDO host)))
+   (DDOUtil/getDDO host)))
 
 ;; =================================================
 ;; Account
@@ -270,13 +270,13 @@
 
    An optional timeout may be provided."
   (^Asset [^Operation operation params]
-    (let [job (invoke operation params)
-          resp (.getResult job)]
-      resp))
+   (let [job (invoke operation params)
+         resp (.getResult job)]
+     resp))
   (^Asset [^Operation operation params timeout]
-    (let [job (invoke operation params)
-          resp (.getResult job (long timeout))]
-      resp)))
+   (let [job (invoke operation params)
+         resp (.getResult job (long timeout))]
+     resp)))
 
 (defn invoke-sync
   "Invokes an operation synchronously"
