@@ -237,6 +237,10 @@
 
    The function provided should accept a map of inputs where each entry maps a keyword to either:
      a) A Starfish Asset
+     b) A object representation of a JSON value as per read-json-string
+
+   The function should return a similar map of outputs where each entry maps a keyword to either:
+     a) A Starfish Asset
      b) A object representation of a JSON value as per read-json-string"
   ([params ^IFn f]
    (create-operation params f nil))
