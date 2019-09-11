@@ -4,7 +4,7 @@
                  [org.clojure/data.json "0.2.6"]
                  [clojurewerkz/propertied "1.3.0"]
                  [org.clojure/data.csv "0.1.4"]
-                 [commons-logging/commons-logging "1.2"] ;; needed to fix logging version mismatches?
+                 [org.slf4j/jcl-over-slf4j "1.7.28"] ;; Attempt to fix JCL issues with Apache HTTP
                  ]
 
   ;; :javac-options ["-target" "8", "-source" "8"] ; TODO figure out of this is helpful? Causes a warning
