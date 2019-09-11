@@ -235,7 +235,9 @@
 (defn create-operation
   "Create an in-memory operation with the given parameter list and function.
 
-   The function provided should accept a map of inputs"
+   The function provided should accept a map of inputs where each entry maps a keyword to either:
+     a) A Starfish Asset
+     b) A object representation of a JSON value as per read-json-string"
   ([params ^IFn f]
    (create-operation params f nil))
   ([params ^IFn f additional-metadata]
