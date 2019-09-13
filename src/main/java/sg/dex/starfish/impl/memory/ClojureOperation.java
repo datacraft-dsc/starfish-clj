@@ -4,9 +4,18 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import clojure.lang.IFn;
+import clojure.lang.IPersistentMap;
+import clojure.lang.Keyword;
+import clojure.lang.PersistentHashMap;
 import sg.dex.starfish.Job;
 import sg.dex.starfish.Operation;
 
+/**
+ * Class implementing the starfish-java operation interface that wraps a Clojure function.
+ * 
+ * @author Mike
+ *
+ */
 public class ClojureOperation extends AMemoryOperation implements Operation{
 
     private final IFn function;
@@ -21,10 +30,10 @@ public class ClojureOperation extends AMemoryOperation implements Operation{
     }
 
     @Override
-    public Job invokeAsync(final Map<String,Object> params){
+    public Job invokeAsync(final Map<String,Object> params) {
         @SuppressWarnings("unchecked")
         CompletableFuture<Map<String,Object>> cf = CompletableFuture.supplyAsync(() ->
-                (Map<String, Object>) function.invoke((Object)params)
+                compute(params)
         );
         return MemoryJob.create(cf);
     }
@@ -34,9 +43,22 @@ public class ClojureOperation extends AMemoryOperation implements Operation{
         return invokeAsync(params);
     }
 
-    @Override
+    /**
+     * Computes the result synchronously with the current thread.
+     */
+    @SuppressWarnings("unchecked")
+	@Override
     protected Map<String, Object> compute(Map<String, Object> params) {
-        throw new UnsupportedOperationException("Use invokeXXX instead");
+    	// convert string keys in params to a Clojure map of keywords to values
+    	IPersistentMap cparams = PersistentHashMap.EMPTY;
+    	for (Map.Entry<String,Object> e : params.entrySet()) {
+    		String paramName=e.getKey();
+    		Keyword k=Keyword.intern(null, paramName);
+    		cparams=cparams.assoc(k, e.getValue());
+    	}
+    	
+    	Map<String, Object> results= (Map<String, Object>) function.invoke(cparams);
+    	return results;
     }
 
 }

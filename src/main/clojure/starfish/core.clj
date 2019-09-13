@@ -272,7 +272,7 @@
      (.invoke operation ^java.util.Map (stringify-keys params)))))
 
 (defn invoke-result
-  "Invokes an operation and wait for the result.
+  "Invoke an operation and wait for the result.
 
    An optional timeout may be provided."
   (^Asset [^Operation operation params]
@@ -286,7 +286,7 @@
 
 
 (defn invoke-sync
-  "Invokes an operation synchronously"
+  "Invokes an operation synchronously, waiting to return the result."
   ([^Operation operation params]
     ;;convert from java Hashmap to Clojure map
    (into {} (.invokeResult operation params))))

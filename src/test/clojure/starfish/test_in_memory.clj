@@ -22,6 +22,18 @@
         (is (= "dataset" (:type m1)))
         (is (= ["test" "data"] (:tags m1)))))))
 
+(deftest simple-operation
+  (let [op (create-operation [:input] 
+                             (fn [{:keys [input]}] {:output input}) {:name "Identity"})
+        op-meta (metadata op)]
+    (is (= "Identity" (:name op-meta)))
+    (is (= "operation" (:type op-meta)))
+    
+    (let [a (memory-asset "Test")
+          r (invoke-result op {:input a})]
+      (is (map? r)) ;; check invoke result is a map
+      (is (asset? (:output r))) ;; check the output field is populated
+      )))
 
 
 (comment
