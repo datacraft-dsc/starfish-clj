@@ -29,10 +29,12 @@
     (is (= "Identity" (:name op-meta)))
     (is (= "operation" (:type op-meta)))
     
-    (let [a (memory-asset "Test")
-          r (invoke-result op {:input a})]
+    (let [a (memory-asset "TestIdentity")
+          r (invoke-result op {:input a})
+          output (:output r)]
       (is (map? r)) ;; check invoke result is a map
-      (is (asset? (:output r))) ;; check the output field is populated
+      (is (asset? output)) ;; check the output field is populated
+      (is (= "TestIdentity" (to-string (content output)))) ;; check identity has been maintained
       )))
 
 
