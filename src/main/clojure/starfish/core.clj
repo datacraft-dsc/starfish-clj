@@ -291,6 +291,11 @@
     ;;convert from java Hashmap to Clojure map
    (into {} (.invokeResult operation params))))
 
+(defn job-status 
+  "Gets the status of a Job instance. Possible return values are defined by DEP6."
+  ([^Job job]
+    (throw (Error. "Not yet supported, requires squid-java interface extension")))) 
+
 ;; ==============================================================
 ;; Asset functionality
 
