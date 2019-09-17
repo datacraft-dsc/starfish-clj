@@ -54,16 +54,16 @@
   ;; define a new operation
  (def op (create-operation [:input] 
                             (fn [{input :input}]
-                              {:result (asset (.toUpperCase (to-string input)))})))
+                              {:output (asset (.toUpperCase (to-string input)))})))
   
   
   (pprint (metadata op))
   
-  ;; compute the result
- (def result (invoke-result op {:input as2}))
+  ;; compute the result, getting the output asset from the result map
+ (def as4 (:output (invoke-result op {:input as1})))
   
   ;; see the reuslt
- (println (to-string (content result)))
+ (println (to-string (content as4)))
   
   ;; ======================================================================================
  ;; Register new asset on our agent
