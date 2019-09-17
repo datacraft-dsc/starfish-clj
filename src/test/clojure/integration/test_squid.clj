@@ -31,7 +31,7 @@
         sf (s/remote-agent did ddostring "Aladdin" "OpenSesame")]
     sf))
 
-(deftest ^:integration register-with-squid
+(deftest ^:squid-integration register-with-squid
   (testing "registration "
     (let [con-str "testdata"
           a1 (s/memory-asset {"random" "metadata"}

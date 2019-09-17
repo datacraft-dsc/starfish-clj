@@ -1,6 +1,6 @@
 (defproject sg.dex/starfish-clj "0.6.0"
   :url "https://github.com/DEX-Company/starfish-clj"
-  :dependencies [[sg.dex/starfish-java "0.7.0"]
+  :dependencies [ [sg.dex/starfish-java "0.7.0"]
                  [org.clojure/data.json "0.2.6"]
                  [clojurewerkz/propertied "1.3.0"]
                  [org.clojure/data.csv "0.1.4"]
@@ -12,7 +12,11 @@
   :java-source-paths ["src/main/java"]
   :source-paths ["src/main/clojure"]
   :test-paths ["src/test/clojure" "src/test/java"]
-  :test-selectors {:default (complement :integration)
+  :test-selectors {:default (fn[m] 
+                             (not (or (clojure.string/includes? (str (:ns m))
+                                                              "integration")
+                                    (clojure.string/includes? (str (:name m))
+                                                              "integration")))) 
                    :integration :integration}
   :plugins [[lein-codox "0.10.7"]]
   :codox {:output-path "codox"}
