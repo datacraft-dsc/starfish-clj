@@ -69,7 +69,7 @@
  ;; Register new asset on our agent
  
   ;; upload the result of our invoke
- (def as3 (upload my-agent result)) 
+ (def as3 (upload my-agent as4)) 
   
   ;; asset now has a full remote DID
  (str (did as3)) 
