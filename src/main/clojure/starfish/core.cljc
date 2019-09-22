@@ -233,7 +233,8 @@
   (^String [did-value]
     (ddo (Ocean/connect) did-value))
   (^String [^Resolver resolver did-value]
-    (read-json-string (ddo-string resolver did-value))))
+    (if-let [ddos (ddo-string resolver did-value)] 
+      (read-json-string ddos))))
 
 (defn create-ddo
   "Creates a default DDO as a String for the given host address"
