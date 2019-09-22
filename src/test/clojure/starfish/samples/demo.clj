@@ -14,7 +14,6 @@
 
   ;; create a new asset
   (def as1 (memory-asset             ;; type of asset to construct
-             {:name "My Asset"}      ;; metadata
              "This is a test")       ;; content (as a String))
     )
   
@@ -44,9 +43,10 @@
   ;; assets also have a DID, starting with the DID of the agent
   (str (did as2))
   
-  ;; print the content of asset data
-  (println (to-string (content as2)))
+  ;; Upload an asset
+  (def as3 (upload my-agent as1))
  
+  (get-asset my-agent (asset-id as3))
   
   ;; ======================================================================================
  ;; Operations
