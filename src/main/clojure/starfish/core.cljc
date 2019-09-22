@@ -325,17 +325,12 @@
 (defn asset
   "Coerces input data to an asset.
    - Existing assets are unchanged
-   - DIDs are resolved to appropriate assets if possible
-   - Strings and numbers are converted to memory assets containing the string representation
-   - Map and Vector data structures are converted to JSON strings"
+   - DIDs are resolved to appropriate assets if possible"
   (^Asset [data]
    (cond
      (asset? data) data
      (did? data) (get-asset (get-agent ^DID data))
-     (string? data) (MemoryAsset/createFromString ^String data)
-     (number? data) (MemoryAsset/createFromString (str data))
-     (map? data) (json-string data)
-     (vector? data) (json-string data)
+     (string? data) (asset (did data))
      :else (TODO "Not yet supported: " (class data)))))
 
 (defn memory-asset
