@@ -394,15 +394,22 @@
 
 (defn register
   "Registers an Asset with an Agent. Registration stores the metadata of the asset with the Agent, 
-   but does not upload any data."
+   but does not upload any data.
+
+   Returns an asset associated with the agent if successful."
   (^Asset [^Agent agent ^Asset asset]
-   (.registerAsset agent asset)))
+    (.registerAsset agent asset)))
 
 (defn metadata
   "Gets the metadata for an asset as a Clojure map"
   ([^Asset asset]
    (let [md (.getMetadata asset)]
      (keywordize-keys (into {} md)))))
+
+(defn metadata-string
+  "Gets the metadata for an asset as a String."
+  (^String [^Asset asset]
+    (.getMetadataString asset)))
 
 (defn content
   "Gets the content for a given asset as raw byte data"

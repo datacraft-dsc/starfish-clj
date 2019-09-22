@@ -20,7 +20,8 @@
       (is (= "abc" (to-string (content a1))))
       (let [m1 (metadata a1)]
         (is (= "dataset" (:type m1)))
-        (is (= ["test" "data"] (:tags m1)))))))
+        (is (= ["test" "data"] (:tags m1)))
+        (is (= m1 (read-json-string (metadata-string a1))))))))
 
 (deftest simple-operation
   (let [op (create-operation [:input] 
