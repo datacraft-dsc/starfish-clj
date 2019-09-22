@@ -201,8 +201,11 @@
    The asset ID is meaningful mainly  in the context of an agent that has the asset registered. It is
    preferable to use (did asset) for the asset DID if the intent is to obtain a full reference to the asset
    that includes the agent location."
-  ([^Asset a]
-   (.getAssetID a)))
+  ([a]
+   (cond 
+     (asset? a) (.getAssetID ^Asset a)
+     (did? a) (did-id ^DID a)
+     :else (error "Can't get asset ID of type " (class a)))))
 
 ;; ============================================================
 ;; DDO management
@@ -361,6 +364,7 @@
 
 (defn get-agent
   "Gets a Ocean agent for the given DID"
+  ;; TODO: add optional resolver
   (^Agent [agent-did]
    (cond
      (agent? agent-did) agent-did
