@@ -274,7 +274,8 @@
          meta {"name" "Unnamed Operation"
                "type" "operation"
                "dateCreated" (str (Instant/now))
-               "params" paramspec}
+               "operation" {"modes" ["sync" "async"]
+                            "params" paramspec}}
          meta (merge meta (stringify-keys additional-metadata))]
      (ClojureOperation/create (json-string meta) (MemoryAgent/create) wrapped-fn ))))
 
