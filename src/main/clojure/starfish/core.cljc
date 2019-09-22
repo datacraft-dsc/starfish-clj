@@ -1,6 +1,7 @@
 (ns starfish.core
   (:require [clojure.walk :refer [keywordize-keys stringify-keys]]
-            [clojure.data.json :as json])
+            [clojure.data.json :as json]
+            [starfish.utils :refer [error TODO]])
   (:import [java.nio.charset
             StandardCharsets]
            [java.io InputStream]
@@ -207,11 +208,17 @@
 ;; DDO management
 
 (defn install-ddo 
-  "Installs a DDO locally for an agent"
-  [did-value ^String ddo]
+  "Installs a DDO locally for an agent.
+
+   DDO may be either a String or a Map, it will be coerced into a JSON String for installation."
+  [did-value ddo]
   (let [resolver (Ocean/connect)
+        ^String ddo-string (cond
+                             (string? ddo) ddo 
+                             (map? ddo) (json-string-pprint ddo)
+                             :else (error "ddo value must be a String or Map"))
         did (did did-value)]
-    (.installLocalDDO resolver did ddo)))
+    (.installLocalDDO resolver did ddo-string)))
 
 (defn ddo
   "Gets a DDO for the given DID as a String. Uses the default resolver if resolver is not specified."
