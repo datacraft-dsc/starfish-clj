@@ -7,14 +7,14 @@
 
 (deftest test-install-ddo
   (testing "missing ddo"
-    (is (nil? (ddo (random-did)))))
+    (is (nil? (ddo-string (random-did)))))
   
   (testing "install local ddo"
     (let [did (random-did)
           ddostring "{}"]
       (install-ddo did ddostring)
       
-      (is (= ddostring (ddo did))))))
+      (is (= ddostring (ddo-string did))))))
   
 (comment
   (run-all-tests)

@@ -14,7 +14,7 @@
            [sg.dex.starfish.util
             DID Hex Utils RemoteAgentConfig ProvUtil DDOUtil JSON]
            [sg.dex.starfish
-            Asset DataAsset Invokable Agent Job Listing Ocean Operation Purchase]
+            Asset DataAsset Invokable Agent Job Listing Ocean Resolver Operation Purchase]
            [sg.dex.starfish.impl.memory
             MemoryAsset ClojureOperation MemoryAgent]
            [sg.dex.starfish.impl.remote
@@ -220,14 +220,20 @@
         did (did did-value)]
     (.installLocalDDO resolver did ddo-string)))
 
-(defn ddo
-  "Gets a DDO for the given DID as a String. Uses the default resolver if resolver is not specified."
+(defn ddo-string
+  "Gets a DDO for the given DID as a JSON formatted String. Uses the default resolver if resolver is not specified."
   (^String [did-value]
-   (ddo (Ocean/connect) did-value))
-  (^String [^Ocean resolver did-value]
-   (let [^DID d (did did-value)
-         ddo-value (.getDDO resolver d)]
-     (when ddo-value (json-string ddo-value)))))
+   (ddo-string (Ocean/connect) did-value))
+  (^String [^Resolver resolver did-value]
+   (let [^DID d (did did-value)]
+     (.getDDOString resolver d))))
+
+(defn ddo 
+  "Gets a DDO for the given DID as a Clojure map. Uses the default resolver if resolver is not specified."
+  (^String [did-value]
+    (ddo (Ocean/connect) did-value))
+  (^String [^Resolver resolver did-value]
+    (read-json-string (ddo-string resolver did-value))))
 
 (defn create-ddo
   "Creates a default DDO as a String for the given host address"
@@ -378,12 +384,15 @@
 
 
 (defn upload
-  "Uploads any asset to an Agent. Returns an Asset referring to the uploaded Asset." 
+  "Uploads any asset to an Agent. Registers the asset with the Agent if required.
+
+   Returns an Asset instance referring to the uploaded remote Asset." 
   (^Asset [^Agent agent ^Asset asset]
    (.uploadAsset agent asset)))
 
 (defn register
-  "Registers an Asset with an Agent"
+  "Registers an Asset with an Agent. Registration stores the metadata of the asset with the Agent, 
+   but does not upload any data."
   (^Asset [^Agent agent ^Asset asset]
    (.registerAsset agent asset)))
 
