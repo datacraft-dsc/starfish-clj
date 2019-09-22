@@ -203,7 +203,15 @@
   ([^Asset a]
    (.getAssetID a)))
 
+;; ============================================================
 ;; DDO management
+
+(defn install-ddo 
+  "Installs a DDO locally for an agent"
+  [did-value ^String ddo]
+  (let [resolver (Ocean/connect)
+        did (did did-value)]
+    (.installLocalDDO resolver did ddo)))
 
 (defn ddo
   "Gets a DDO for the given DID as a String. Uses the default resolver if resolver is not specified."
