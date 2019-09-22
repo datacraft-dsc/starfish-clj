@@ -388,40 +388,40 @@
   "Uploads any asset to an Agent. Registers the asset with the Agent if required.
 
    Returns an Asset instance referring to the uploaded remote Asset." 
-  (^Asset [^Agent agent ^Asset asset]
-   (.uploadAsset agent asset)))
+  (^Asset [^Agent agent a]
+   (.uploadAsset agent (asset a))))
 
 (defn register
   "Registers an Asset with an Agent. Registration stores the metadata of the asset with the Agent, 
    but does not upload any data.
 
    Returns an asset associated with the agent if successful."
-  (^Asset [^Agent agent some-asset]
-    (.registerAsset agent (asset some-asset))))
+  (^Asset [^Agent agent a]
+    (.registerAsset agent (asset a))))
 
 (defn metadata
   "Gets the metadata for an asset as a Clojure map"
-  ([some-asset]
-   (let [a (asset some-asset)
+  ([a]
+   (let [a (asset a)
          md (.getMetadata a)]
      (keywordize-keys (into {} md)))))
 
 (defn metadata-string
   "Gets the metadata for an asset as a String."
-  (^String [some-asset]
-    (let [^Asset a (asset some-asset)]
+  (^String [a]
+    (let [^Asset a (asset a)]
       (.getMetadataString a))))
 
 (defn content
   "Gets the content for a given asset as raw byte data"
-  (^bytes [^Asset asset]
-   (let []
-     (.getContent asset))))
+  (^bytes [a]
+   (let [^Asset a (asset a)]
+     (.getContent a))))
 
 (defn content-stream
   "Gets the content for a given data asset as an input stream."
-  (^java.io.InputStream [some-asset]
-   (let [^Asset a (asset some-asset)]
+  (^java.io.InputStream [a]
+   (let [^Asset a (asset a)]
      (.getContentStream ^DataAsset a))))
 
 (defn publish-prov-metadata
