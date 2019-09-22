@@ -23,5 +23,5 @@
    also throwing an error at runtime if encountered."
   ([]
     `(TODO "Not yet implemented"))
-  ([message]
-    `(throw (java.lang.UnsupportedOperationException (str "TODO: " ~message)))))
+  ([& messages]
+    `(throw (java.lang.UnsupportedOperationException (str "TODO: " ~@messages)))))

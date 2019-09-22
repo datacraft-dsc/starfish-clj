@@ -75,7 +75,7 @@
        (boolean? json) (write-json json)
        (instance? java.util.Map json) (write-json (into {} json))
        (nil? json) (write-json json)
-       :else (throw (IllegalArgumentException. (str "Can't convert to JSON: " (class json))))))))
+       :else (error "Can't convert to JSON: " (class json))))))
 
 (defn json-string-pprint
   "Coerces the argument to a pretty-printed JSON string"
@@ -97,7 +97,7 @@
      (bytes? data) ^bytes data
      (string? data) (.getBytes ^String data StandardCharsets/UTF_8)
      (asset? data) (.getBytes ^String data StandardCharsets/UTF_8)
-     :else (throw (IllegalArgumentException. (str "Can't convert to bytes: " (class data)))))))
+     :else (error "Can't convert to bytes: " (class data)))))
 
 (defn to-string
   "Coerces data to a string format."
@@ -106,7 +106,7 @@
      (bytes? data) (String. ^bytes data StandardCharsets/UTF_8)
      (string? data) data
      (asset? data) (to-string (content data))
-     :else (throw (IllegalArgumentException. (str "Can't convert to string: " (class data)))))))
+     :else (error "Can't convert to string: " (class data)))))
 
 (defn hex->bytes
   "Convert hex string to bytes"
@@ -328,7 +328,7 @@
      (number? data) (MemoryAsset/createFromString (str data))
      (map? data) (json-string data)
      (vector? data) (json-string data)
-     :else (throw (Error. (str "Not yet supported: " (class data)))))))
+     :else (TODO "Not yet supported: " (class data)))))
 
 (defn memory-asset
   "Create an in-memory asset with the given metadata and raw data.
