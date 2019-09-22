@@ -5,6 +5,7 @@
                  [clojurewerkz/propertied "1.3.0"]
                  [org.clojure/data.csv "0.1.4"]
                  [org.slf4j/jcl-over-slf4j "1.7.28"] ;; Used to fix JCL issues with Apache HTTP logging via JCL
+                 [org.bouncycastle/bcprov-jdk15on "1.62"]
                  ]
 
   ;; :javac-options ["-target" "8", "-source" "8"] ; TODO figure out of this is helpful? Causes a warning
