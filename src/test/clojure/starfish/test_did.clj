@@ -10,6 +10,14 @@
     (is (did? (did "did:op:123/456")))
     (is (not (did? "did:op:123/456"))))
   
+  (testing "did id"
+    (is (= "123" (did-id "did:op:123/456")))
+    (is (= "123" (did-id (did "did:op:123/456")))))
+  
+  (testing "did path"
+    (is (= "456" (did-path "did:op:123/456")))
+    (is (= "456" (did-path (did "did:op:123/456"))))
+    (is (nil? (did-path (did "did:op:123")))))
   )
   
 (comment
