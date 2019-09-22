@@ -8,6 +8,7 @@
     (let [a1 (memory-asset "abc")]
       (is (= "abc" (to-string (content a1))))
       (is (= "abc" (slurp (content-stream a1))))
+      (is (identical? a1 (asset a1)))
       (let [m1 (metadata a1)]
         (is (= "dataset" (:type m1)))
         (is (= "3" (:size m1))))))

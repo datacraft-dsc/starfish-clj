@@ -329,7 +329,7 @@
   (^Asset [data]
    (cond
      (asset? data) data
-     (did? data) (get-asset (get-agent ^DID data))
+     (did? data) (get-asset (get-agent ^DID data) data)
      (string? data) (asset (did data))
      :else (TODO "Not yet supported: " (class data)))))
 
@@ -392,19 +392,21 @@
    but does not upload any data.
 
    Returns an asset associated with the agent if successful."
-  (^Asset [^Agent agent ^Asset asset]
-    (.registerAsset agent asset)))
+  (^Asset [^Agent agent some-asset]
+    (.registerAsset agent (asset some-asset))))
 
 (defn metadata
   "Gets the metadata for an asset as a Clojure map"
-  ([^Asset asset]
-   (let [md (.getMetadata asset)]
+  ([some-asset]
+   (let [a (asset some-asset)
+         md (.getMetadata a)]
      (keywordize-keys (into {} md)))))
 
 (defn metadata-string
   "Gets the metadata for an asset as a String."
-  (^String [^Asset asset]
-    (.getMetadataString asset)))
+  (^String [some-asset]
+    (let [^Asset a (asset some-asset)]
+      (.getMetadataString a))))
 
 (defn content
   "Gets the content for a given asset as raw byte data"
@@ -413,10 +415,10 @@
      (.getContent asset))))
 
 (defn content-stream
-  "Gets the content for a given asset as an input stream."
-  (^java.io.InputStream [^Asset asset]
-   (let []
-     (.getContentStream ^DataAsset asset))))
+  "Gets the content for a given data asset as an input stream."
+  (^java.io.InputStream [some-asset]
+   (let [^Asset a (asset some-asset)]
+     (.getContentStream ^DataAsset a))))
 
 (defn publish-prov-metadata
   "Creates provenance metadata. If the first argument is a map with raw metadata, it adds a provenance
