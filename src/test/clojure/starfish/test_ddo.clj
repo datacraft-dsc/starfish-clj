@@ -12,11 +12,12 @@
       (is (nil? (ddo missing-did)))))
   
   (testing "install local ddo"
-    (let [did (random-did)
+    (let [my-did (random-did)
           ddostring "{}"]
-      (install-ddo did ddostring)
+      (install-ddo my-did ddostring)
       
-      (is (= ddostring (ddo-string did))))))
+      (is (= ddostring (ddo-string my-did)))
+      (is (= {} (ddo my-did))))))
   
 (comment
   (run-all-tests)
