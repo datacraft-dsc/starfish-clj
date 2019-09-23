@@ -196,12 +196,12 @@
     (.getFragment (did a))))
 
 (defn asset-id
-  "Gets the Asset ID for an asset.
+  "Gets the Asset ID for an asset as a String.
 
-   The asset ID is meaningful mainly  in the context of an agent that has the asset registered. It is
+   The asset ID is meaningful mainly  in the context of an Agent that has the Asset registered. It is
    preferable to use (did asset) for the asset DID if the intent is to obtain a full reference to the asset
    that includes the agent location."
-  ([a]
+  (^String [a]
    (cond 
      (asset? a) (.getAssetID ^Asset a)
      (did? a) (did-id ^DID a)
@@ -357,10 +357,11 @@
    (RemoteAgentConfig/getRemoteAgent ddo did username password)))
 
 (defn get-asset
-  "Gets an asset from a remote agent, given as Asset ID as a string."
+  "Gets an asset from a remote agent, given an Asset ID as a String or DID."
 
-  ([^Agent agent ^String asset-id]
-   (.getAsset agent asset-id)))
+  ([^Agent agent assetid]
+    (let [^String id (if (string? assetid) assetid (asset-id assetid))]
+      (.getAsset agent id)))) 
 
 (defn get-agent
   "Gets a Ocean agent for the given DID"
