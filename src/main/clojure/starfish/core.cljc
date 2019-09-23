@@ -342,6 +342,14 @@
   (let [res (.getResult job)]
     (keywordize-keys res))) 
 
+(defn poll-result
+  "Pools the results of a job, returning a map of keywords to assets / values if succeeded.
+
+   Returns null if results are not yet available"
+  [^Job job]
+  (let [res (.pollResult job)]
+    (keywordize-keys res))) 
+
 ;; ==============================================================
 ;; Asset functionality
 

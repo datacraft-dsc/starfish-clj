@@ -44,6 +44,7 @@
       (is (job? jb)) ;; check invoke results in a job
       (let [r (get-result jb)
             output (:output r)]
+        (is (= r (poll-result jb)))
         (is (map? r)) ;; check invoke result is a map
         (is (asset? output)) ;; check the output field is populated
         (is (= "TestIdentity" (to-string (content output)))) ;; check identity has been maintained) 
