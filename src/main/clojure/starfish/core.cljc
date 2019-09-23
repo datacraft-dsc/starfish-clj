@@ -318,9 +318,16 @@
    (into {} (.invokeResult operation params))))
 
 (defn job-status 
-  "Gets the status of a Job instance. Possible return values are defined by DEP6."
+  "Gets the status of a Job instance as a keyword. 
+
+   Possible return values are defined by DEP6."
   ([^Job job]
-    (throw (Error. "Not yet supported, requires squid-java interface extension")))) 
+    (keyword (.getStatus job)))) 
+
+(defn job-id 
+  "Gets the ID of a Job instance."
+  ([^Job job]
+    (.getJobID job))) 
 
 ;; ==============================================================
 ;; Asset functionality
