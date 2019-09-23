@@ -47,6 +47,11 @@
   ([a]
    (instance? DID a)))
 
+(defn job?
+  "Returns true if the argument is a Job"
+  ([a]
+   (instance? Job a)))
+
 ;;===================================
 ;; Utility functions, coercion etc.
 
@@ -329,6 +334,14 @@
   ([^Job job]
     (.getJobID job))) 
 
+(defn get-result
+  "Gets the results of a job, as a map of keywords to assets / values.
+
+   Blocks until results are ready"
+  [^Job job]
+  (let [res (.getResult job)]
+    (keywordize-keys res))) 
+
 ;; ==============================================================
 ;; Asset functionality
 
@@ -406,6 +419,14 @@
    Returns an asset associated with the agent if successful."
   (^Asset [^Agent agent a]
     (.registerAsset agent (asset a))))
+
+(defn register-metadata
+  "Registers metadata with an Agent. Registration stores the metadata with the Agent, 
+   but does not upload any data.
+
+   Returns an asset associated with the agent if successful."
+  (^Asset [^Agent agent ^String meta-string]
+    (.registerAsset agent meta-string)))
 
 (defn metadata
   "Gets the metadata for an asset as a Clojure map"

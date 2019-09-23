@@ -37,7 +37,17 @@
       (is (map? r)) ;; check invoke result is a map
       (is (asset? output)) ;; check the output field is populated
       (is (= "TestIdentity" (to-string (content output)))) ;; check identity has been maintained
-      )))
+      )
+    
+    (let [a (memory-asset "TestIdentity")
+          jb (invoke op {:input a})]
+      (is (job? jb)) ;; check invoke results in a job
+      (let [r (get-result jb)
+            output (:output r)]
+        (is (map? r)) ;; check invoke result is a map
+        (is (asset? output)) ;; check the output field is populated
+        (is (= "TestIdentity" (to-string (content output)))) ;; check identity has been maintained) 
+        ))))
 
 
 (comment
