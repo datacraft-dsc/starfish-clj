@@ -19,6 +19,12 @@
           a1 (memory-asset mdata "abc")]
       (is (= tagdata (:tags (metadata a1))))
       (is (= "abc" (to-string (content a1))))
+      (let [mds (metadata-string a1)
+            a2 (memory-asset mds (content a1))]
+        (is (= (digest mds) (asset-id a2)))
+        (is (= (asset-id a1) (asset-id a2)))
+        )
+      
       (let [m1 (metadata a1)]
         (is (= "dataset" (:type m1)))
         (is (= ["test" "data"] (:tags m1)))

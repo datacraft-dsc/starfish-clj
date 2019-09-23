@@ -374,9 +374,11 @@
    (let [byte-data (to-bytes data)]
      (MemoryAsset/create byte-data)))
   (^Asset [meta data]
-   (let [^java.util.Map meta-map (stringify-keys meta)
-         byte-data (to-bytes data)]
-     (MemoryAsset/create byte-data meta-map ))))
+   (let [byte-data (to-bytes data)]
+     (if (string? meta) 
+       (MemoryAsset/create byte-data ^String meta)
+       (let [^java.util.Map meta-map (stringify-keys meta)] 
+         (MemoryAsset/create byte-data meta-map ))))))
 
 ;; =======================================================
 ;; Agent functionality
