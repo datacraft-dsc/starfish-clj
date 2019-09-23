@@ -7,6 +7,7 @@
            [java.io InputStream]
            [java.time
             Instant]
+           [java.lang IllegalArgumentException] 
            [clojure.lang
             IFn]
            [sg.dex.crypto
@@ -362,7 +363,8 @@
      (asset? data) data
      (did? data) (get-asset (get-agent ^DID data) data)
      (string? data) (asset (did data))
-     :else (TODO "Not yet supported: " (class data)))))
+     (nil? data) (throw (IllegalArgumentException. "Cannot convert nil to Asset")) 
+     :else (TODO (str "Not yet supported: " data)))))
 
 (defn memory-asset
   "Create an in-memory asset with the given metadata and raw data.
