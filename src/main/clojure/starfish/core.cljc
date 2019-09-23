@@ -1,10 +1,11 @@
 (ns starfish.core
   (:require [clojure.walk :refer [keywordize-keys stringify-keys]]
             [clojure.data.json :as json]
+            [clojure.java.io :as io]
             [starfish.utils :refer [error TODO]])
   (:import [java.nio.charset
             StandardCharsets]
-           [java.io InputStream]
+           [java.io InputStream File] 
            [java.time
             Instant]
            [java.lang IllegalArgumentException] 
@@ -18,6 +19,8 @@
             Asset DataAsset Invokable Agent Job Listing Ocean Resolver Operation Purchase]
            [sg.dex.starfish.impl.memory
             MemoryAsset ClojureOperation MemoryAgent]
+           [sg.dex.starfish.impl.file
+            FileAsset]
            [sg.dex.starfish.impl.remote
             RemoteAgent RemoteAccount]))
 
@@ -379,6 +382,20 @@
        (MemoryAsset/create byte-data ^String meta)
        (let [^java.util.Map meta-map (stringify-keys meta)] 
          (MemoryAsset/create byte-data meta-map ))))))
+
+(defn file-asset
+  "Create a file asset with the given metadata and source file.
+
+   If no metadata is supplied, default metadata is generated."
+  (^Asset [file]
+   (let [^File file (io/file file)]
+     (FileAsset/create file)))
+  (^Asset [meta file]
+   (let [^File file (io/file file)]
+     (if (string? meta) 
+       (FileAsset/create file ^String meta)
+       (let [^java.util.Map meta-map (stringify-keys meta)] 
+         (FileAsset/create file meta-map ))))))
 
 ;; =======================================================
 ;; Agent functionality
