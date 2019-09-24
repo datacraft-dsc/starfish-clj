@@ -205,7 +205,7 @@
     (.getFragment (did a))))
 
 (defn asset-id
-  "Gets the Asset ID for an asset as a String.
+  "Gets the Asset ID for an asset or DID as a String.
 
    The asset ID is meaningful mainly  in the context of an Agent that has the Asset registered. It is
    preferable to use (did asset) for the asset DID if the intent is to obtain a full reference to the asset
@@ -213,7 +213,8 @@
   (^String [a]
    (cond 
      (asset? a) (.getAssetID ^Asset a)
-     (did? a) (did-id ^DID a)
+     (did? a) (or (did-path ^DID a) (error "DID does not contain an asset ID in DID path"))
+     (string? a) (asset-id (did a))
      :else (error "Can't get asset ID of type " (class a)))))
 
 ;; ============================================================
@@ -402,8 +403,8 @@
 
 (defn remote-agent
   "Gets a remote agent with the provided DID"
-  ([did ddo username password]
-   (RemoteAgentConfig/getRemoteAgent ddo did username password)))
+  ([local-did ddo username password]
+   (RemoteAgentConfig/getRemoteAgent ddo (did local-did) username password)))
 
 (defn get-asset
   "Gets an asset from a remote agent, given an Asset ID as a String or DID."
