@@ -170,7 +170,7 @@
    (DID/createRandom)))
 
 (defn valid-did?
-  "Is this a valid DID?"
+  "Returns truthy if the value is a DID or can be sucessfully coerced to a DID, falsey otherwise."
   [a]
   (or (did? a)
       (try
@@ -190,12 +190,12 @@
    (.getMethod (did a))))
 
 (defn did-id
-  "Return the DID ID"
+  "Return the DID ID. In standard Starfish usage, this is the ID of the Agent."
   (^String [a]
    (.getID (did a))))
 
 (defn did-path
-  "Return the DID path"
+  "Return the DID path. In standard Starfish usage, this is equivalent to the Asset ID."
   (^String [a]
    (.getPath (did a))))
 
@@ -213,8 +213,9 @@
   (^String [a]
    (cond 
      (asset? a) (.getAssetID ^Asset a)
-     (did? a) (or (did-path ^DID a) (error "DID does not contain an asset ID in DID path"))
+     (did? a) (or (did-path ^DID a) (error "DID does not contain an Asset ID in DID path"))
      (string? a) (asset-id (did a))
+     (nil? a) (error "Can't get Asset ID of null value") 
      :else (error "Can't get asset ID of type " (class a)))))
 
 ;; ============================================================
@@ -368,7 +369,7 @@
      (did? data) (get-asset (get-agent ^DID data) data)
      (string? data) (asset (did data))
      (nil? data) (throw (IllegalArgumentException. "Cannot convert nil to Asset")) 
-     :else (TODO (str "Not yet supported: " data)))))
+     :else (error "Cannot coerce to Asset: " data))))
 
 (defn memory-asset
   "Create an in-memory asset with the given metadata and raw data.
@@ -459,20 +460,21 @@
     (.registerAsset agent meta-string)))
 
 (defn metadata
-  "Gets the metadata for an asset as a Clojure map"
+  "Gets the metadata for an Asset as a Clojure map"
   ([a]
    (let [a (asset a)
          md (.getMetadata a)]
      (keywordize-keys (into {} md)))))
 
 (defn metadata-string
-  "Gets the metadata for an asset as a String."
+  "Gets the metadata for an Asset as a String. This is guaranteed to match the 
+   precise metadata used for the calculation of the Asset ID."
   (^String [a]
     (let [^Asset a (asset a)]
       (.getMetadataString a))))
 
 (defn content
-  "Gets the content for a given asset as raw byte data"
+  "Gets the content for a given Asset as raw byte data"
   (^bytes [a]
    (let [^Asset a (asset a)]
      (.getContent a))))
