@@ -22,6 +22,15 @@
           remote-asset (s/register sf a1)]
       (is (s/asset? remote-asset))
       (is (s/did? (s/did remote-asset)))))
+  (testing "registration with keyword metadata "
+    (let [a1 (s/asset (s/memory-asset {:meta :data} "test asset"))
+          sf (get-remote-agent)
+          remote-asset (s/register sf a1)]
+      (is (s/asset? remote-asset))))
+  (testing "registration with string metadata "
+    (let [a1 (s/asset (s/memory-asset {"meta" "data"} "test asset"))
+          remote-asset (s/register (get-remote-agent)a1)]
+      (is (s/asset? remote-asset))))
   (testing "upload "
     (let [con-str "test asset2"
           a1 (s/asset con-str)
