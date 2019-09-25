@@ -105,7 +105,7 @@
    (cond
      (bytes? data) ^bytes data
      (string? data) (.getBytes ^String data StandardCharsets/UTF_8)
-     (asset? data) (.getBytes ^String data StandardCharsets/UTF_8)
+     (asset? data) (.getContent ^Asset data)
      :else (error "Can't convert to bytes: " (class data)))))
 
 (defn to-string
@@ -372,12 +372,13 @@
      :else (error "Cannot coerce to Asset: " data))))
 
 (defn memory-asset
-  "Create an in-memory asset with the given metadata and raw data.
+  "Create an in-memory asset with the given metadata and data.
 
    If no metadata is supplied, default metadata is generated."
   (^Asset [data]
-   (let [byte-data (to-bytes data)]
-     (MemoryAsset/create byte-data)))
+   (cond
+     :else (let [byte-data (to-bytes data)]
+             (MemoryAsset/create byte-data))))
   (^Asset [meta data]
    (let [byte-data (to-bytes data)]
      (if (string? meta) 
