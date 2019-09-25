@@ -8,6 +8,7 @@
     (let [a1 (memory-asset "abc")]
       (is (= "abc" (to-string (content a1))))
       (is (= "abc" (slurp (content-stream a1))))
+      (is (identical? a1 (asset a1)))
       (let [m1 (metadata a1)]
         (is (= "dataset" (:type m1)))
         (is (= "3" (:size m1))))))
@@ -18,9 +19,16 @@
           a1 (memory-asset mdata "abc")]
       (is (= tagdata (:tags (metadata a1))))
       (is (= "abc" (to-string (content a1))))
+      (let [mds (metadata-string a1)
+            a2 (memory-asset mds (content a1))]
+        (is (= (digest mds) (asset-id a2)))
+        (is (= (asset-id a1) (asset-id a2)))
+        )
+      
       (let [m1 (metadata a1)]
         (is (= "dataset" (:type m1)))
-        (is (= ["test" "data"] (:tags m1)))))))
+        (is (= ["test" "data"] (:tags m1)))
+        (is (= m1 (read-json-string (metadata-string a1))))))))
 
 (deftest simple-operation
   (let [op (create-operation [:input] 
@@ -35,7 +43,18 @@
       (is (map? r)) ;; check invoke result is a map
       (is (asset? output)) ;; check the output field is populated
       (is (= "TestIdentity" (to-string (content output)))) ;; check identity has been maintained
-      )))
+      )
+    
+    (let [a (memory-asset "TestIdentity2")
+          jb (invoke op {:input a})]
+      (is (job? jb)) ;; check invoke results in a job
+      (let [r (get-result jb)
+            output (:output r)]
+        (is (= r (poll-result jb)))
+        (is (map? r)) ;; check invoke result is a map
+        (is (asset? output)) ;; check the output field is populated
+        (is (= "TestIdentity2" (to-string (content output)))) ;; check identity has been maintained) 
+        ))))
 
 
 (comment

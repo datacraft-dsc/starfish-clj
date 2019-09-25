@@ -1,11 +1,14 @@
 (ns starfish.core
   (:require [clojure.walk :refer [keywordize-keys stringify-keys]]
-            [clojure.data.json :as json])
+            [clojure.data.json :as json]
+            [clojure.java.io :as io]
+            [starfish.utils :refer [error TODO]])
   (:import [java.nio.charset
             StandardCharsets]
-           [java.io InputStream]
+           [java.io InputStream File] 
            [java.time
             Instant]
+           [java.lang IllegalArgumentException] 
            [clojure.lang
             IFn]
            [sg.dex.crypto
@@ -13,9 +16,11 @@
            [sg.dex.starfish.util
             DID Hex Utils RemoteAgentConfig ProvUtil DDOUtil JSON]
            [sg.dex.starfish
-            Asset DataAsset Invokable Agent Job Listing Ocean Operation Purchase]
+            Asset DataAsset Invokable Agent Job Listing Ocean Resolver Operation Purchase]
            [sg.dex.starfish.impl.memory
             MemoryAsset ClojureOperation MemoryAgent]
+           [sg.dex.starfish.impl.file
+            FileAsset]
            [sg.dex.starfish.impl.remote
             RemoteAgent RemoteAccount]))
 
@@ -46,6 +51,11 @@
   ([a]
    (instance? DID a)))
 
+(defn job?
+  "Returns true if the argument is a Job"
+  ([a]
+   (instance? Job a)))
+
 ;;===================================
 ;; Utility functions, coercion etc.
 
@@ -74,7 +84,7 @@
        (boolean? json) (write-json json)
        (instance? java.util.Map json) (write-json (into {} json))
        (nil? json) (write-json json)
-       :else (throw (IllegalArgumentException. (str "Can't convert to JSON: " (class json))))))))
+       :else (error "Can't convert to JSON: " (class json))))))
 
 (defn json-string-pprint
   "Coerces the argument to a pretty-printed JSON string"
@@ -96,7 +106,7 @@
      (bytes? data) ^bytes data
      (string? data) (.getBytes ^String data StandardCharsets/UTF_8)
      (asset? data) (.getBytes ^String data StandardCharsets/UTF_8)
-     :else (throw (IllegalArgumentException. (str "Can't convert to bytes: " (class data)))))))
+     :else (error "Can't convert to bytes: " (class data)))))
 
 (defn to-string
   "Coerces data to a string format."
@@ -105,7 +115,7 @@
      (bytes? data) (String. ^bytes data StandardCharsets/UTF_8)
      (string? data) data
      (asset? data) (to-string (content data))
-     :else (throw (IllegalArgumentException. (str "Can't convert to string: " (class data)))))))
+     :else (error "Can't convert to string: " (class data)))))
 
 (defn hex->bytes
   "Convert hex string to bytes"
@@ -160,7 +170,7 @@
    (DID/createRandom)))
 
 (defn valid-did?
-  "Is this a valid DID?"
+  "Returns truthy if the value is a DID or can be sucessfully coerced to a DID, falsey otherwise."
   [a]
   (or (did? a)
       (try
@@ -180,12 +190,12 @@
    (.getMethod (did a))))
 
 (defn did-id
-  "Return the DID ID"
+  "Return the DID ID. In standard Starfish usage, this is the ID of the Agent."
   (^String [a]
    (.getID (did a))))
 
 (defn did-path
-  "Return the DID path"
+  "Return the DID path. In standard Starfish usage, this is equivalent to the Asset ID."
   (^String [a]
    (.getPath (did a))))
 
@@ -195,24 +205,50 @@
     (.getFragment (did a))))
 
 (defn asset-id
-  "Gets the Asset ID for an asset.
+  "Gets the Asset ID for an asset or DID as a String.
 
-   The asset ID is meaningful mainly  in the context of an agent that has the asset registered. It is
+   The asset ID is meaningful mainly  in the context of an Agent that has the Asset registered. It is
    preferable to use (did asset) for the asset DID if the intent is to obtain a full reference to the asset
    that includes the agent location."
-  ([^Asset a]
-   (.getAssetID a)))
+  (^String [a]
+   (cond 
+     (asset? a) (.getAssetID ^Asset a)
+     (did? a) (or (did-path ^DID a) (error "DID does not contain an Asset ID in DID path"))
+     (string? a) (asset-id (did a))
+     (nil? a) (error "Can't get Asset ID of null value") 
+     :else (error "Can't get asset ID of type " (class a)))))
 
+;; ============================================================
 ;; DDO management
 
-(defn ddo
-  "Gets a DDO for the given DID as a String. Uses the default resolver if resolver is not specified."
+(defn install-ddo 
+  "Installs a DDO locally for an agent.
+
+   DDO may be either a String or a Map, it will be coerced into a JSON String for installation."
+  [did-value ddo]
+  (let [resolver (Ocean/connect)
+        ^String ddo-string (cond
+                             (string? ddo) ddo 
+                             (map? ddo) (json-string-pprint ddo)
+                             :else (error "ddo value must be a String or Map"))
+        did (did did-value)]
+    (.installLocalDDO resolver did ddo-string)))
+
+(defn ddo-string
+  "Gets a DDO for the given DID as a JSON formatted String. Uses the default resolver if resolver is not specified."
   (^String [did-value]
-   (ddo (Ocean/connect) did-value))
-  (^String [^Ocean resolver did-value]
-   (let [^DID d (did did-value)
-         ddo-value (.getDDO resolver d)]
-     (when ddo-value (json-string ddo-value)))))
+   (ddo-string (Ocean/connect) did-value))
+  (^String [^Resolver resolver did-value]
+   (let [^DID d (did did-value)]
+     (.getDDOString resolver d))))
+
+(defn ddo 
+  "Gets a DDO for the given DID as a Clojure map. Uses the default resolver if resolver is not specified."
+  (^String [did-value]
+    (ddo (Ocean/connect) did-value))
+  (^String [^Resolver resolver did-value]
+    (if-let [ddos (ddo-string resolver did-value)] 
+      (read-json-string ddos))))
 
 (defn create-ddo
   "Creates a default DDO as a String for the given host address"
@@ -252,7 +288,8 @@
          meta {"name" "Unnamed Operation"
                "type" "operation"
                "dateCreated" (str (Instant/now))
-               "params" paramspec}
+               "operation" {"modes" ["sync" "async"]
+                            "params" paramspec}}
          meta (merge meta (stringify-keys additional-metadata))]
      (ClojureOperation/create (json-string meta) (MemoryAgent/create) wrapped-fn ))))
 
@@ -292,9 +329,32 @@
    (into {} (.invokeResult operation params))))
 
 (defn job-status 
-  "Gets the status of a Job instance. Possible return values are defined by DEP6."
+  "Gets the status of a Job instance as a keyword. 
+
+   Possible return values are defined by DEP6."
   ([^Job job]
-    (throw (Error. "Not yet supported, requires squid-java interface extension")))) 
+    (keyword (.getStatus job)))) 
+
+(defn job-id 
+  "Gets the ID of a Job instance."
+  ([^Job job]
+    (.getJobID job))) 
+
+(defn get-result
+  "Gets the results of a job, as a map of keywords to assets / values.
+
+   Blocks until results are ready"
+  [^Job job]
+  (let [res (.getResult job)]
+    (keywordize-keys res))) 
+
+(defn poll-result
+  "Pools the results of a job, returning a map of keywords to assets / values if succeeded.
+
+   Returns null if results are not yet available"
+  [^Job job]
+  (let [res (.pollResult job)]
+    (keywordize-keys res))) 
 
 ;; ==============================================================
 ;; Asset functionality
@@ -302,18 +362,14 @@
 (defn asset
   "Coerces input data to an asset.
    - Existing assets are unchanged
-   - DIDs are resolved to appropriate assets if possible
-   - Strings and numbers are converted to memory assets containing the string representation
-   - Map and Vector data structures are converted to JSON strings"
+   - DIDs are resolved to appropriate assets if possible"
   (^Asset [data]
    (cond
      (asset? data) data
-     (did? data) (get-asset (get-agent ^DID data))
-     (string? data) (MemoryAsset/createFromString ^String data)
-     (number? data) (MemoryAsset/createFromString (str data))
-     (map? data) (json-string data)
-     (vector? data) (json-string data)
-     :else (throw (Error. (str "Not yet supported: " (class data)))))))
+     (did? data) (get-asset (get-agent ^DID data) data)
+     (string? data) (asset (did data))
+     (nil? data) (throw (IllegalArgumentException. "Cannot convert nil to Asset")) 
+     :else (error "Cannot coerce to Asset: " data))))
 
 (defn memory-asset
   "Create an in-memory asset with the given metadata and raw data.
@@ -323,26 +379,44 @@
    (let [byte-data (to-bytes data)]
      (MemoryAsset/create byte-data)))
   (^Asset [meta data]
-   (let [^java.util.Map meta-map (stringify-keys meta)
-         byte-data (to-bytes data)]
-     (MemoryAsset/create byte-data meta-map ))))
+   (let [byte-data (to-bytes data)]
+     (if (string? meta) 
+       (MemoryAsset/create byte-data ^String meta)
+       (let [^java.util.Map meta-map (stringify-keys meta)] 
+         (MemoryAsset/create byte-data meta-map ))))))
+
+(defn file-asset
+  "Create a file asset with the given metadata and source file.
+
+   If no metadata is supplied, default metadata is generated."
+  (^Asset [file]
+   (let [^File file (io/file file)]
+     (FileAsset/create file)))
+  (^Asset [meta file]
+   (let [^File file (io/file file)]
+     (if (string? meta) 
+       (FileAsset/create file ^String meta)
+       (let [^java.util.Map meta-map (stringify-keys meta)] 
+         (FileAsset/create file meta-map ))))))
 
 ;; =======================================================
 ;; Agent functionality
 
 (defn remote-agent
   "Gets a remote agent with the provided DID"
-  ([did ddo username password]
-   (RemoteAgentConfig/getRemoteAgent ddo did username password)))
+  ([local-did ddo username password]
+   (RemoteAgentConfig/getRemoteAgent ddo (did local-did) username password)))
 
 (defn get-asset
-  "Gets an asset from a remote agent, given as Asset ID as a string."
+  "Gets an asset from a remote agent, given an Asset ID as a String or DID."
 
-  ([^Agent agent ^String asset-id]
-   (.getAsset agent asset-id)))
+  ([^Agent agent assetid]
+    (let [^String id (if (string? assetid) assetid (asset-id assetid))]
+      (.getAsset agent id)))) 
 
 (defn get-agent
   "Gets a Ocean agent for the given DID"
+  ;; TODO: add optional resolver
   (^Agent [agent-did]
    (cond
      (agent? agent-did) agent-did
@@ -363,32 +437,53 @@
 
 
 (defn upload
-  "Uploads any asset to an Agent. Returns an Asset referring to the uploaded Asset." 
-  (^Asset [^Agent agent ^Asset asset]
-   (.uploadAsset agent asset)))
+  "Uploads any asset to an Agent. Registers the asset with the Agent if required.
+
+   Returns an Asset instance referring to the uploaded remote Asset." 
+  (^Asset [^Agent agent a]
+   (.uploadAsset agent (asset a))))
 
 (defn register
-  "Registers an Asset with an Agent"
-  (^Asset [^Agent agent ^Asset asset]
-   (.registerAsset agent asset)))
+  "Registers an Asset with an Agent. Registration stores the metadata of the asset with the Agent, 
+   but does not upload any data.
+
+   Returns an asset associated with the agent if successful."
+  (^Asset [^Agent agent a]
+    (.registerAsset agent (asset a))))
+
+(defn register-metadata
+  "Registers metadata with an Agent. Registration stores the metadata with the Agent, 
+   but does not upload any data.
+
+   Returns an asset associated with the agent if successful."
+  (^Asset [^Agent agent ^String meta-string]
+    (.registerAsset agent meta-string)))
 
 (defn metadata
-  "Gets the metadata for an asset as a Clojure map"
-  ([^Asset asset]
-   (let [md (.getMetadata asset)]
+  "Gets the metadata for an Asset as a Clojure map"
+  ([a]
+   (let [a (asset a)
+         md (.getMetadata a)]
      (keywordize-keys (into {} md)))))
 
+(defn metadata-string
+  "Gets the metadata for an Asset as a String. This is guaranteed to match the 
+   precise metadata used for the calculation of the Asset ID."
+  (^String [a]
+    (let [^Asset a (asset a)]
+      (.getMetadataString a))))
+
 (defn content
-  "Gets the content for a given asset as raw byte data"
-  (^bytes [^Asset asset]
-   (let []
-     (.getContent asset))))
+  "Gets the content for a given Asset as raw byte data"
+  (^bytes [a]
+   (let [^Asset a (asset a)]
+     (.getContent a))))
 
 (defn content-stream
-  "Gets the content for a given asset as an input stream."
-  (^java.io.InputStream [^Asset asset]
-   (let []
-     (.getContentStream ^DataAsset asset))))
+  "Gets the content for a given data asset as an input stream."
+  (^java.io.InputStream [a]
+   (let [^Asset a (asset a)]
+     (.getContentStream ^DataAsset a))))
 
 (defn publish-prov-metadata
   "Creates provenance metadata. If the first argument is a map with raw metadata, it adds a provenance
