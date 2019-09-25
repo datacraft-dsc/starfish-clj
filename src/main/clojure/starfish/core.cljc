@@ -152,7 +152,7 @@
   (^DID [a]
    (cond
      (did? a)    a
-     (asset? a)  (.getAssetDID ^Asset a)
+     (asset? a)  (.getDID ^Asset a)
      (agent? a)  (.getDID ^Agent a)
      (string? a) (DID/parse ^String a)
      :else (throw (IllegalArgumentException. (str "Can't get DID: " (class a)))))))

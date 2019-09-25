@@ -13,6 +13,12 @@
         (is (= "dataset" (:type m1)))
         (is (= "3" (:size m1))))))
   
+  (testing "memory asset DID"
+    (let [a1 (memory-asset "abcd")
+          d (did a1)]
+      (is (valid-did? d)) 
+      (is (= (did-path d) (asset-id a1))))) 
+  
   (testing "memory asset with metadata"
     (let [tagdata ["test" "data"]
           mdata {:tags tagdata}
