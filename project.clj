@@ -1,4 +1,4 @@
-(defproject sg.dex/starfish-clj "0.7.3-SNAPSHOT"
+(defproject sg.dex/starfish-clj "0.7.3"
   :url "https://github.com/DEX-Company/starfish-clj"
   :dependencies [[sg.dex/starfish-java "0.7.7"]
                  [org.clojure/data.json "0.2.6"]
