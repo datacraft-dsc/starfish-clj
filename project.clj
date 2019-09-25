@@ -19,6 +19,10 @@
   :codox {:output-path "codox"}
   :min-lein-version "2.8.1"
   :lein-release {:deploy-via :clojars}
+  
+  :deploy-repositories [["releases" :clojars]
+                        ["snapshots" :clojars]]
+  
   :profiles {:dev {:dependencies [[org.clojure/clojure "1.10.1"]
                                   [net.mikera/cljunit "0.7.0" :scope "test"]
                                    ]
