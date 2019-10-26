@@ -9,6 +9,7 @@ dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
 .lein-failures
+.lein-repl-history
 .nrepl-port
 
 # Avoid ignoring Maven wrapper jar file (.jar files are usually ignored)
