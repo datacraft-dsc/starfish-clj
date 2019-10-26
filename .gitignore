@@ -1,9 +1,11 @@
+.idea/
 target/
 pom.xml
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
 pom.xml.next
+starfish-clj.iml
 release.properties
 dependency-reduced-pom.xml
 buildNumber.properties
