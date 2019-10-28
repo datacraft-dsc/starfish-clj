@@ -16,7 +16,7 @@
            [sg.dex.starfish.util
             DID Hex Utils RemoteAgentConfig ProvUtil DDOUtil JSON]
            [sg.dex.starfish
-            Asset DataAsset Invokable Agent Job Listing Ocean Resolver Operation Purchase]
+            Asset DataAsset Invokable Agent Job Listing Resolver Operation Purchase]
            [sg.dex.starfish.impl.memory
             MemoryAsset ClojureOperation MemoryAgent]
            [sg.dex.starfish.impl.file
@@ -29,7 +29,7 @@
 
 (def BYTE-ARRAY-CLASS (Class/forName "[B"))
 
-(def ^{:dynamic true :tag Ocean}  *ocean* (Ocean/connect))
+;(def ^{:dynamic true :tag Ocean}  *ocean* (Ocean/connect))
 
 (declare content asset? get-asset get-agent)
 
@@ -225,8 +225,8 @@
   "Installs a DDO locally for an agent.
 
    DDO may be either a String or a Map, it will be coerced into a JSON String for installation."
-  [did-value ddo]
-  (let [resolver (Ocean/connect)
+  [resolver did-value ddo]
+  (let [;resolver (Ocean/connect)
         ^String ddo-string (cond
                              (string? ddo) ddo 
                              (map? ddo) (json-string-pprint ddo)
@@ -236,7 +236,7 @@
 
 (defn ddo-string
   "Gets a DDO for the given DID as a JSON formatted String. Uses the default resolver if resolver is not specified."
-  (^String [did-value]
+  #_(^String [did-value]
    (ddo-string (Ocean/connect) did-value))
   (^String [^Resolver resolver did-value]
    (let [^DID d (did did-value)]
@@ -244,7 +244,7 @@
 
 (defn ddo 
   "Gets a DDO for the given DID as a Clojure map. Uses the default resolver if resolver is not specified."
-  (^String [did-value]
+  #_(^String [did-value]
     (ddo (Ocean/connect) did-value))
   (^String [^Resolver resolver did-value]
     (if-let [ddos (ddo-string resolver did-value)] 
@@ -421,7 +421,7 @@
   (^Agent [agent-did]
    (cond
      (agent? agent-did) agent-did
-     (did? agent-did) (.getAgent *ocean* ^DID agent-did)
+     ;(did? agent-did) (.getAgent *ocean* ^DID agent-did)
      :else (throw (IllegalArgumentException. (str "Invalid did: " (class agent-did)))))))
 
 (defn digest
