@@ -31,7 +31,7 @@
   ;; USING REMOTE AGENTS
   ;; Agents are remote services providing asset and capabilities to the Ocean ecosystem
   (def my-agent (let [did (random-did)
-                      ddostring (create-ddo "http://localhost:8080/")]
+                      ddostring (create-ddo "http://localhost:8080")]
                   (remote-agent did ddostring "Aladdin" "OpenSesame")))
   
   ;; agents have a DID
@@ -68,13 +68,13 @@
  ;; Register new asset on our agent
  
   ;; upload the result of our invoke
- (def as3 (upload my-agent as4)) 
+ (def as5 (upload my-agent as4)) 
   
   ;; asset now has a full remote DID
- (str (did as3)) 
+ (str (did as5)) 
   
   ;; double check remote content
- (println (to-string (content as3)))
+ (println (to-string (content as5)))
 
   ;; ======================================================================================
   ;;invoke a remote operation
@@ -86,9 +86,8 @@
 
   ;;response is a map
  (-> invkres)
-  ;;view the content
- (to-string (content (invkres "primes")))
-  ;;view the metadata with added provenance
- (metadata (invkres "primes"))
+
+ 
+ 
 )
  
