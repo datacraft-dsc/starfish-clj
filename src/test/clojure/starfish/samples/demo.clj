@@ -31,14 +31,14 @@
   ;; USING REMOTE AGENTS
   ;; Agents are remote services providing asset and capabilities to the Ocean ecosystem
   (def my-agent (let [did (random-did)
-                      ddostring (create-ddo "http://13.70.20.203:8090/")]
+                      ddostring (create-ddo "http://localhost:8080/")]
                   (remote-agent did ddostring "Aladdin" "OpenSesame")))
   
   ;; agents have a DID
   (str (did my-agent))
   
   ;; Get an asset
-  (def as2 (get-asset my-agent "17f14c2ac039225a627365d83069dad300ea38c5de5e114eb93cbcc7fcf4cbe9"))
+  (def as2 (get-asset my-agent "4b95d8956ab9a503540d62ac7db2fbcaa99f7f78b2d4f4d8edd6d9d19d750403"))
  
   ;; assets also have a DID, starting with the DID of the agent
   (str (did as2))
@@ -54,9 +54,8 @@
   ;; define a new operation
  (def op (create-operation [:input] 
                             (fn [{input :input}]
-                              {:output (asset (.toUpperCase (to-string input)))})))
-  
-  
+                              {:output (memory-asset (.toUpperCase (to-string input)))})))
+   
   (pprint (metadata op))
   
   ;; compute the result, getting the output asset from the result map

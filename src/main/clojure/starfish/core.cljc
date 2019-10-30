@@ -16,7 +16,7 @@
            [sg.dex.starfish.util
             DID Hex Utils RemoteAgentConfig ProvUtil DDOUtil JSON]
            [sg.dex.starfish
-            Asset DataAsset Invokable Agent Job Listing Ocean Resolver Operation Purchase]
+            Asset DataAsset Invokable Agent Job Listing Resolver Operation Purchase]
            [sg.dex.starfish.impl.memory
             MemoryAsset ClojureOperation MemoryAgent]
            [sg.dex.starfish.impl.file
@@ -29,7 +29,8 @@
 
 (def BYTE-ARRAY-CLASS (Class/forName "[B"))
 
-(def ^{:dynamic true :tag Ocean}  *ocean* (Ocean/connect))
+;; TODO: use proper public APi to get resolver instance
+(def ^{:dynamic true :tag Resolver}  *resolver* (sg.dex.starfish.impl.memory.LocalResolverImpl.))
 
 (declare content asset? get-asset get-agent)
 
@@ -158,14 +159,14 @@
      :else (throw (IllegalArgumentException. (str "Can't get DID: " (class a)))))))
 
 (defn random-did-string
-  "Creates a random Ocean-compliant DID as a string, of the format:
-  did:ocn:a1019172af9ae4d6cb32b52193cae1e3d61c0bcf36f0ba1cd30bf82d6e446563"
+  "Creates a random DEP-compliant DID as a string, of the format:
+  did:xxx:a1019172af9ae4d6cb32b52193cae1e3d61c0bcf36f0ba1cd30bf82d6e446563"
   (^String []
    (DID/createRandomString)))
 
 (defn random-did
-  "Creates a random Ocean-compliant DID of the format:
-  did:ocn:a1019172af9ae4d6cb32b52193cae1e3d61c0bcf36f0ba1cd30bf82d6e446563"
+  "Creates a random DEP-compliant DID of the format:
+  did:xxx:a1019172af9ae4d6cb32b52193cae1e3d61c0bcf36f0ba1cd30bf82d6e446563"
   (^DID []
    (DID/createRandom)))
 
@@ -222,22 +223,22 @@
 ;; DDO management
 
 (defn install-ddo 
-  "Installs a DDO locally for an agent.
+  "Installs a DDO for an agent.
 
    DDO may be either a String or a Map, it will be coerced into a JSON String for installation."
   [did-value ddo]
-  (let [resolver (Ocean/connect)
+  (let [^Resolver resolver *resolver*
         ^String ddo-string (cond
                              (string? ddo) ddo 
                              (map? ddo) (json-string-pprint ddo)
                              :else (error "ddo value must be a String or Map"))
         did (did did-value)]
-    (.installLocalDDO resolver did ddo-string)))
+    (.registerDID resolver did ddo-string)))
 
 (defn ddo-string
   "Gets a DDO for the given DID as a JSON formatted String. Uses the default resolver if resolver is not specified."
   (^String [did-value]
-   (ddo-string (Ocean/connect) did-value))
+   (ddo-string *resolver* did-value))
   (^String [^Resolver resolver did-value]
    (let [^DID d (did did-value)]
      (.getDDOString resolver d))))
@@ -245,7 +246,7 @@
 (defn ddo 
   "Gets a DDO for the given DID as a Clojure map. Uses the default resolver if resolver is not specified."
   (^String [did-value]
-    (ddo (Ocean/connect) did-value))
+    (ddo *resolver* did-value))
   (^String [^Resolver resolver did-value]
     (if-let [ddos (ddo-string resolver did-value)] 
       (read-json-string ddos))))
@@ -260,10 +261,12 @@
 ;; Account
 
 (defn remote-account
-  [username password]
-  (RemoteAccount/create (Utils/createRandomHexString 32)
-                        {"username" username
-                         "password" password}))
+  [^String username ^String password]
+  ;; TODO: shouldn't this 
+  (let [^String id (or username (error "Username required!"))
+        ^java.util.Map creds {"username" username
+                         "password" password}]
+    (RemoteAccount/create id creds)))
 
 ;; =================================================
 ;; Operations
@@ -416,12 +419,13 @@
       (.getAsset agent id)))) 
 
 (defn get-agent
-  "Gets a Ocean agent for the given DID"
-  ;; TODO: add optional resolver
+  "Gets the DEP Agent agent for the given DID"
   (^Agent [agent-did]
+   (get-agent *resolver* agent-did))
+  (^Agent [^Resolver resolver agent-did]
    (cond
      (agent? agent-did) agent-did
-     (did? agent-did) (.getAgent *ocean* ^DID agent-did)
+     (did? agent-did) (RemoteAgent/create resolver ^DID agent-did)
      :else (throw (IllegalArgumentException. (str "Invalid did: " (class agent-did)))))))
 
 (defn digest
