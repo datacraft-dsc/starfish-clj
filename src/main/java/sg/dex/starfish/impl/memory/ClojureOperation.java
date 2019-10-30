@@ -1,14 +1,14 @@
 package sg.dex.starfish.impl.memory;
 
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-
 import clojure.lang.IFn;
 import clojure.lang.IPersistentMap;
 import clojure.lang.Keyword;
 import clojure.lang.PersistentHashMap;
 import sg.dex.starfish.Job;
 import sg.dex.starfish.Operation;
+
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Class implementing the starfish-java operation interface that wraps a Clojure function.

@@ -2,9 +2,7 @@
   (:require [starfish.core :as s]
             [clojurewerkz.propertied.properties :as p]
             [clojure.java.io :as io]
-            [clojure.test :refer [is are testing deftest run-all-tests]])
-  (:import [sg.dex.starfish.util
-            JSON DID Hex Utils RemoteAgentConfig]))
+            [clojure.test :refer [is are testing deftest run-all-tests]]))
 
 (defn get-remote-agent
   []

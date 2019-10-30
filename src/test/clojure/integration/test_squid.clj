@@ -4,11 +4,7 @@
             [clojure.java.io :as io]
             [clojure.test :refer [is are testing deftest run-all-tests]])
   (:import
-   [sg.dex.starfish.util JSON DID Hex Utils RemoteAgentConfig]
-   [sg.dex.starfish Ocean]
-           [com.oceanprotocol.squid.api OceanAPI]
-           [com.oceanprotocol.squid.api.config OceanConfig]
-           [sg.dex.starfish.impl.squid SquidAgent SquidAsset]))
+           [sg.dex.starfish.impl.squid SquidAgent]))
 
 (defn get-properties
   []
@@ -17,9 +13,8 @@
 (defn get-squid-agent
   []
   (let [props (get-properties)
-        ocean (Ocean/connect (OceanAPI/getInstance props))
         did1 (s/random-did)
-        squid-agent (SquidAgent/create props ocean did1)]
+        squid-agent (SquidAgent/create props did1)]
     squid-agent))
 
 (defn get-surfer-agent
