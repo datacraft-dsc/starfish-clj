@@ -54,7 +54,7 @@
   ;; define a new operation
  (def op (create-operation [:input] 
                             (fn [{input :input}]
-                              {:output (memory-asset (.toUpperCase (to-string input)))})))
+                              {:output (memory-asset (str (count (to-string input))))})))
    
   (pprint (metadata op))
   
@@ -68,7 +68,7 @@
  ;; Register new asset on our agent
  
   ;; upload the result of our invoke
- (def as5 (upload my-agent as4)) 
+ (def as5 (upload my-agent (memory-asset "Remote test asset data"))) 
   
   ;; asset now has a full remote DID
  (str (did as5)) 
