@@ -77,21 +77,11 @@
  (println (to-string (content as3)))
 
   ;; ======================================================================================
- ;;invoke a remote operation
- (def inv-ddo
-    (let [k (json/read-str (DDOUtil/getDDO "http://localhost:8080"))]
-      (update-in k ["service" 2]
-                 (fn[i] (update-in i ["serviceEndpoint"] (fn[_] "http://localhost:3000/api/v1"))) )
-      ))
-
-  ;;ddo points to koi-clj for invoke, and Surfer for the rest
- (-> inv-ddo)
+  ;;invoke a remote operation
 
   (def invkres 
-    (let [did (random-did)
-          rema (remote-agent did (json-string inv-ddo) "Aladdin" "OpenSesame")
-          oper (get-asset rema "0e48ad0c07f6fe87762e24cba3e013a029b7cd734310bface8b3218280366791")
-          res (invoke-sync oper {"first-n" "20"})]
+    (let [oper (get-asset my-agent "f994e155382044caedd76bd2af2f8a1244aa31ad9818b955848032c8ecb9dabb")
+          res (get-result (invoke oper {"input" "Supercalifragilisticexpialidocious"}))]
       res))
 
   ;;response is a map
