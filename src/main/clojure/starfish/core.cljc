@@ -315,21 +315,22 @@
   "Invoke an operation and wait for the result.
 
    An optional timeout may be provided."
-  (^Asset [^Operation operation params]
+  ([^Operation operation params]
    (let [job (invoke operation params)
          resp (.getResult job)]
-     resp))
-  (^Asset [^Operation operation params timeout]
+     (keywordize-keys resp)))
+  ([^Operation operation params timeout]
    (let [job (invoke operation params)
          resp (.getResult job (long timeout))]
-     resp)))
+     (keywordize-keys resp))))
 
 
 (defn invoke-sync
   "Invokes an operation synchronously, waiting to return the result."
   ([^Operation operation params]
-    ;;convert from java Hashmap to Clojure map
-   (into {} (.invokeResult operation params))))
+   ;;convert from java Hashmap to Clojure map
+   (let [params (format-params operation params)]
+     (keywordize-keys (.invokeResult operation (stringify-keys params))))))
 
 (defn job-status 
   "Gets the status of a Job instance as a keyword. 
