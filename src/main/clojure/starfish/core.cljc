@@ -318,7 +318,8 @@
     {:name (or (:doc metadata) "Unnamed Operation")
      :type "operation"
      :dateCreated (str (Instant/now))
-     :operation {"modes" ["sync" "async"] "params" params}}))
+     :operation {"modes" ["sync" "async"] "params" params}
+     :additionalInfo {:function (-> operation-var symbol str)}}))
 
 (defn in-memory-operation
   [operation-var & [metadata]]
