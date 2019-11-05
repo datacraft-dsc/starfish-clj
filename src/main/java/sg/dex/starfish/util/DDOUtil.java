@@ -20,7 +20,7 @@ public class DDOUtil {
                 "serviceEndpoint", host + "/api/v1/assets"));
         services.add(Utils.mapOf(
                 "type", "Ocean.Invoke.v1",
-                "serviceEndpoint", host));
+                "serviceEndpoint", host + "/api/v1/invoke"));
         services.add(Utils.mapOf(
                 "type", "Ocean.Auth.v1",
                 "serviceEndpoint", host + "/api/v1/auth"));

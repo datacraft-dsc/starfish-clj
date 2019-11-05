@@ -1,11 +1,14 @@
 (defproject sg.dex/starfish-clj "0.7.4-SNAPSHOT"
   :url "https://github.com/DEX-Company/starfish-clj"
-  :dependencies [[sg.dex/starfish-java "0.7.8"]
+  :dependencies [ [sg.dex/starfish-java "0.7.8" :exclusions [[org.web3j/utils]
+                                                            [org.web3j/crypto]] ]
                  [org.clojure/data.json "0.2.6"]
                  [clojurewerkz/propertied "1.3.0"]
                  [org.clojure/data.csv "0.1.4"]
                  [org.slf4j/jcl-over-slf4j "1.7.28"] ;; Used to fix JCL issues with Apache HTTP logging via JCL
                  [org.bouncycastle/bcprov-jdk15on "1.62"]
+                 [org.web3j/utils "4.1.1"]
+                 [org.web3j/crypto "4.1.1"]
                  ]
 
   ;; :javac-options ["-target" "8", "-source" "8"] ; TODO figure out of this is helpful? Causes a warning
