@@ -12,4 +12,8 @@
     nil)
 
   (sf/default-operation-metadata #'demo-operation1)
-  (sf/default-operation-metadata #'demo-operation2))
+  (sf/default-operation-metadata #'demo-operation2)
+
+  (sf/metadata (sf/in-memory-operation #'demo-operation1))
+
+  )

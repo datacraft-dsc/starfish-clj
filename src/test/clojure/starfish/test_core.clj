@@ -105,6 +105,27 @@
       (is (= tagdata (:tags (metadata ast))))
       (is (= "abc" (to-string (content ast)))))))
 
+
+(defn demo-operation1
+  "Demo Operation 1"
+  [x]
+  nil)
+
+(defn demo-operation2
+  [asset-x]
+  nil)
+
+(deftest default-operation-metadata-test
+  (let [{:strs [name type operation]} (default-operation-metadata #'demo-operation1)]
+    (is (= "Demo Operation 1" name))
+    (is (= "operation" type))
+    (is (= {"modes" ["sync" "async"], "params" {"x" {"type" "json"}}} operation)))
+
+  (let [{:strs [name type operation]} (default-operation-metadata #'demo-operation2)]
+    (is (= "Unnamed Operation" name))
+    (is (= "operation" type))
+    (is (= {"modes" ["sync" "async"], "params" {"asset-x" {"type" "asset"}}} operation))))
+
 (comment
   (run-all-tests)
   )
