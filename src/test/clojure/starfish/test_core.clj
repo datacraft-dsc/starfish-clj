@@ -120,8 +120,9 @@
     ;; =>
     {:name "Demo Operation 1",
      :type "operation",
-     :dateCreated "2019-11-05T05:05:45.814411Z",
-     :operation {"modes" ["sync" "async"], "params" {"x" {"type" "json"}}}}
+     :dateCreated "2019-11-05T09:06:43.372606Z",
+     :operation {"modes" ["sync" "async"], "params" {"x" {"type" "json"}}},
+     :additionalInfo {:function "starfish.test-core/demo-operation1"}}
 
     (is (= "Demo Operation 1" name))
     (is (= "operation" type))
@@ -136,8 +137,9 @@
     ;; =>
     {:name "Unnamed Operation",
      :type "operation",
-     :dateCreated "2019-11-05T05:05:59.877363Z",
-     :operation {"modes" ["sync" "async"], "params" {"asset-x" {"type" "asset"}}}}
+     :dateCreated "2019-11-05T09:07:02.878426Z",
+     :operation {"modes" ["sync" "async"], "params" {"asset-x" {"type" "asset"}}},
+     :additionalInfo {:function "starfish.test-core/demo-operation2"}}
 
     (is (= "Unnamed Operation" name))
     (is (= "operation" type))
