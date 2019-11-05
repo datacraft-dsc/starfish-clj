@@ -23,11 +23,11 @@
   :deploy-repositories [["releases" :clojars]
                         ["snapshots" :clojars]]
   
-  :profiles {:dev {:dependencies [[org.clojure/clojure "1.10.1"]
-                                  [net.mikera/cljunit "0.7.0" :scope "test"]
-                                   ]
+  :profiles {:dev {:source-paths ["src/main/clojure" "src/dev"]
                    :resource-paths ["src/test/resources"]
-                   }
+                   :dependencies [[org.clojure/clojure "1.10.1"]
+                                  [net.mikera/cljunit "0.7.0" :scope "test"]]}
+
              :test {:dependencies []
                     :java-source-paths ["src/main/java" "src/test/java"]
                     ;; :source-paths ["src/main/clojure" "src/test/clojure"]
