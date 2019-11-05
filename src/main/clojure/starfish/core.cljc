@@ -297,7 +297,7 @@
          meta (merge meta (stringify-keys additional-metadata))]
      (ClojureOperation/create (json-string meta) (MemoryAgent/create) wrapped-fn ))))
 
-(defn default-operation-metadata
+(defn operation-var-metadata
   "Returns an operation metadata map for `operation-var`.
 
   `operation-var` *must* be a Var and its value *must* be a function.

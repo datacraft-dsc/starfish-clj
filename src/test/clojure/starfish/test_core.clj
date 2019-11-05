@@ -116,7 +116,7 @@
   nil)
 
 (deftest default-operation-metadata-test
-  (let [{:keys [name type operation] :as default-medatadata} (default-operation-metadata #'demo-operation1)]
+  (let [{:keys [name type operation] :as default-medatadata} (operation-var-metadata #'demo-operation1)]
     ;; =>
     {:name "Demo Operation 1",
      :type "operation",
@@ -132,7 +132,7 @@
     (is (= (select-keys default-medatadata [:name :type :operation])
            (select-keys (metadata (in-memory-operation default-medatadata)) [:name :type :operation]))))
 
-  (let [{:keys [name type operation] :as default-medatadata} (default-operation-metadata #'demo-operation2)]
+  (let [{:keys [name type operation] :as default-medatadata} (operation-var-metadata #'demo-operation2)]
     ;; =>
     {:name "Unnamed Operation",
      :type "operation",
