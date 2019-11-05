@@ -2,7 +2,8 @@
   (:require [clojure.walk :refer [keywordize-keys stringify-keys]]
             [clojure.data.json :as json]
             [clojure.java.io :as io]
-            [starfish.utils :refer [error TODO]])
+            [starfish.utils :refer [error TODO]]
+            [clojure.string :as str])
   (:import [java.nio.charset
             StandardCharsets]
            [java.io InputStream File] 
@@ -295,6 +296,24 @@
                             "params" paramspec}}
          meta (merge meta (stringify-keys additional-metadata))]
      (ClojureOperation/create (json-string meta) (MemoryAgent/create) wrapped-fn ))))
+
+(defn default-operation-metadata
+  [operation-var]
+  (let [metadata (meta operation-var)
+        params (reduce
+                 (fn [params arg]
+                   (let [arg (name arg)]
+                     (assoc params arg {"type" (if (str/starts-with? arg "asset")
+                                                 "asset"
+                                                 "json")})))
+                 {}
+                 ;; Take the first; ignore other arities.
+                 (first (:arglists metadata)))]
+    {"name" (or (:doc metadata) "Unnamed Operation")
+     "type" "operation"
+     "dateCreated" (str (Instant/now))
+     "operation" {"modes" ["sync" "async"]
+                  "params" params}}))
 
 (defn- format-params
   "Format parameters into a parameter map of string->asset according to the requirements of the operation."
