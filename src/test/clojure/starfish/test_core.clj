@@ -126,8 +126,11 @@
     (is (= "Demo Operation 1" name))
     (is (= "operation" type))
     (is (= {"modes" ["sync" "async"], "params" {"x" {"type" "json"}}} operation))
-    (is (= (select-keys default-medatadata [:name :type :operation] )
-           (select-keys (metadata (in-memory-operation #'demo-operation1)) [:name :type :operation]))))
+
+    ;; Generated metadata - `default-medatadata` - must be
+    ;; equivalent to the one returned by the asset `metadata` function.
+    (is (= (select-keys default-medatadata [:name :type :operation])
+           (select-keys (metadata (in-memory-operation default-medatadata)) [:name :type :operation]))))
 
   (let [{:keys [name type operation] :as default-medatadata} (default-operation-metadata #'demo-operation2)]
     ;; =>
@@ -139,8 +142,11 @@
     (is (= "Unnamed Operation" name))
     (is (= "operation" type))
     (is (= {"modes" ["sync" "async"], "params" {"asset-x" {"type" "asset"}}} operation))
+
+    ;; Generated metadata - `default-medatadata` - must be
+    ;; equivalent to the one returned by the asset `metadata` function.
     (is (= (select-keys default-medatadata [:name :type :operation] )
-           (select-keys (metadata (in-memory-operation #'demo-operation2)) [:name :type :operation])))))
+           (select-keys (metadata (in-memory-operation default-medatadata)) [:name :type :operation])))))
 
 (comment
   (run-all-tests)

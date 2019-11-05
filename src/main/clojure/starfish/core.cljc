@@ -298,7 +298,7 @@
      (ClojureOperation/create (json-string meta) (MemoryAgent/create) wrapped-fn ))))
 
 (defn default-operation-metadata
-  "Returns a default operation metadata map for `operation-var`.
+  "Returns an operation metadata map for `operation-var`.
 
   `operation-var` *must* be a Var and its value *must* be a function.
 
@@ -322,10 +322,9 @@
      :additionalInfo {:function (-> operation-var symbol str)}}))
 
 (defn in-memory-operation
-  [operation-var & [metadata]]
-  (let [default-metadata (default-operation-metadata operation-var)
-        metadata (stringify-keys (merge default-metadata metadata))]
-    (ClojureOperation/create (json-string metadata) (MemoryAgent/create) (var-get operation-var))))
+  [metadata]
+  (let [f (-> (get-in metadata [:additionalInfo :function]) symbol resolve)]
+    (ClojureOperation/create (json-string metadata) (MemoryAgent/create) f)))
 
 (defn- format-params
   "Format parameters into a parameter map of string->asset according to the requirements of the operation."
