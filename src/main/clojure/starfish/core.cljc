@@ -323,7 +323,7 @@
 (defn in-memory-operation
   [operation-var & [metadata]]
   (let [default-metadata (default-operation-metadata operation-var)
-        metadata (stringify-keys (merge-with merge default-metadata metadata))]
+        metadata (stringify-keys (merge default-metadata metadata))]
     (ClojureOperation/create (json-string metadata) (MemoryAgent/create) (var-get operation-var))))
 
 (defn- format-params
