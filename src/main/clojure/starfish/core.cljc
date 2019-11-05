@@ -322,6 +322,7 @@
      :additionalInfo {:function (-> operation-var symbol str)}}))
 
 (defn in-memory-operation
+  "Make an in-memory operation from the metadata map."
   [metadata]
   (let [f (-> (get-in metadata [:additionalInfo :function]) symbol resolve)]
     (ClojureOperation/create (json-string metadata) (MemoryAgent/create) f)))
