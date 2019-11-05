@@ -298,6 +298,12 @@
      (ClojureOperation/create (json-string meta) (MemoryAgent/create) wrapped-fn ))))
 
 (defn default-operation-metadata
+  "Returns a default operation metadata map for `operation-var`.
+
+  `operation-var` *must* be a Var and its value *must* be a function.
+
+  Params type can be either JSON or Asset, so this function will assume, by convention,
+  that an argument name starting with 'asset' has type Asset, JSON otherwise."
   [operation-var]
   (let [metadata (meta operation-var)
         params (reduce
