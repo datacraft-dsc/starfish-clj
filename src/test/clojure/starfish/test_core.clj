@@ -116,7 +116,7 @@
   nil)
 
 (deftest default-operation-metadata-test
-  (let [{:strs [name type operation]} (default-operation-metadata #'demo-operation1)]
+  (let [{:keys [name type operation]} (default-operation-metadata #'demo-operation1)]
     ;; =>
     {"name" "Demo Operation 1",
      "type" "operation",
@@ -125,9 +125,9 @@
 
     (is (= "Demo Operation 1" name))
     (is (= "operation" type))
-    (is (= {"modes" ["sync" "async"], "params" {"x" {"type" "json"}}} operation)))
+    (is (= {:modes ["sync" "async"], :params {"x" {"type" "json"}}} operation)))
 
-  (let [{:strs [name type operation]} (default-operation-metadata #'demo-operation2)]
+  (let [{:keys [name type operation]} (default-operation-metadata #'demo-operation2)]
     ;; =>
     {"name" "Unnamed Operation",
      "type" "operation",
@@ -136,7 +136,7 @@
 
     (is (= "Unnamed Operation" name))
     (is (= "operation" type))
-    (is (= {"modes" ["sync" "async"], "params" {"asset-x" {"type" "asset"}}} operation))))
+    (is (= {:modes ["sync" "async"], :params {"asset-x" {"type" "asset"}}} operation))))
 
 (comment
   (run-all-tests)

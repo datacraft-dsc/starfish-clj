@@ -315,11 +315,10 @@
                  {}
                  ;; Take the first; ignore other arities.
                  (first (:arglists metadata)))]
-    {"name" (or (:doc metadata) "Unnamed Operation")
-     "type" "operation"
-     "dateCreated" (str (Instant/now))
-     "operation" {"modes" ["sync" "async"]
-                  "params" params}}))
+    {:name (or (:doc metadata) "Unnamed Operation")
+     :type "operation"
+     :dateCreated (str (Instant/now))
+     :operation {:modes ["sync" "async"] :params params}}))
 
 (defn in-memory-operation
   [operation-var & [metadata]]
