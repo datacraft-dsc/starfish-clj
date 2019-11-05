@@ -31,7 +31,8 @@
                                    ]
                    :resource-paths ["src/test/resources"]
                    }
-             :test {:dependencies [[sg.dex/koi-clj "0.1.7-SNAPSHOT"]]
+             :test {:dependencies [[sg.dex/koi-clj "0.1.7-SNAPSHOT"]
+                                  [sg.dex/surfer "0.7.0-SNAPSHOT"]]
                     :java-source-paths ["src/main/java" "src/test/java"]
                     ;; :source-paths ["src/main/clojure" "src/test/clojure"]
         :resource-paths ["src/main/resources" "src/test/resources"]

@@ -4,14 +4,30 @@
             [clojure.test :as t :refer [deftest testing is use-fixtures]]
             [com.stuartsierra.component :as component]
             [koi.api :as koi-api :refer [default-system]]           
+            [surfer.systems :refer [system]]
+            [system.repl :refer [set-init! go start reset stop]]
             )
   (:import ;[sg.dex.starfish.impl.squid SquidResolverImpl SquidAgent]
            [sg.dex.starfish.util DID]
            ))
 
 (defn koi-fixture [f]
-  (component/start (default-system (aero.core/read-config (io/resource "config.edn")))) 
-        (f))
+  (let [koi-system (default-system 
+                    (-> 
+                     (aero.core/read-config (io/resource "config.edn"))
+                     (update-in [:agent-conf :agent-url] (fn[_] "http://localhost:8080"))))]
+  ;;start surfer
+  (set-init! #'system)
+  (start)
+  ;;start koi
+  (component/start koi-system) 
+  ;;run test
+  (f)
+  ;;stop koi
+  (component/stop koi-system)
+  ;;stop surfer
+  (stop)))
+
 (use-fixtures :once koi-fixture)
 
 (defn get-koi-agent
@@ -21,9 +37,7 @@
          did (s/random-did)
          ddostring (s/create-ddo host)
          remote-account (s/remote-account "sometoken")
-         sf (s/remote-agent did ddostring remote-account)
-         ;sf (s/remote-agent did ddostring "Aladdin" "OpenSesame")
-         ]
+         sf (s/remote-agent did ddostring remote-account)]
      sf)))
 
 (defn get-surfer-agent
@@ -45,7 +59,6 @@
         (get "hash-val") string? is
         )))
 
-(comment 
 
 
 (deftest sha-asset-hash
@@ -66,8 +79,8 @@
           result (s/invoke-result sha-oper {:to-hash rda})
           ]
       (is (map? result))
-      (is (string? (get result "hash-val")))
-      (is (string? (get (get result "hash-val") "did")))))))
+      ;(is (map? (get result "hash-val")))
+      (is (string? (get (get result "hash-val") "did"))))))
 
 (def inp-datasets
   (mapv #(str "/home/kiran/src/ocn/koi-clj/resources/" %)
