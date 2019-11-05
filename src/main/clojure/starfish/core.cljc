@@ -261,12 +261,12 @@
 ;; Account
 
 (defn remote-account
-  [^String username ^String password]
-  ;; TODO: shouldn't this 
-  (let [^String id (or username (error "Username required!"))
-        ^java.util.Map creds {"username" username
-                         "password" password}]
-    (RemoteAccount/create id creds)))
+  ([token](RemoteAccount/create (Utils/createRandomHexString 32)
+                                {"token" token}))
+  ([username password]
+   (RemoteAccount/create (Utils/createRandomHexString 32)
+                         {"username" username
+                          "password" password})))
 
 ;; =================================================
 ;; Operations
@@ -318,11 +318,11 @@
   (^Asset [^Operation operation params]
    (let [job (invoke operation params)
          resp (.getResult job)]
-     resp))
+     (into {} resp)))
   (^Asset [^Operation operation params timeout]
    (let [job (invoke operation params)
          resp (.getResult job (long timeout))]
-     resp)))
+     (into {} resp))))
 
 
 (defn invoke-sync
@@ -408,6 +408,8 @@
 
 (defn remote-agent
   "Gets a remote agent with the provided DID"
+  ([local-did ddo ^RemoteAccount remote-account]
+   (RemoteAgentConfig/getRemoteAgent ddo (did local-did) remote-account))
   ([local-did ddo username password]
    (RemoteAgentConfig/getRemoteAgent ddo (did local-did) username password)))
 
