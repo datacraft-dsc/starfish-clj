@@ -116,27 +116,31 @@
   nil)
 
 (deftest default-operation-metadata-test
-  (let [{:keys [name type operation]} (default-operation-metadata #'demo-operation1)]
+  (let [{:keys [name type operation] :as default-medatadata} (default-operation-metadata #'demo-operation1)]
     ;; =>
-    {"name" "Demo Operation 1",
-     "type" "operation",
-     "dateCreated" "2019-11-05T04:43:45.186797Z",
-     "operation" {"modes" ["sync" "async"], "params" {"x" {"type" "json"}}}}
+    {:name "Demo Operation 1",
+     :type "operation",
+     :dateCreated "2019-11-05T05:05:45.814411Z",
+     :operation {"modes" ["sync" "async"], "params" {"x" {"type" "json"}}}}
 
     (is (= "Demo Operation 1" name))
     (is (= "operation" type))
-    (is (= {:modes ["sync" "async"], :params {"x" {"type" "json"}}} operation)))
+    (is (= {"modes" ["sync" "async"], "params" {"x" {"type" "json"}}} operation))
+    (is (= (select-keys default-medatadata [:name :type :operation] )
+           (select-keys (metadata (in-memory-operation #'demo-operation1)) [:name :type :operation]))))
 
-  (let [{:keys [name type operation]} (default-operation-metadata #'demo-operation2)]
+  (let [{:keys [name type operation] :as default-medatadata} (default-operation-metadata #'demo-operation2)]
     ;; =>
-    {"name" "Unnamed Operation",
-     "type" "operation",
-     "dateCreated" "2019-11-05T04:44:46.273424Z",
-     "operation" {"modes" ["sync" "async"], "params" {"asset-x" {"type" "asset"}}}}
+    {:name "Unnamed Operation",
+     :type "operation",
+     :dateCreated "2019-11-05T05:05:59.877363Z",
+     :operation {"modes" ["sync" "async"], "params" {"asset-x" {"type" "asset"}}}}
 
     (is (= "Unnamed Operation" name))
     (is (= "operation" type))
-    (is (= {:modes ["sync" "async"], :params {"asset-x" {"type" "asset"}}} operation))))
+    (is (= {"modes" ["sync" "async"], "params" {"asset-x" {"type" "asset"}}} operation))
+    (is (= (select-keys default-medatadata [:name :type :operation] )
+           (select-keys (metadata (in-memory-operation #'demo-operation2)) [:name :type :operation])))))
 
 (comment
   (run-all-tests)
