@@ -117,11 +117,23 @@
 
 (deftest default-operation-metadata-test
   (let [{:strs [name type operation]} (default-operation-metadata #'demo-operation1)]
+    ;; =>
+    {"name" "Demo Operation 1",
+     "type" "operation",
+     "dateCreated" "2019-11-05T04:43:45.186797Z",
+     "operation" {"modes" ["sync" "async"], "params" {"x" {"type" "json"}}}}
+
     (is (= "Demo Operation 1" name))
     (is (= "operation" type))
     (is (= {"modes" ["sync" "async"], "params" {"x" {"type" "json"}}} operation)))
 
   (let [{:strs [name type operation]} (default-operation-metadata #'demo-operation2)]
+    ;; =>
+    {"name" "Unnamed Operation",
+     "type" "operation",
+     "dateCreated" "2019-11-05T04:44:46.273424Z",
+     "operation" {"modes" ["sync" "async"], "params" {"asset-x" {"type" "asset"}}}}
+
     (is (= "Unnamed Operation" name))
     (is (= "operation" type))
     (is (= {"modes" ["sync" "async"], "params" {"asset-x" {"type" "asset"}}} operation))))
