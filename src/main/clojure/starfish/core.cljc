@@ -261,9 +261,10 @@
 ;; Account
 
 (defn remote-account
-  ([token](RemoteAccount/create (Utils/createRandomHexString 32)
+  ([^String token] (RemoteAccount/create (Utils/createRandomHexString 32)
                                 {"token" token}))
-  ([username password]
+  ;([^clojure.lang.APersistentMap credentials] (RemoteAccount/create (Utils/createRandomHexString 32) credentials))
+  ([^String username ^String password]
    (RemoteAccount/create (Utils/createRandomHexString 32)
                          {"username" username
                           "password" password})))
@@ -318,11 +319,11 @@
   (^Asset [^Operation operation params]
    (let [job (invoke operation params)
          resp (.getResult job)]
-     (into {} resp)))
+     (into {} (keywordize-keys resp))))
   (^Asset [^Operation operation params timeout]
    (let [job (invoke operation params)
          resp (.getResult job (long timeout))]
-     (into {} resp))))
+     (into {} (keywordize-keys resp)))))
 
 
 (defn invoke-sync
