@@ -105,6 +105,51 @@
       (is (= tagdata (:tags (metadata ast))))
       (is (= "abc" (to-string (content ast)))))))
 
+
+(defn demo-operation1
+  "Demo Operation 1"
+  [x]
+  nil)
+
+(defn demo-operation2
+  [asset-x]
+  nil)
+
+(deftest default-operation-metadata-test
+  (let [{:keys [name type operation] :as default-medatadata} (operation-var-metadata #'demo-operation1)]
+    ;; =>
+    {:name "Demo Operation 1",
+     :type "operation",
+     :dateCreated "2019-11-05T09:06:43.372606Z",
+     :operation {"modes" ["sync" "async"], "params" {"x" {"type" "json"}}},
+     :additionalInfo {:function "starfish.test-core/demo-operation1"}}
+
+    (is (= "Demo Operation 1" name))
+    (is (= "operation" type))
+    (is (= {"modes" ["sync" "async"], "params" {"x" {"type" "json"}}} operation))
+
+    ;; Generated metadata - `default-medatadata` - must be
+    ;; equivalent to the one returned by the asset `metadata` function.
+    (is (= (select-keys default-medatadata [:name :type :operation])
+           (select-keys (metadata (in-memory-operation default-medatadata)) [:name :type :operation]))))
+
+  (let [{:keys [name type operation] :as default-medatadata} (operation-var-metadata #'demo-operation2)]
+    ;; =>
+    {:name "Unnamed Operation",
+     :type "operation",
+     :dateCreated "2019-11-05T09:07:02.878426Z",
+     :operation {"modes" ["sync" "async"], "params" {"asset-x" {"type" "asset"}}},
+     :additionalInfo {:function "starfish.test-core/demo-operation2"}}
+
+    (is (= "Unnamed Operation" name))
+    (is (= "operation" type))
+    (is (= {"modes" ["sync" "async"], "params" {"asset-x" {"type" "asset"}}} operation))
+
+    ;; Generated metadata - `default-medatadata` - must be
+    ;; equivalent to the one returned by the asset `metadata` function.
+    (is (= (select-keys default-medatadata [:name :type :operation] )
+           (select-keys (metadata (in-memory-operation default-medatadata)) [:name :type :operation])))))
+
 (comment
   (run-all-tests)
   )
