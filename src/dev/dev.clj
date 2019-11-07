@@ -11,9 +11,9 @@
     [asset-x]
     nil)
 
-  (sf/operation-var-metadata #'demo-operation1)
-  (sf/operation-var-metadata #'demo-operation2)
+  (sf/invokable-metadata #'demo-operation1)
+  (sf/invokable-metadata #'demo-operation2)
 
-  (sf/metadata (sf/in-memory-operation (sf/operation-var-metadata #'demo-operation1)))
+  (sf/metadata (sf/in-memory-operation (sf/invokable-metadata #'demo-operation1)))
 
   )

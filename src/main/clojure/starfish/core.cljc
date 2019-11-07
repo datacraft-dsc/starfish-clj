@@ -297,29 +297,35 @@
          meta (merge meta (stringify-keys additional-metadata))]
      (ClojureOperation/create (json-string meta) (MemoryAgent/create) wrapped-fn ))))
 
-(defn operation-var-metadata
-  "Returns an operation metadata map for `operation-var`.
+(defn invokable-metadata
+  "Returns an Operation Metadata map.
 
-  `operation-var` *must* be a Var and its value *must* be a function.
+   `obj` *must* be a Var, and its value *must* be a function.
 
-  Params type can be either JSON or Asset, so this function will assume, by convention,
-  that an argument name starting with 'asset' has type Asset, JSON otherwise."
-  [operation-var]
-  (let [metadata (meta operation-var)
-        params (reduce
-                 (fn [params arg]
-                   (let [arg (name arg)]
-                     (assoc params arg {"type" (if (str/starts-with? arg "asset")
-                                                 "asset"
-                                                 "json")})))
-                 {}
-                 ;; Take the first; ignore other arities.
-                 (first (:arglists metadata)))]
+   Params are extracted from `obj` metadata, but you can pass an option map
+   with `params` and `results` to be used instead.
+
+   DEP 8 - Asset Metadata
+   https://github.com/DEX-Company/DEPs/tree/master/8"
+  [obj & [{:keys [params results]}]]
+  (let [metadata (meta obj)
+
+        params (or params (reduce
+                            (fn [params arg]
+                              (let [arg (name arg)]
+                                (assoc params arg {"type" "json"})))
+                            {}
+                            ;; Take the first; ignore other arities.
+                            (first (:arglists metadata))))]
     {:name (or (:doc metadata) "Unnamed Operation")
      :type "operation"
      :dateCreated (str (Instant/now))
-     :operation {"modes" ["sync" "async"] "params" params}
-     :additionalInfo {:function (-> operation-var symbol str)}}))
+     :additionalInfo {:function (-> obj symbol str)}
+     :operation (let [m {"modes" ["sync" "async"]
+                         "params" (stringify-keys params)}]
+                  (if results
+                    (merge m {"results" (stringify-keys results)})
+                    m))}))
 
 (defn in-memory-operation
   "Make an in-memory operation from the metadata map."

@@ -27,16 +27,16 @@
       ))
   (are [json-val] (= json-val (-> json-val json-string read-json-string))
       1
-      1.0 
+      1.0
       nil
       false
-      "just a string" 
+      "just a string"
       ["foo" "bar"]
       [1 2 3]
       {:a 1 :b 2}
       {}
-      {:a {:b 1} :c []} 
-      ) 
+      {:a {:b 1} :c []}
+      )
   (testing "test DID"
     (let [full-did "did:ocn:1234/foo/bar#fragment"]
       (is (= "did" (did-scheme full-did)))
@@ -73,7 +73,7 @@
          nil
          ["A" {} [] 0 true false [1] {:a "Baz"} nil]
          0.0)
-    )) 
+    ))
 
 ;;===================================
 ;; Hash digest keccak
@@ -97,7 +97,7 @@
   (testing "memory asset without metadata"
     (let [ast (memory-asset "abc")]
       (is (= "abc" (to-string (content ast))))))
-  
+
   (testing "memory asset with metadata"
     (let [tagdata ["test" "data"]
           mdata {:tags tagdata}
@@ -115,8 +115,8 @@
   [asset-x]
   nil)
 
-(deftest default-operation-metadata-test
-  (let [{:keys [name type operation] :as default-medatadata} (operation-var-metadata #'demo-operation1)]
+(deftest invokable-metadata-test
+  (let [{:keys [name type operation] :as default-medatadata} (invokable-metadata #'demo-operation1)]
     ;; =>
     {:name "Demo Operation 1",
      :type "operation",
@@ -133,7 +133,8 @@
     (is (= (select-keys default-medatadata [:name :type :operation])
            (select-keys (metadata (in-memory-operation default-medatadata)) [:name :type :operation]))))
 
-  (let [{:keys [name type operation] :as default-medatadata} (operation-var-metadata #'demo-operation2)]
+  (let [{:keys [name type operation] :as default-medatadata} (invokable-metadata #'demo-operation2
+                                                                                 {:params {"asset-x" {:type "asset"}}})]
     ;; =>
     {:name "Unnamed Operation",
      :type "operation",
