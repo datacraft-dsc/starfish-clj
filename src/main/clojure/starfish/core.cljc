@@ -262,12 +262,13 @@
 ;; Account
 
 (defn remote-account
-  [^String username ^String password]
-  ;; TODO: shouldn't this 
-  (let [^String id (or username (error "Username required!"))
-        ^java.util.Map creds {"username" username
-                         "password" password}]
-    (RemoteAccount/create id creds)))
+  ([^String token] (RemoteAccount/create (Utils/createRandomHexString 32)
+                                {"token" token}))
+  ;([^clojure.lang.APersistentMap credentials] (RemoteAccount/create (Utils/createRandomHexString 32) credentials))
+  ([^String username ^String password]
+   (RemoteAccount/create (Utils/createRandomHexString 32)
+                         {"username" username
+                          "password" password})))
 
 ;; =================================================
 ;; Operations
@@ -355,12 +356,11 @@
   ([^Operation operation params]
    (let [job (invoke operation params)
          resp (.getResult job)]
-     (keywordize-keys resp)))
+     (into {} (keywordize-keys resp))))
   ([^Operation operation params timeout]
    (let [job (invoke operation params)
          resp (.getResult job (long timeout))]
-     (keywordize-keys resp))))
-
+     (into {} (keywordize-keys resp)))))
 
 (defn invoke-sync
   "Invokes an operation synchronously, waiting to return the result."
@@ -446,6 +446,8 @@
 
 (defn remote-agent
   "Gets a remote agent with the provided DID"
+  ([local-did ddo ^RemoteAccount remote-account]
+   (RemoteAgentConfig/getRemoteAgent ddo (did local-did) remote-account))
   ([local-did ddo username password]
    (RemoteAgentConfig/getRemoteAgent ddo (did local-did) username password)))
 
