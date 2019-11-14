@@ -2,7 +2,8 @@
   (:require [clojure.walk :refer [keywordize-keys stringify-keys]]
             [clojure.data.json :as json]
             [clojure.java.io :as io]
-            [starfish.utils :refer [error TODO]])
+            [starfish.utils :refer [error TODO]]
+            [clojure.string :as str])
   (:import [java.nio.charset
             StandardCharsets]
            [java.io InputStream File] 
@@ -297,6 +298,42 @@
          meta (merge meta (stringify-keys additional-metadata))]
      (ClojureOperation/create (json-string meta) (MemoryAgent/create) wrapped-fn ))))
 
+(defn invokable-metadata
+  "Returns an Operation Metadata map.
+
+   `obj` *must* be a Var, and its value *must* be a function.
+
+   Params are extracted from `obj` metadata, but you can pass an option map
+   with `params` and `results` to be used instead.
+
+   DEP 8 - Asset Metadata
+   https://github.com/DEX-Company/DEPs/tree/master/8"
+  [obj & [{:keys [params results]}]]
+  (let [metadata (meta obj)
+
+        params (or params (reduce
+                            (fn [params arg]
+                              (let [arg (name arg)]
+                                (assoc params arg {"type" "json"})))
+                            {}
+                            ;; Take the first; ignore other arities.
+                            (first (:arglists metadata))))]
+    {:name (or (:doc metadata) "Unnamed Operation")
+     :type "operation"
+     :dateCreated (str (Instant/now))
+     :additionalInfo {:function (-> obj symbol str)}
+     :operation (let [m {"modes" ["sync" "async"]
+                         "params" (stringify-keys params)}]
+                  (if results
+                    (merge m {"results" (stringify-keys results)})
+                    m))}))
+
+(defn in-memory-operation
+  "Make an in-memory operation from the metadata map."
+  [metadata]
+  (let [f (-> (get-in metadata [:additionalInfo :function]) symbol resolve)]
+    (ClojureOperation/create (json-string metadata) (MemoryAgent/create) f)))
+
 (defn- format-params
   "Format parameters into a parameter map of string->asset according to the requirements of the operation."
   (^java.util.Map [operation params]
@@ -316,21 +353,21 @@
   "Invoke an operation and wait for the result.
 
    An optional timeout may be provided."
-  (^Asset [^Operation operation params]
+  ([^Operation operation params]
    (let [job (invoke operation params)
          resp (.getResult job)]
      (into {} (keywordize-keys resp))))
-  (^Asset [^Operation operation params timeout]
+  ([^Operation operation params timeout]
    (let [job (invoke operation params)
          resp (.getResult job (long timeout))]
      (into {} (keywordize-keys resp)))))
 
-
 (defn invoke-sync
   "Invokes an operation synchronously, waiting to return the result."
   ([^Operation operation params]
-    ;;convert from java Hashmap to Clojure map
-   (into {} (.invokeResult operation params))))
+   ;;convert from java Hashmap to Clojure map
+   (let [params (format-params operation params)]
+     (keywordize-keys (.invokeResult operation (stringify-keys params))))))
 
 (defn job-status 
   "Gets the status of a Job instance as a keyword. 

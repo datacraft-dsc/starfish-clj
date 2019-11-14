@@ -31,7 +31,6 @@ public class ClojureOperation extends AMemoryOperation implements Operation{
 
     @Override
     public Job invokeAsync(final Map<String,Object> params) {
-        @SuppressWarnings("unchecked")
         CompletableFuture<Map<String,Object>> cf = CompletableFuture.supplyAsync(() ->
                 compute(params)
         );
