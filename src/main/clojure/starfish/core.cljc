@@ -405,12 +405,26 @@
    - Existing assets are unchanged
    - DIDs are resolved to appropriate assets if possible"
   (^Asset [data]
+   (asset nil data))
+  (^Asset [resolver data]
    (cond
-     (asset? data) data
-     (did? data) (get-asset (get-agent ^DID data) data)
-     (string? data) (asset (did data))
-     (nil? data) (throw (IllegalArgumentException. "Cannot convert nil to Asset")) 
-     :else (error "Cannot coerce to Asset: " data))))
+     (asset? data)
+     data
+
+     (did? data)
+     (let [agent (if resolver
+                   (get-agent resolver ^DID data)
+                   (get-agent ^DID data))]
+       (get-asset agent data))
+
+     (string? data)
+     (asset resolver (did data))
+
+     (nil? data)
+     (throw (IllegalArgumentException. "Cannot convert nil to Asset"))
+
+     :else
+     (error "Cannot coerce to Asset: " data))))
 
 (defn memory-asset
   "Create an in-memory asset with the given metadata and data.
