@@ -262,13 +262,13 @@
 ;; Account
 
 (defn remote-account
-  ([^String token] (RemoteAccount/create (Utils/createRandomHexString 32)
-                                {"token" token}))
-  ;([^clojure.lang.APersistentMap credentials] (RemoteAccount/create (Utils/createRandomHexString 32) credentials))
+  ([^String token]
+   (let [^java.util.Map credentials {"token" token}]
+     (RemoteAccount/create (Utils/createRandomHexString 32) credentials)))
   ([^String username ^String password]
-   (RemoteAccount/create (Utils/createRandomHexString 32)
-                         {"username" username
-                          "password" password})))
+   (let [^java.util.Map credentials {"username" username
+                                     "password" password}]
+     (RemoteAccount/create (Utils/createRandomHexString 32) credentials))))
 
 ;; =================================================
 ;; Operations
