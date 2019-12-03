@@ -262,12 +262,14 @@
 ;; Account
 
 (defn remote-account
-  ([^String token]
-   (let [^java.util.Map credentials {"token" token}]
+  ([token]
+   (let [^java.util.Map credentials (doto (java.util.HashMap.)
+                                      (.put "token" token))]
      (RemoteAccount/create (Utils/createRandomHexString 32) credentials)))
-  ([^String username ^String password]
-   (let [^java.util.Map credentials {"username" username
-                                     "password" password}]
+  ([username password]
+   (let [^java.util.Map credentials (doto (java.util.HashMap.)
+                                      (.put "username" username)
+                                      (.put "password" password))]
      (RemoteAccount/create (Utils/createRandomHexString 32) credentials))))
 
 ;; =================================================
