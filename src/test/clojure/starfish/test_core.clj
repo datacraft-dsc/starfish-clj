@@ -1,7 +1,46 @@
 (ns starfish.test-core
   (:require [clojure.test :refer [is are testing deftest run-all-tests]]
-            [starfish.core :refer :all])
-  (:import (sg.dex.starfish.impl.remote RemoteAccount)))
+            [starfish.core :as sf :refer :all])
+  (:import (sg.dex.starfish.impl.remote RemoteAccount)
+           (sg.dex.starfish.impl.memory MemoryAgent)))
+
+(deftest did-test
+  (testing "DID"
+    (testing "from Asset"
+      (is (sf/did? (sf/did (sf/memory-asset "abc")))))
+    (testing "from Agent"
+      (is (sf/did? (sf/did (MemoryAgent/create)))))
+    (testing "from string"
+      (is (sf/did? (sf/did (sf/random-did-string)))))
+    (testing "from DID"
+      (is (sf/did? (sf/did (sf/random-did)))))))
+
+(deftest did-scheme-test
+  (testing "DID Scheme"
+    (is (= "did" (sf/did-scheme "did:op:123")))
+    (is (= "did" (sf/did-scheme (sf/random-did-string))))
+    (is (= "did" (sf/did-scheme (sf/random-did))))))
+
+(deftest did-method-test
+  (testing "DID Method"
+    (is (= "op" (sf/did-method "did:op:123")))
+    (is (= "op" (sf/did-method (sf/random-did-string))))
+    (is (= "op" (sf/did-method (sf/random-did))))))
+
+(deftest did-id-test
+  (testing "DID ID"
+    (is (= "123" (sf/did-id "did:op:123")))))
+
+(deftest did-path-test
+  (testing "DID Path"
+    (is (= "456" (sf/did-path "did:op:123/456")))
+    (is (= nil (sf/did-path "did:op:1234")))))
+
+(deftest did-fragment-test
+  (testing "DID Fragment"
+    (is (= "abc" (sf/did-fragment "did:op:123#abc")))
+    (is (= nil (sf/did-fragment "did:op:123")))
+    (is (= nil (sf/did-fragment "did:op:123/456")))))
 
 ;;===================================
 ;; Utility functions, coercion etc.
