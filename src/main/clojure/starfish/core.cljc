@@ -218,7 +218,7 @@
    (when-let [d (did x)]
      (.getFragment d))))
 
-(defn asset-id
+(defn asset-id'
   "Gets the Asset ID for an asset or DID as a String.
 
    The asset ID is meaningful mainly  in the context of an Agent that has the Asset registered. It is
@@ -228,9 +228,15 @@
    (cond
      (asset? a) (.getAssetID ^Asset a)
      (did? a) (or (did-path ^DID a) (error "DID does not contain an Asset ID in DID path"))
-     (string? a) (asset-id (did a))
+     (string? a) (asset-id' (did a))
      (nil? a) (error "Can't get Asset ID of null value")
      :else (error "Can't get asset ID of type " (class a)))))
+
+(defn asset-id [x]
+  (try
+    (asset-id' x)
+    (catch Error _
+      nil)))
 
 (defmulti resolve-agent
   "Resolves Agent for the giving `resolver`, `did` and `ddo`.
