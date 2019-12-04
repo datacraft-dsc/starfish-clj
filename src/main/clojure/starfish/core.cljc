@@ -165,7 +165,7 @@
      (string? x) (DID/parse ^String x)
      :else (throw (IllegalArgumentException. (str "Can't get DID: " (class x)))))))
 
-(defn did [x]
+(defn did ^DID [x]
   (try
     (did' x)
     (catch Exception _
@@ -243,7 +243,7 @@
   ([did]
    (did->agent *resolver* did))
   ([resolver did]
-   (when-let [ddo-str (.getDDOString resolver did)]
+   (when-let [ddo-str (.getDDOString ^Resolver resolver did)]
      (let [ddo (json/read-str ddo-str :key-fn str)]
        (resolve-agent resolver did ddo)))))
 
@@ -446,7 +446,7 @@
      (nil? x) (throw (IllegalArgumentException. "Cannot convert nil to Asset"))
      :else (error "Cannot coerce to Asset: " x))))
 
-(defn asset [x]
+(defn asset ^Asset [x]
   (try
     (asset' x)
     (catch Exception _
