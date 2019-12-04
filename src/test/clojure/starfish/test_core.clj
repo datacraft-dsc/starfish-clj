@@ -42,6 +42,11 @@
     (is (= nil (sf/did-fragment "did:op:123")))
     (is (= nil (sf/did-fragment "did:op:123/456")))))
 
+(deftest asset-id-test
+  (testing "Asset ID"
+    (is (= "456" (sf/asset-id "did:op:123/456")))
+    (is (thrown? java.lang.Error (sf/asset-id "did:op:123")))))
+
 ;;===================================
 ;; Utility functions, coercion etc.
 
