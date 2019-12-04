@@ -172,9 +172,9 @@
       nil)))
 
 (defn didable?
-  "Returns true if x is a DID or can be sucessfully coerced to a DID, false otherwise."
+  "Returns true if x can be sucessfully coerced to a DID, false otherwise."
   [x]
-  (or (did? x) (boolean (did x))))
+  (boolean (did x)))
 
 (defn random-did-string
   "Creates a random DEP-compliant DID as a string, of the format:
