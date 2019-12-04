@@ -7,13 +7,13 @@
 (deftest did-test
   (testing "DID"
     (testing "from Asset"
-      (is (sf/did? (sf/did (sf/memory-asset "abc")))))
+      (is (sf/did? (sf/did' (sf/memory-asset "abc")))))
     (testing "from Agent"
-      (is (sf/did? (sf/did (MemoryAgent/create)))))
+      (is (sf/did? (sf/did' (MemoryAgent/create)))))
     (testing "from string"
-      (is (sf/did? (sf/did (sf/random-did-string)))))
+      (is (sf/did? (sf/did' (sf/random-did-string)))))
     (testing "from DID"
-      (is (sf/did? (sf/did (sf/random-did)))))))
+      (is (sf/did? (sf/did' (sf/random-did)))))))
 
 (deftest did-scheme-test
   (testing "DID Scheme"
@@ -89,8 +89,8 @@
       (is (= "1234" (did-id full-did)))
       (is (= "foo/bar" (did-path full-did)))
       (is (= "fragment" (did-fragment full-did)))
-      (is (valid-did? full-did))
-      (is (not (valid-did? "nonsense:ocn:1234")))
+      (is (didable? full-did))
+      (is (= false (didable? "nonsense:ocn:1234")))
       ))
   (testing "test HEX"
     (are [hex] (= hex (-> hex hex->bytes bytes->hex))
@@ -141,14 +141,14 @@
 (deftest asset-creation
   (testing "memory asset without metadata"
     (let [ast (memory-asset "abc")]
-      (is (= "abc" (to-string (content ast))))))
+      (is (= "abc" (to-string (asset-content ast))))))
 
   (testing "memory asset with metadata"
     (let [tagdata ["test" "data"]
           mdata {:tags tagdata}
           ast (memory-asset mdata "abc")]
-      (is (= tagdata (:tags (metadata ast))))
-      (is (= "abc" (to-string (content ast)))))))
+      (is (= tagdata (:tags (asset-metadata ast))))
+      (is (= "abc" (to-string (asset-content ast)))))))
 
 
 (defn demo-operation1
@@ -176,7 +176,7 @@
     ;; Generated metadata - `default-medatadata` - must be
     ;; equivalent to the one returned by the asset `metadata` function.
     (is (= (select-keys default-medatadata [:name :type :operation])
-           (select-keys (metadata (in-memory-operation default-medatadata)) [:name :type :operation]))))
+           (select-keys (asset-metadata (in-memory-operation default-medatadata)) [:name :type :operation]))))
 
   (let [{:keys [name type operation] :as default-medatadata} (invokable-metadata #'demo-operation2
                                                                                  {:params {"asset-x" {:type "asset"}}})]
@@ -194,7 +194,7 @@
     ;; Generated metadata - `default-medatadata` - must be
     ;; equivalent to the one returned by the asset `metadata` function.
     (is (= (select-keys default-medatadata [:name :type :operation] )
-           (select-keys (metadata (in-memory-operation default-medatadata)) [:name :type :operation])))))
+           (select-keys (asset-metadata (in-memory-operation default-medatadata)) [:name :type :operation])))))
 
 (deftest remote-account-test
   (testing "Username & Password"

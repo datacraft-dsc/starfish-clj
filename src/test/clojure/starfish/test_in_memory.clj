@@ -6,41 +6,41 @@
 (deftest simple-memory-assets
   (testing "memory asset with default metadata"
     (let [a1 (memory-asset "abc")]
-      (is (= "abc" (to-string (content a1))))
-      (is (= "abc" (slurp (content-stream a1))))
+      (is (= "abc" (to-string (asset-content a1))))
+      (is (= "abc" (slurp (asset-content-stream a1))))
       (is (= "abc" (slurp (to-bytes a1))))
-      (is (identical? a1 (asset a1)))
-      (let [m1 (metadata a1)]
+      (is (identical? a1 (asset' a1)))
+      (let [m1 (asset-metadata a1)]
         (is (= "dataset" (:type m1)))
         (is (= "3" (:size m1))))))
-  
+
   (testing "memory asset DID"
     (let [a1 (memory-asset "abcd")
-          d (did a1)]
-      (is (valid-did? d)) 
-      (is (= (did-path d) (asset-id a1))))) 
-  
+          d (did' a1)]
+      (is (didable? d))
+      (is (= (did-path d) (asset-id a1)))))
+
   (testing "memory asset with metadata"
     (let [tagdata ["test" "data"]
           mdata {:tags tagdata}
           a1 (memory-asset mdata "abc")]
-      (is (= tagdata (:tags (metadata a1))))
-      (is (= "abc" (to-string (content a1))))
-      (let [mds (metadata-string a1)
-            a2 (memory-asset mds (content a1))]
+      (is (= tagdata (:tags (asset-metadata a1))))
+      (is (= "abc" (to-string (asset-content a1))))
+      (let [mds (asset-metadata-string a1)
+            a2 (memory-asset mds (asset-content a1))]
         (is (= (digest mds) (asset-id a2)))
         (is (= (asset-id a1) (asset-id a2)))
         )
-      
-      (let [m1 (metadata a1)]
+
+      (let [m1 (asset-metadata a1)]
         (is (= "dataset" (:type m1)))
         (is (= ["test" "data"] (:tags m1)))
-        (is (= m1 (read-json-string (metadata-string a1))))))))
+        (is (= m1 (read-json-string (asset-metadata-string a1))))))))
 
 (deftest simple-operation
   (let [op (create-operation [:input] 
                              (fn [{:keys [input]}] {:output input}) {:name "Identity"})
-        op-meta (metadata op)]
+        op-meta (asset-metadata op)]
     (is (= "Identity" (:name op-meta)))
     (is (= "operation" (:type op-meta)))
     
@@ -49,7 +49,7 @@
           output (:output r)]
       (is (map? r)) ;; check invoke result is a map
       (is (asset? output)) ;; check the output field is populated
-      (is (= "TestIdentity" (to-string (content output)))) ;; check identity has been maintained
+      (is (= "TestIdentity" (to-string (asset-content output)))) ;; check identity has been maintained
       )
     
     (let [a (memory-asset "TestIdentity2")
@@ -60,7 +60,7 @@
         (is (= r (poll-result jb)))
         (is (map? r)) ;; check invoke result is a map
         (is (asset? output)) ;; check the output field is populated
-        (is (= "TestIdentity2" (to-string (content output)))) ;; check identity has been maintained) 
+        (is (= "TestIdentity2" (to-string (asset-content output)))) ;; check identity has been maintained)
         ))))
 
 

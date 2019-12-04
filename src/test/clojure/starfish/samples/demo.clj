@@ -18,13 +18,13 @@
     )
   
   ;; display the metadata
-  (pprint (metadata as1))
+  (pprint (asset-metadata as1))
   
   ;; validate the content hash
   (digest "This is a test")
   
   ;; Print the content
-  (println (to-string (content as1)))
+  (println (to-string (asset-content as1)))
   
   
   ;; ======================================================================================
@@ -35,13 +35,13 @@
                   (remote-agent did ddostring "Aladdin" "OpenSesame")))
   
   ;; agents have a DID
-  (str (did my-agent))
+  (str (did' my-agent))
   
   ;; Get an asset
   (def as2 (get-asset my-agent "4b95d8956ab9a503540d62ac7db2fbcaa99f7f78b2d4f4d8edd6d9d19d750403"))
  
   ;; assets also have a DID, starting with the DID of the agent
-  (str (did as2))
+  (str (did' as2))
   
   ;; Upload an asset
   (def as3 (upload my-agent as1))
@@ -56,13 +56,13 @@
                             (fn [{input :input}]
                               {:output (memory-asset (str (count (to-string input))))})))
    
-  (pprint (metadata op))
+  (pprint (asset-metadata op))
   
   ;; compute the result, getting the output asset from the result map
  (def as4 (:output (invoke-result op {:input as1})))
   
   ;; see the reuslt
- (println (to-string (content as4)))
+ (println (to-string (asset-content as4)))
   
   ;; ======================================================================================
  ;; Register new asset on our agent
@@ -71,10 +71,10 @@
  (def as5 (upload my-agent (memory-asset "Remote test asset data"))) 
   
   ;; asset now has a full remote DID
- (str (did as5)) 
+ (str (did' as5))
   
   ;; double check remote content
- (println (to-string (content as5)))
+ (println (to-string (asset-content as5)))
 
   ;; ======================================================================================
   ;;invoke a remote operation

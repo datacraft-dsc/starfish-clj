@@ -21,7 +21,7 @@
   (def rema (remote-agent (random-did) (json-string ddo-surfer-koi) "Aladdin" "OpenSesame"))
 
   ;;create the iris asset locally
-  (def iris-mem-asset (asset (memory-asset {"description" "iris dataset"} (slurp iris-dataset))))
+  (def iris-mem-asset (asset' (memory-asset {"description" "iris dataset"} (slurp iris-dataset))))
   ;; register it
   (def iris-asset (->> iris-mem-asset (register rema)))
   ;;upload the contents
@@ -42,7 +42,7 @@
   (def predictions-asset (get pred-resp "predictions"))
   (def prediction-data (-> predictions-asset
                            ;;get the content from the asset
-                           content
+                           asset-content
                            ;;convert to a string
                            to-string
                            ;;split by newline to view each prediction
@@ -60,7 +60,7 @@
 
 
   ;;view the metadata with added provenance
-  (def pred-meta (metadata predictions-asset))
+  (def pred-meta (asset-metadata predictions-asset))
 
   ;;view the provenance section
   (-> pred-meta :provenance)
