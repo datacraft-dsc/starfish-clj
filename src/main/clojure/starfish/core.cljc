@@ -33,6 +33,12 @@
 ;; TODO: use proper public APi to get resolver instance
 (def ^{:dynamic true :tag Resolver}  *resolver* (sg.dex.starfish.impl.memory.LocalResolverImpl.))
 
+(defn register!
+  ([did ddo]
+   (register! *resolver* did ddo))
+  ([^Resolver resolver did ddo]
+   (.registerDID resolver did (json/write-str ddo))))
+
 (declare content asset? get-asset get-agent)
 
 ;;===================================
@@ -219,6 +225,21 @@
      (string? a) (asset-id (did a))
      (nil? a) (error "Can't get Asset ID of null value") 
      :else (error "Can't get asset ID of type " (class a)))))
+
+(defmulti resolve-agent
+  "Resolves Agent for the giving `resolver`, `did` and `ddo`.
+
+   Dispatches by DID ID (Agent ID)."
+  (fn [resolver did ddo]
+    (did-id did)))
+
+(defn did->agent
+  ([did]
+   (did->agent *resolver* did))
+  ([resolver did]
+   (when-let [ddo-str (.getDDOString resolver did)]
+     (let [ddo (json/read-str ddo-str :key-fn str)]
+       (resolve-agent resolver did ddo)))))
 
 ;; ============================================================
 ;; DDO management
