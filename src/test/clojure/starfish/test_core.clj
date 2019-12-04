@@ -1,6 +1,7 @@
 (ns starfish.test-core
-  (:require [clojure.test :refer [is are testing deftest run-all-tests]])
-  (:require [starfish.core :refer :all]))
+  (:require [clojure.test :refer [is are testing deftest run-all-tests]]
+            [starfish.core :refer :all])
+  (:import (sg.dex.starfish.impl.remote RemoteAccount)))
 
 ;;===================================
 ;; Utility functions, coercion etc.
@@ -150,6 +151,15 @@
     ;; equivalent to the one returned by the asset `metadata` function.
     (is (= (select-keys default-medatadata [:name :type :operation] )
            (select-keys (metadata (in-memory-operation default-medatadata)) [:name :type :operation])))))
+
+(deftest remote-account-test
+  (testing "Username & Password"
+    (let [credentials (.getCredentials ^RemoteAccount (remote-account "foo" "bar"))]
+      (is (= #{"username" "password"} (set (keys credentials))))))
+
+  (testing "Token"
+    (let [credentials (.getCredentials ^RemoteAccount (remote-account "x"))]
+      (is (= #{"token"} (set (keys credentials)))))))
 
 (comment
   (run-all-tests)
