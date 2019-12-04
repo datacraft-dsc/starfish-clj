@@ -55,11 +55,10 @@ Here's an example of creating and managing assets using starfish-clj
 
   ;; ======================================================================================
   ;; USING REMOTE AGENTS
-  ;; Agents are remote services providing asset and capabilities to the Ocean ecosystem
+  ;; Agents are network-connected services providing asset and capabilities to other participants in the data ecosystem
   (def my-agent (let [did (random-did)
                       ddostring (create-ddo "http://52.187.164.74:8080/")]
                   (remote-agent did ddostring "Aladdin" "OpenSesame")))
-  
 
   ;; agents have a DID
   (str (did my-agent))
