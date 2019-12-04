@@ -19,7 +19,7 @@ Starfish-clj is an open source developer toolkit for the data economy. It allows
 
 Based on an underlying data ecosystem standard, Starfish provides high-level APIs for common tasks within the data economy, for example, registering/publishing an asset, for subsequent use in a data supply line. In this case, an asset can be any data set, model or data service. The high-level API also allows developers to invoke operation on an asset, e.g. computing a predictive model or anonymising sensitive personal information, among other capabilities. 
 
-Starfish works with blockchain networks, such as Ocean Protocol, and common web services through agents, allowing unprecedented flexibility in asset discovery and data supply line management. 
+Starfish works with blockchain networks and common web services through agents, allowing unprecedented flexibility in asset discovery and data supply line management. 
 
 # Installation
 
