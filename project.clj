@@ -1,4 +1,4 @@
-(defproject sg.dex/starfish-clj "0.7.7-SNAPSHOT"
+(defproject sg.dex/starfish-clj "0.7.7"
   :url "https://github.com/DEX-Company/starfish-clj"
   :dependencies [[sg.dex/starfish-java "0.7.8" :exclusions [[org.web3j/utils]
                                                             [org.web3j/crypto]]]
