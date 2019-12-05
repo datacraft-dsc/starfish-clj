@@ -13,7 +13,7 @@
               {"type" "Ocean.Market.v1", "serviceEndpoint" "http://localhost:8080/api/v1/market"}]})
 
 ;;wrapping in a fn to not execute it
-(fn []
+(comment
   ;;the iris dataset path
   (def iris-dataset "https://gist.githubusercontent.com/curran/a08a1080b88344b0c8a7/raw/d546eaee765268bf2f487608c537c05e22e4b221/iris.csv")
 
@@ -21,7 +21,7 @@
   (def rema (remote-agent (random-did) (json-string ddo-surfer-koi) "Aladdin" "OpenSesame"))
 
   ;;create the iris asset locally
-  (def iris-mem-asset (asseto' (memory-asset {"description" "iris dataset"} (slurp iris-dataset))))
+  (def iris-mem-asset (resolve-asset (memory-asset {"description" "iris dataset"} (slurp iris-dataset))))
   ;; register it
   (def iris-asset (->> iris-mem-asset (register rema)))
   ;;upload the contents

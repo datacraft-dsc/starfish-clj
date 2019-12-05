@@ -30,13 +30,13 @@
 
 (def BYTE-ARRAY-CLASS (Class/forName "[B"))
 
-(def ^:private registry
+(def ^{:dynamic true :private true} *registry*
   (atom {}))
 
 (def ^{:dynamic true :tag Resolver} *resolver*
   (sg.dex.starfish.impl.memory.LocalResolverImpl.))
 
-(declare asset-content asset? get-asset get-agent)
+(declare asset-content asset? get-asset)
 
 ;;===================================
 ;; Starfish predicates
@@ -218,19 +218,6 @@
 ;; ============================================================
 ;; DDO management
 
-(defn install-ddo
-  "Installs a DDO for an agent.
-
-   DDO may be either a String or a Map, it will be coerced into a JSON String for installation."
-  [did ddo]
-  (let [^Resolver resolver *resolver*
-        ^String ddo-string (cond
-                             (string? ddo) ddo
-                             (map? ddo) (json-string-pprint ddo)
-                             :else (error "ddo value must be a String or Map"))
-        did (dido did)]
-    (.registerDID resolver did ddo-string)))
-
 (defn ddo-string
   "Gets a DDO for the given DID as a JSON formatted String. Uses the default resolver if resolver is not specified."
   (^String [did]
@@ -251,15 +238,6 @@
   "Creates a default DDO as a String for the given host address"
   (^String [host]
    (DDOUtil/getDDO host)))
-
-(defn resolve-agent
-  ([did]
-   (resolve-agent *resolver* did))
-  ([resolver did]
-   (when-let [ddo-str (ddo-string resolver did)]
-     (let [ddo (json/read-str ddo-str :key-fn str)
-           procurer (get @registry (did-id did))]
-       (procurer resolver did ddo)))))
 
 ;; =================================================
 ;; Account
@@ -405,24 +383,6 @@
 ;; ==============================================================
 ;; Asset functionality
 
-(defn asseto'
-  "Coerces input data to an asset.
-   - Existing assets are unchanged
-   - DIDs are resolved to appropriate assets if possible"
-  (^Asset [x]
-   (cond
-     (asset? x) x
-     (did? x) (get-asset (resolve-agent x) x)
-     (string? x) (asseto' (dido' x))
-     (nil? x) (throw (IllegalArgumentException. "Cannot convert nil to Asset"))
-     :else (error "Cannot coerce to Asset: " x))))
-
-(defn asseto ^Asset [x]
-  (try
-    (asseto' x)
-    (catch Exception _
-      nil)))
-
 (defn asset-id'
   "Gets the Asset ID for an asset or DID as a String.
 
@@ -445,33 +405,24 @@
 
 (defn asset-metadata
   "Gets the metadata for an Asset as a map."
-  ([a]
-   (when-let [a (asseto a)]
-     (keywordize-keys (into {} (.getMetadata a))))))
+  ([^Asset asset]
+   (keywordize-keys (into {} (.getMetadata asset)))))
 
 (defn asset-metadata-string
   "Gets the metadata for an Asset as a String. This is guaranteed to match the
    precise metadata used for the calculation of the Asset ID."
-  (^String [a]
-   (when-let [^Asset a (asseto a)]
-     (.getMetadataString a))))
+  (^String [^Asset asset]
+   (.getMetadataString asset)))
 
 (defn asset-content
   "Gets the content for a given Asset as raw byte data"
-  (^bytes [a]
-   (when-let [^Asset a (asseto a)]
-     (.getContent a))))
+  (^bytes [^Asset asset]
+   (.getContent asset)))
 
 (defn asset-content-stream
   "Gets the content for a given data asset as an input stream."
-  (^java.io.InputStream [a]
-   (when-let [a (asseto a)]
-     (.getContentStream ^DataAsset a))))
-
-(defn get-asset
-  "Gets Asset from an Agent, given an Asset ID as a String or DID."
-  ([^Agent agent id]
-   (.getAsset agent ^String (asset-id id))))
+  (^java.io.InputStream [^DataAsset asset]
+   (.getContentStream asset)))
 
 (defn memory-asset
   "Create an in-memory asset with the given metadata and data.
@@ -500,25 +451,20 @@
        (let [^java.util.Map meta-map (stringify-keys meta)]
          (FileAsset/create file meta-map))))))
 
+(defn get-asset
+  "Gets Asset from an Agent, given an Asset ID as a String."
+  [agent id]
+  (.getAsset ^Agent agent ^String id))
+
 ;; =======================================================
 ;; Agent functionality
 
 (defn remote-agent
   "Gets a remote agent with the provided DID"
-  ([local-did ddo ^RemoteAccount remote-account]
-   (RemoteAgentConfig/getRemoteAgent ddo (dido' local-did) remote-account))
-  ([local-did ddo username password]
-   (RemoteAgentConfig/getRemoteAgent ddo (dido' local-did) username password)))
-
-(defn get-agent
-  "Gets the DEP Agent agent for the given DID"
-  (^Agent [agent-did]
-   (get-agent *resolver* agent-did))
-  (^Agent [^Resolver resolver agent-did]
-   (cond
-     (agent? agent-did) agent-did
-     (did? agent-did) (RemoteAgent/create resolver ^DID agent-did)
-     :else (throw (IllegalArgumentException. (str "Invalid did: " (class agent-did)))))))
+  ([did ddo ^RemoteAccount remote-account]
+   (RemoteAgentConfig/getRemoteAgent ddo (dido did) remote-account))
+  ([did ddo username password]
+   (RemoteAgentConfig/getRemoteAgent ddo (dido did) username password)))
 
 (defn digest
   "Computes the sha3_256 String hash of the byte representation of some data and returns this as a hex string.
@@ -537,26 +483,16 @@
   "Uploads any asset to an Agent. Registers the asset with the Agent if required.
 
    Returns an Asset instance referring to the uploaded remote Asset."
-  (^Asset [^Agent agent a]
-   (when-let [a (asseto a)]
-     (.uploadAsset agent a))))
+  (^Asset [^Agent agent ^Asset asset]
+   (.uploadAsset agent asset)))
 
 (defn register
   "Registers an Asset with an Agent. Registration stores the metadata of the asset with the Agent, 
    but does not upload any data.
 
    Returns an asset associated with the agent if successful."
-  (^Asset [^Agent agent a]
-   (when-let [a (asseto a)]
-     (.registerAsset agent ^Asset a))))
-
-(defn register-metadata
-  "Registers metadata with an Agent. Registration stores the metadata with the Agent, 
-   but does not upload any data.
-
-   Returns an asset associated with the agent if successful."
-  (^Asset [^Agent agent ^String meta-string]
-   (.registerAsset agent meta-string)))
+  (^Asset [^Agent agent ^Asset asset]
+   (.registerAsset agent asset)))
 
 (defn publish-prov-metadata
   "Creates provenance metadata. If the first argument is a map with raw metadata, it adds a provenance
@@ -574,10 +510,18 @@
                                                                         asset-dependencies
                                                                         params result-param-name)})))
 
-(defn register!
-  ([did ddo procurer]
-   (register! *resolver* did ddo procurer))
-  ([^Resolver resolver did ddo procurer]
-   (.registerDID resolver did (json/write-str ddo))
-   (swap! registry #(assoc % (did-id did) procurer))
-   nil))
+(defn install
+  "Configures local resolver and registry."
+  [did ddo make]
+  (.registerDID *resolver* (dido did) (json/write-str ddo))
+  (swap! *registry* #(assoc % (did-id did) make))
+  nil)
+
+(defn get-agent
+  (^Agent [did]
+   (get-agent *resolver* *registry* did))
+  (^Agent [resolver registry did]
+   (when-let [ddo-str (ddo-string resolver did)]
+     (let [ddo (json/read-str ddo-str :key-fn str)
+           make (@registry (did-id did))]
+       (make resolver did ddo)))))

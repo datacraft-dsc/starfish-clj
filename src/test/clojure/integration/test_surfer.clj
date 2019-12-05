@@ -15,24 +15,25 @@
 
 (deftest ^:integration register-with-surfer
   (testing "registration "
-    (let [a1 (s/asseto' "test asset")
-          sf (get-remote-agent)
+    (let [sf (get-remote-agent)
+          a1 (s/get-asset sf "test asset")
           remote-asset (s/register sf a1)]
       (is (s/asset? remote-asset))
       (is (s/did? (s/dido' remote-asset)))))
   (testing "registration with keyword metadata "
-    (let [a1 (s/asseto' (s/memory-asset {:meta :data} "test asset"))
-          sf (get-remote-agent)
+    (let [sf (get-remote-agent)
+          a1 (s/get-asset sf (s/memory-asset {:meta :data} "test asset"))
           remote-asset (s/register sf a1)]
       (is (s/asset? remote-asset))))
   (testing "registration with string metadata "
-    (let [a1 (s/asseto' (s/memory-asset {"meta" "data"} "test asset"))
-          remote-asset (s/register (get-remote-agent)a1)]
+    (let [sf (get-remote-agent)
+          a1 (s/get-asset sf (s/memory-asset {"meta" "data"} "test asset"))
+          remote-asset (s/register sf a1)]
       (is (s/asset? remote-asset))))
   (testing "upload "
     (let [con-str "test asset2"
-          a1 (s/asseto' con-str)
           sf (get-remote-agent)
+          a1 (s/get-asset sf con-str)
           remote-asset (s/register sf a1)]
       (s/upload sf a1)
       (is (s/asset? remote-asset))
@@ -42,20 +43,20 @@
 (deftest ^:integration prov-metadata
   (testing "publish case  "
     (let [mdata (s/publish-prov-metadata {"hello" "world"} "abc" "def")
-          a1 (s/asseto' (s/memory-asset mdata "content"))
           sf (get-remote-agent)
+          a1 (s/get-asset sf (s/memory-asset mdata "content"))
           remote-asset (s/register sf a1)]
       (is (every? #{"entity" "agent" "wasGeneratedBy" "activity" "prefix" "wasAssociatedWith"}
                   (-> remote-asset s/asset-metadata :provenance keys)))))
   (testing "invoke case(without actually invoking operation)  "
-    (let [a1 (s/asseto' (s/memory-asset "content"))
-          sf (get-remote-agent)
+    (let [sf (get-remote-agent)
+          a1 (s/get-asset sf (s/memory-asset "content"))
           remote-asset (s/register sf a1)
           mdata (s/invoke-prov-metadata {"hello" "world"} "abc" "def"
                                         [remote-asset]
                                         "input params encoded"
                                         "output-param-name")
-          a1 (s/asseto' (s/memory-asset mdata "content2"))
+          a1 (s/get-asset sf (s/memory-asset mdata "content2"))
           remote-asset (s/register sf a1)]
       (is (every? #{"entity" "agent" "wasGeneratedBy" "activity" "prefix"
                       "wasAssociatedWith" "wasDerivedFrom"}
