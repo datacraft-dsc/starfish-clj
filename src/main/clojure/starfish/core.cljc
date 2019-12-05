@@ -30,7 +30,7 @@
 
 (def BYTE-ARRAY-CLASS (Class/forName "[B"))
 
-(def ^:private *procurer-registry
+(def ^:private registry
   (atom {}))
 
 (def ^{:dynamic true :tag Resolver} *resolver*
@@ -235,15 +235,6 @@
     (catch Error _
       nil)))
 
-(defn resolve-agent
-  ([did]
-   (resolve-agent *resolver* did))
-  ([resolver did]
-   (when-let [ddo-str (.getDDOString ^Resolver resolver did)]
-     (let [ddo (json/read-str ddo-str :key-fn str)
-           procurer (get @*procurer-registry (did-id did))]
-       (procurer resolver dido ddo)))))
-
 ;; ============================================================
 ;; DDO management
 
@@ -251,14 +242,14 @@
   "Installs a DDO for an agent.
 
    DDO may be either a String or a Map, it will be coerced into a JSON String for installation."
-  [did-value ddo]
+  [did ddo]
   (let [^Resolver resolver *resolver*
         ^String ddo-string (cond
                              (string? ddo) ddo
                              (map? ddo) (json-string-pprint ddo)
                              :else (error "ddo value must be a String or Map"))
-        dido (dido did-value)]
-    (.registerDID resolver dido ddo-string)))
+        did (dido did)]
+    (.registerDID resolver did ddo-string)))
 
 (defn ddo-string
   "Gets a DDO for the given DID as a JSON formatted String. Uses the default resolver if resolver is not specified."
@@ -281,6 +272,14 @@
   (^String [host]
    (DDOUtil/getDDO host)))
 
+(defn resolve-agent
+  ([did]
+   (resolve-agent *resolver* did))
+  ([resolver did]
+   (when-let [ddo-str (ddo-string resolver did)]
+     (let [ddo (json/read-str ddo-str :key-fn str)
+           procurer (get @registry (did-id did))]
+       (procurer resolver did ddo)))))
 
 ;; =================================================
 ;; Account
@@ -580,5 +579,5 @@
    (register! *resolver* did ddo procurer))
   ([^Resolver resolver did ddo procurer]
    (.registerDID resolver did (json/write-str ddo))
-   (swap! *procurer-registry #(assoc % (did-id did) procurer))
+   (swap! registry #(assoc % (did-id did) procurer))
    nil))
