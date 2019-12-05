@@ -452,7 +452,9 @@
          (FileAsset/create file meta-map))))))
 
 (defn get-asset
-  "Gets Asset from an Agent, given an Asset ID as a String."
+  "Gets Asset from an Agent.
+
+   `id` can be either a String or DID; it will be coarced to DID in case it's a String."
   [agent id]
   (.getAsset ^Agent agent ^String (asset-id id)))
 
