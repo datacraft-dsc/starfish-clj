@@ -21,7 +21,7 @@
   (def rema (remote-agent (random-did) (json-string ddo-surfer-koi) "Aladdin" "OpenSesame"))
 
   ;;create the iris asset locally
-  (def iris-mem-asset (asset' (memory-asset {"description" "iris dataset"} (slurp iris-dataset))))
+  (def iris-mem-asset (asseto' (memory-asset {"description" "iris dataset"} (slurp iris-dataset))))
   ;; register it
   (def iris-asset (->> iris-mem-asset (register rema)))
   ;;upload the contents

@@ -9,7 +9,7 @@
       (is (= "abc" (to-string (asset-content a1))))
       (is (= "abc" (slurp (asset-content-stream a1))))
       (is (= "abc" (slurp (to-bytes a1))))
-      (is (identical? a1 (asset' a1)))
+      (is (identical? a1 (asseto' a1)))
       (let [m1 (asset-metadata a1)]
         (is (= "dataset" (:type m1)))
         (is (= "3" (:size m1))))))

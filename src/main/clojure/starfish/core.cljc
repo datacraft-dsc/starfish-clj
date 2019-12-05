@@ -405,7 +405,7 @@
 ;; ==============================================================
 ;; Asset functionality
 
-(defn asset'
+(defn asseto'
   "Coerces input data to an asset.
    - Existing assets are unchanged
    - DIDs are resolved to appropriate assets if possible"
@@ -413,13 +413,13 @@
    (cond
      (asset? x) x
      (did? x) (get-asset (resolve-agent x) x)
-     (string? x) (asset' (dido' x))
+     (string? x) (asseto' (dido' x))
      (nil? x) (throw (IllegalArgumentException. "Cannot convert nil to Asset"))
      :else (error "Cannot coerce to Asset: " x))))
 
-(defn asset ^Asset [x]
+(defn asseto ^Asset [x]
   (try
-    (asset' x)
+    (asseto' x)
     (catch Exception _
       nil)))
 
@@ -444,28 +444,28 @@
       nil)))
 
 (defn asset-metadata
-  "Gets the metadata for an Asset as a Clojure map"
+  "Gets the metadata for an Asset as a map."
   ([a]
-   (when-let [a (asset a)]
+   (when-let [a (asseto a)]
      (keywordize-keys (into {} (.getMetadata a))))))
 
 (defn asset-metadata-string
   "Gets the metadata for an Asset as a String. This is guaranteed to match the
    precise metadata used for the calculation of the Asset ID."
   (^String [a]
-   (when-let [^Asset a (asset a)]
+   (when-let [^Asset a (asseto a)]
      (.getMetadataString a))))
 
 (defn asset-content
   "Gets the content for a given Asset as raw byte data"
   (^bytes [a]
-   (when-let [^Asset a (asset a)]
+   (when-let [^Asset a (asseto a)]
      (.getContent a))))
 
 (defn asset-content-stream
   "Gets the content for a given data asset as an input stream."
   (^java.io.InputStream [a]
-   (when-let [a (asset a)]
+   (when-let [a (asseto a)]
      (.getContentStream ^DataAsset a))))
 
 (defn get-asset
@@ -538,7 +538,7 @@
 
    Returns an Asset instance referring to the uploaded remote Asset."
   (^Asset [^Agent agent a]
-   (when-let [a (asset a)]
+   (when-let [a (asseto a)]
      (.uploadAsset agent a))))
 
 (defn register
@@ -547,7 +547,7 @@
 
    Returns an asset associated with the agent if successful."
   (^Asset [^Agent agent a]
-   (when-let [a (asset a)]
+   (when-let [a (asseto a)]
      (.registerAsset agent ^Asset a))))
 
 (defn register-metadata
