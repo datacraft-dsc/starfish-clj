@@ -33,7 +33,7 @@
                              con-str)
           squid-agent (get-squid-agent)
           remote-asset (s/register squid-agent a1)
-          did1 (s/did' remote-asset)
+          did1 (s/dido' remote-asset)
           rasset (s/get-asset squid-agent did1)
           rmetadata (s/asset-metadata rasset)]
       (is (map? rmetadata ))))
@@ -46,7 +46,7 @@
           remote-surfer-asset (s/register surfer a1)]
       (s/upload surfer a1)
       (is (s/asset? remote-surfer-asset))
-      (is (s/did? (s/did' remote-surfer-asset)))
+      (is (s/did? (s/dido' remote-surfer-asset)))
       (is (= con-str (s/to-string (s/asset-content remote-surfer-asset))))
       ))
   )

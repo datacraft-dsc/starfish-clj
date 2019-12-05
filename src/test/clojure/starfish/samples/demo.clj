@@ -35,13 +35,13 @@
                   (remote-agent did ddostring "Aladdin" "OpenSesame")))
   
   ;; agents have a DID
-  (str (did' my-agent))
+  (str (dido' my-agent))
   
   ;; Get an asset
   (def as2 (get-asset my-agent "4b95d8956ab9a503540d62ac7db2fbcaa99f7f78b2d4f4d8edd6d9d19d750403"))
  
   ;; assets also have a DID, starting with the DID of the agent
-  (str (did' as2))
+  (str (dido' as2))
   
   ;; Upload an asset
   (def as3 (upload my-agent as1))
@@ -71,7 +71,7 @@
  (def as5 (upload my-agent (memory-asset "Remote test asset data"))) 
   
   ;; asset now has a full remote DID
- (str (did' as5))
+ (str (dido' as5))
   
   ;; double check remote content
  (println (to-string (asset-content as5)))

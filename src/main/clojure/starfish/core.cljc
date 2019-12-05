@@ -30,7 +30,7 @@
 
 (def BYTE-ARRAY-CLASS (Class/forName "[B"))
 
-(def ^:private *procurer
+(def ^:private *procurer-registry
   (atom {}))
 
 (def ^{:dynamic true :tag Resolver} *resolver*
@@ -150,7 +150,7 @@
 ;; =================================================
 ;; Identity
 
-(defn did'
+(defn dido'
   "Gets the DID for the given input
    - DID is returned for Agents or Assets
    - Strings are intrepreted as DIDs if possible"
@@ -162,16 +162,16 @@
      (string? x) (DID/parse ^String x)
      :else (throw (IllegalArgumentException. (str "Can't get DID: " (class x)))))))
 
-(defn did ^DID [x]
+(defn dido ^DID [x]
   (try
-    (did' x)
+    (dido' x)
     (catch Exception _
       nil)))
 
 (defn didable?
   "Returns true if x can be sucessfully coerced to a DID, false otherwise."
   [x]
-  (boolean (did x)))
+  (boolean (dido x)))
 
 (defn random-did-string
   "Creates a random DEP-compliant DID as a string, of the format:
@@ -188,31 +188,31 @@
 (defn did-scheme
   "Return the DID scheme."
   (^String [x]
-   (when-let [d (did x)]
+   (when-let [d (dido x)]
      (.getScheme d))))
 
 (defn did-method
-  "Return the DID method"
+  "Return the DID method."
   (^String [x]
-   (when-let [d (did x)]
+   (when-let [d (dido x)]
      (.getMethod d))))
 
 (defn did-id
   "Return the DID ID. In standard Starfish usage, this is the ID of the Agent."
   (^String [x]
-   (when-let [d (did x)]
+   (when-let [d (dido x)]
      (.getID d))))
 
 (defn did-path
   "Return the DID path. In standard Starfish usage, this is equivalent to the Asset ID."
   (^String [x]
-   (when-let [d (did x)]
+   (when-let [d (dido x)]
      (.getPath d))))
 
 (defn did-fragment
   "Return the DID fragment"
   (^String [x]
-   (when-let [d (did x)]
+   (when-let [d (dido x)]
      (.getFragment d))))
 
 (defn asset-id'
@@ -225,7 +225,7 @@
    (cond
      (asset? a) (.getAssetID ^Asset a)
      (did? a) (or (did-path ^DID a) (error "DID does not contain an Asset ID in DID path"))
-     (string? a) (asset-id' (did a))
+     (string? a) (asset-id' (dido a))
      (nil? a) (error "Can't get Asset ID of null value")
      :else (error "Can't get asset ID of type " (class a)))))
 
@@ -241,8 +241,8 @@
   ([resolver did]
    (when-let [ddo-str (.getDDOString ^Resolver resolver did)]
      (let [ddo (json/read-str ddo-str :key-fn str)
-           procurer (get @*procurer (did-id did))]
-       (procurer resolver did ddo)))))
+           procurer (get @*procurer-registry (did-id did))]
+       (procurer resolver dido ddo)))))
 
 ;; ============================================================
 ;; DDO management
@@ -257,23 +257,23 @@
                              (string? ddo) ddo
                              (map? ddo) (json-string-pprint ddo)
                              :else (error "ddo value must be a String or Map"))
-        did (did did-value)]
-    (.registerDID resolver did ddo-string)))
+        dido (dido did-value)]
+    (.registerDID resolver dido ddo-string)))
 
 (defn ddo-string
   "Gets a DDO for the given DID as a JSON formatted String. Uses the default resolver if resolver is not specified."
-  (^String [did-value]
-   (ddo-string *resolver* did-value))
-  (^String [^Resolver resolver did-value]
-   (let [^DID d (did did-value)]
-     (.getDDOString resolver d))))
+  (^String [did]
+   (ddo-string *resolver* did))
+  (^String [^Resolver resolver did]
+   (let [^DID did (dido did)]
+     (.getDDOString resolver did))))
 
 (defn ddo
   "Gets a DDO for the given DID as a Clojure map. Uses the default resolver if resolver is not specified."
-  (^String [did-value]
-   (ddo *resolver* did-value))
-  (^String [^Resolver resolver did-value]
-   (if-let [ddos (ddo-string resolver did-value)]
+  (^String [did]
+   (ddo *resolver* did))
+  (^String [^Resolver resolver did]
+   (if-let [ddos (ddo-string resolver did)]
      (read-json-string ddos))))
 
 (defn create-ddo
@@ -439,7 +439,7 @@
    (cond
      (asset? x) x
      (did? x) (get-asset (resolve-agent x) x)
-     (string? x) (asset' (did' x))
+     (string? x) (asset' (dido' x))
      (nil? x) (throw (IllegalArgumentException. "Cannot convert nil to Asset"))
      :else (error "Cannot coerce to Asset: " x))))
 
@@ -507,9 +507,9 @@
 (defn remote-agent
   "Gets a remote agent with the provided DID"
   ([local-did ddo ^RemoteAccount remote-account]
-   (RemoteAgentConfig/getRemoteAgent ddo (did' local-did) remote-account))
+   (RemoteAgentConfig/getRemoteAgent ddo (dido' local-did) remote-account))
   ([local-did ddo username password]
-   (RemoteAgentConfig/getRemoteAgent ddo (did' local-did) username password)))
+   (RemoteAgentConfig/getRemoteAgent ddo (dido' local-did) username password)))
 
 (defn get-agent
   "Gets the DEP Agent agent for the given DID"
@@ -580,5 +580,5 @@
    (register! *resolver* did ddo procurer))
   ([^Resolver resolver did ddo procurer]
    (.registerDID resolver did (json/write-str ddo))
-   (swap! *procurer #(assoc % (did-id did) procurer))
+   (swap! *procurer-registry #(assoc % (did-id did) procurer))
    nil))

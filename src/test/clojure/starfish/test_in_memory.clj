@@ -16,7 +16,7 @@
 
   (testing "memory asset DID"
     (let [a1 (memory-asset "abcd")
-          d (did' a1)]
+          d (dido' a1)]
       (is (didable? d))
       (is (= (did-path d) (asset-id a1)))))
 
