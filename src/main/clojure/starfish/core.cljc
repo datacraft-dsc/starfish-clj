@@ -454,7 +454,7 @@
 (defn get-asset
   "Gets Asset from an Agent, given an Asset ID as a String."
   [agent id]
-  (.getAsset ^Agent agent ^String id))
+  (.getAsset ^Agent agent ^String (asset-id id)))
 
 ;; =======================================================
 ;; Agent functionality
@@ -524,4 +524,4 @@
    (when-let [ddo-str (ddo-string resolver did)]
      (let [ddo (json/read-str ddo-str :key-fn str)
            make (@registry (did-id did))]
-       (make resolver did ddo)))))
+       (make resolver (dido did) ddo)))))
