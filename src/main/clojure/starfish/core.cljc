@@ -215,26 +215,6 @@
    (when-let [d (dido x)]
      (.getFragment d))))
 
-(defn asset-id'
-  "Gets the Asset ID for an asset or DID as a String.
-
-   The asset ID is meaningful mainly  in the context of an Agent that has the Asset registered. It is
-   preferable to use (did asset) for the asset DID if the intent is to obtain a full reference to the asset
-   that includes the agent location."
-  (^String [a]
-   (cond
-     (asset? a) (.getAssetID ^Asset a)
-     (did? a) (or (did-path ^DID a) (error "DID does not contain an Asset ID in DID path"))
-     (string? a) (asset-id' (dido a))
-     (nil? a) (error "Can't get Asset ID of null value")
-     :else (error "Can't get asset ID of type " (class a)))))
-
-(defn asset-id [x]
-  (try
-    (asset-id' x)
-    (catch Error _
-      nil)))
-
 ;; ============================================================
 ;; DDO management
 
@@ -425,11 +405,6 @@
 ;; ==============================================================
 ;; Asset functionality
 
-(defn get-asset
-  "Gets Asset from an Agent, given an Asset ID as a String or DID."
-  ([^Agent agent id]
-   (.getAsset agent ^String (asset-id id))))
-
 (defn asset'
   "Coerces input data to an asset.
    - Existing assets are unchanged
@@ -446,6 +421,26 @@
   (try
     (asset' x)
     (catch Exception _
+      nil)))
+
+(defn asset-id'
+  "Gets the Asset ID for an asset or DID as a String.
+
+   The asset ID is meaningful mainly  in the context of an Agent that has the Asset registered. It is
+   preferable to use (did asset) for the asset DID if the intent is to obtain a full reference to the asset
+   that includes the agent location."
+  (^String [a]
+   (cond
+     (asset? a) (.getAssetID ^Asset a)
+     (did? a) (or (did-path ^DID a) (error "DID does not contain an Asset ID in DID path"))
+     (string? a) (asset-id' (dido' a))
+     (nil? a) (error "Can't get Asset ID of null value")
+     :else (error "Can't get asset ID of type " (class a)))))
+
+(defn asset-id [x]
+  (try
+    (asset-id' x)
+    (catch Error _
       nil)))
 
 (defn asset-metadata
@@ -472,6 +467,11 @@
   (^java.io.InputStream [a]
    (when-let [a (asset a)]
      (.getContentStream ^DataAsset a))))
+
+(defn get-asset
+  "Gets Asset from an Agent, given an Asset ID as a String or DID."
+  ([^Agent agent id]
+   (.getAsset agent ^String (asset-id id))))
 
 (defn memory-asset
   "Create an in-memory asset with the given metadata and data.
