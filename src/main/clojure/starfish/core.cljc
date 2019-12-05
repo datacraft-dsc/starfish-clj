@@ -61,6 +61,26 @@
   ([a]
    (instance? Job a)))
 
+(defprotocol IDid
+  (did [x]))
+
+(extend-protocol IDid
+  DID
+  (did [x]
+    x)
+
+  String
+  (did [x]
+    (DID/parse x))
+
+  Agent
+  (did [x]
+    (.getDID x))
+
+  Asset
+  (did [x]
+    (.getDID x)))
+
 ;;===================================
 ;; Utility functions, coercion etc.
 
