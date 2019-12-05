@@ -259,11 +259,11 @@
    (let [^DID did (dido did)]
      (.getDDOString resolver did))))
 
-(defn ddo
-  "Gets a DDO for the given DID as a Clojure map. Uses the default resolver if resolver is not specified."
-  (^String [did]
-   (ddo *resolver* did))
-  (^String [^Resolver resolver did]
+(defn ddo-map
+  "Gets a DDO for the given DID as a map. Uses the default resolver if resolver is not specified."
+  ([did]
+   (ddo-map *resolver* did))
+  ([resolver did]
    (if-let [ddos (ddo-string resolver did)]
      (read-json-string ddos))))
 
