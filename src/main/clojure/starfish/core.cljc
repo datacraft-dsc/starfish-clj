@@ -30,14 +30,11 @@
 
 (def BYTE-ARRAY-CLASS (Class/forName "[B"))
 
+(def ^:private *procurer
+  (atom {}))
+
 (def ^{:dynamic true :tag Resolver} *resolver*
   (sg.dex.starfish.impl.memory.LocalResolverImpl.))
-
-(defn register!
-  ([did ddo]
-   (register! *resolver* did ddo))
-  ([^Resolver resolver did ddo]
-   (.registerDID resolver did (json/write-str ddo))))
 
 (declare asset-content asset? get-asset get-agent)
 
@@ -238,20 +235,14 @@
     (catch Error _
       nil)))
 
-(defmulti resolve-agent
-  "Resolves Agent for the giving `resolver`, `did` and `ddo`.
-
-   Dispatches by DID ID (Agent ID)."
-  (fn [resolver did ddo]
-    (did-id did)))
-
-(defn did->agent
+(defn resolve-agent
   ([did]
-   (did->agent *resolver* did))
+   (resolve-agent *resolver* did))
   ([resolver did]
    (when-let [ddo-str (.getDDOString ^Resolver resolver did)]
-     (let [ddo (json/read-str ddo-str :key-fn str)]
-       (resolve-agent resolver did ddo)))))
+     (let [ddo (json/read-str ddo-str :key-fn str)
+           procurer (get @*procurer (did-id did))]
+       (procurer resolver did ddo)))))
 
 ;; ============================================================
 ;; DDO management
@@ -447,7 +438,7 @@
   (^Asset [x]
    (cond
      (asset? x) x
-     (did? x) (get-asset (did->agent x) x)
+     (did? x) (get-asset (resolve-agent x) x)
      (string? x) (asset' (did' x))
      (nil? x) (throw (IllegalArgumentException. "Cannot convert nil to Asset"))
      :else (error "Cannot coerce to Asset: " x))))
@@ -584,3 +575,10 @@
                                                                         asset-dependencies
                                                                         params result-param-name)})))
 
+(defn register!
+  ([did ddo procurer]
+   (register! *resolver* did ddo procurer))
+  ([^Resolver resolver did ddo procurer]
+   (.registerDID resolver did (json/write-str ddo))
+   (swap! *procurer #(assoc % (did-id did) procurer))
+   nil))
