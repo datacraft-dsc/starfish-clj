@@ -18,7 +18,9 @@
   (def iris-dataset "https://gist.githubusercontent.com/curran/a08a1080b88344b0c8a7/raw/d546eaee765268bf2f487608c537c05e22e4b221/iris.csv")
 
   ;;create a remote agent with the  right DDO and auth.
-  (def rema (remote-agent (random-did) (json-string ddo-surfer-koi) "Aladdin" "OpenSesame"))
+  (def rema
+    (->> (remote-account "Aladdin" "OpenSesame")
+         (remote-agent (random-did))))
 
   ;;create the iris asset locally
   (def iris-mem-asset (resolve-asset (memory-asset {"description" "iris dataset"} (slurp iris-dataset))))

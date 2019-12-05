@@ -6,7 +6,7 @@
     [clojure.data.json :as json ])
   (:import [sg.dex.starfish.util DDOUtil JSON]))
 
-(fn [] ;; Quick hack to compile this file without executing on load
+(comment
  
   ;; ======================================================================================
   ;; BASIC ASSETS
@@ -32,7 +32,8 @@
   ;; Agents are remote services providing asset and capabilities to the Ocean ecosystem
   (def my-agent (let [did (random-did)
                       ddostring (create-ddo "http://localhost:8080")]
-                  (remote-agent did ddostring "Aladdin" "OpenSesame")))
+                  (->> (remote-account "Aladdin" "OpenSesame")
+                       (remote-agent did ddostring))))
   
   ;; agents have a DID
   (str (dido' my-agent))

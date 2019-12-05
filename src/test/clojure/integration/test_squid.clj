@@ -23,7 +23,8 @@
         props (get-properties)
         surfer-host (str (get props "surfer.host") ":" (get props "surfer.port"))
         ddostring (s/create-ddo surfer-host)
-        sf (s/remote-agent did ddostring "Aladdin" "OpenSesame")]
+        sf (->> (s/remote-account "Aladdin" "OpenSesame")
+                (s/remote-agent did))]
     sf))
 
 (deftest ^:integration register-with-squid
