@@ -62,7 +62,7 @@
    (instance? Job a)))
 
 (defprotocol IDid
-  (did [x]))
+  (did ^DID [x]))
 
 (extend-protocol IDid
   DID
@@ -80,6 +80,15 @@
   Asset
   (did [x]
     (.getDID x)))
+
+(defn idid? [x]
+  (satisfies? IDid x))
+
+(defn some-did ^DID [x]
+  (try
+    (did x)
+    (catch Exception _
+      nil)))
 
 ;;===================================
 ;; Utility functions, coercion etc.
@@ -170,29 +179,6 @@
 ;; =================================================
 ;; Identity
 
-(defn dido'
-  "Gets the DID for the given input
-   - DID is returned for Agents or Assets
-   - Strings are intrepreted as DIDs if possible"
-  (^DID [x]
-   (cond
-     (did? x) x
-     (asset? x) (.getDID ^Asset x)
-     (agent? x) (.getDID ^Agent x)
-     (string? x) (DID/parse ^String x)
-     :else (throw (IllegalArgumentException. (str "Can't get DID: " (class x)))))))
-
-(defn dido ^DID [x]
-  (try
-    (dido' x)
-    (catch Exception _
-      nil)))
-
-(defn didable?
-  "Returns true if x can be sucessfully coerced to a DID, false otherwise."
-  [x]
-  (boolean (dido x)))
-
 (defn random-did-string
   "Creates a random DEP-compliant DID as a string, of the format:
   did:xxx:a1019172af9ae4d6cb32b52193cae1e3d61c0bcf36f0ba1cd30bf82d6e446563"
@@ -208,31 +194,31 @@
 (defn did-scheme
   "Return the DID scheme."
   (^String [x]
-   (when-let [d (dido x)]
+   (when-let [d (did x)]
      (.getScheme d))))
 
 (defn did-method
   "Return the DID method."
   (^String [x]
-   (when-let [d (dido x)]
+   (when-let [d (did x)]
      (.getMethod d))))
 
 (defn did-id
   "Return the DID ID. In standard Starfish usage, this is the ID of the Agent."
   (^String [x]
-   (when-let [d (dido x)]
+   (when-let [d (did x)]
      (.getID d))))
 
 (defn did-path
   "Return the DID path. In standard Starfish usage, this is equivalent to the Asset ID."
   (^String [x]
-   (when-let [d (dido x)]
+   (when-let [d (did x)]
      (.getPath d))))
 
 (defn did-fragment
   "Return the DID fragment"
   (^String [x]
-   (when-let [d (dido x)]
+   (when-let [d (did x)]
      (.getFragment d))))
 
 ;; ============================================================
@@ -240,18 +226,17 @@
 
 (defn ddo-string
   "Gets a DDO for the given DID as a JSON formatted String. Uses the default resolver if resolver is not specified."
-  (^String [did]
-   (ddo-string *resolver* did))
-  (^String [^Resolver resolver did]
-   (let [^DID did (dido did)]
-     (.getDDOString resolver did))))
+  (^String [idid]
+   (ddo-string *resolver* idid))
+  (^String [^Resolver resolver idid]
+   (.getDDOString resolver (did idid))))
 
 (defn ddo-map
   "Gets a DDO for the given DID as a map. Uses the default resolver if resolver is not specified."
-  ([did]
-   (ddo-map *resolver* did))
-  ([resolver did]
-   (if-let [ddos (ddo-string resolver did)]
+  ([idid]
+   (ddo-map *resolver* idid))
+  ([resolver idid]
+   (if-let [ddos (ddo-string resolver idid)]
      (read-json-string ddos))))
 
 (defn create-ddo
@@ -409,13 +394,13 @@
    The asset ID is meaningful mainly  in the context of an Agent that has the Asset registered. It is
    preferable to use (did asset) for the asset DID if the intent is to obtain a full reference to the asset
    that includes the agent location."
-  (^String [a]
+  (^String [x]
    (cond
-     (asset? a) (.getAssetID ^Asset a)
-     (did? a) (or (did-path ^DID a) (error "DID does not contain an Asset ID in DID path"))
-     (string? a) (asset-id' (dido' a))
-     (nil? a) (error "Can't get Asset ID of null value")
-     :else (error "Can't get asset ID of type " (class a)))))
+     (asset? x) (.getAssetID ^Asset x)
+     (did? x) (or (did-path ^DID x) (error "DID does not contain an Asset ID in DID path"))
+     (string? x) (asset-id' (did x))
+     (nil? x) (error "Can't get Asset ID of null value")
+     :else (error "Can't get asset ID of type " (class x)))))
 
 (defn asset-id [x]
   (try
@@ -486,7 +471,7 @@
   ([did account]
    (remote-agent *resolver* did account))
   ([resolver did account]
-   (RemoteAgent/create resolver (dido did) ^RemoteAccount account)))
+   (RemoteAgent/create resolver (did did) ^RemoteAccount account)))
 
 (defn digest
   "Computes the sha3_256 String hash of the byte representation of some data and returns this as a hex string.
@@ -534,16 +519,16 @@
 
 (defn install
   "Configures local resolver and registry."
-  [did ddo make]
-  (.registerDID *resolver* (dido did) (json/write-str ddo))
-  (swap! *registry* #(assoc % (did-id did) make))
+  [idid ddo make]
+  (.registerDID *resolver* (did idid) (json/write-str ddo))
+  (swap! *registry* #(assoc % (did-id idid) make))
   nil)
 
 (defn get-agent
-  (^Agent [did]
-   (get-agent *resolver* *registry* did))
-  (^Agent [resolver registry did]
-   (when-let [ddo-str (ddo-string resolver did)]
+  (^Agent [idid]
+   (get-agent *resolver* *registry* idid))
+  (^Agent [resolver registry idid]
+   (when-let [ddo-str (ddo-string resolver idid)]
      (let [ddo (json/read-str ddo-str :key-fn str)
-           make (@registry (did-id did))]
-       (make resolver (dido did) ddo)))))
+           make (@registry (did-id idid))]
+       (make resolver (did idid) ddo)))))

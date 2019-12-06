@@ -20,7 +20,7 @@
           a1 (s/get-asset sf "test asset")
           remote-asset (s/register sf a1)]
       (is (s/asset? remote-asset))
-      (is (s/did? (s/dido' remote-asset)))))
+      (is (s/did? (s/did remote-asset)))))
   (testing "registration with keyword metadata "
     (let [sf (get-remote-agent)
           a1 (s/get-asset sf (s/memory-asset {:meta :data} "test asset"))
@@ -38,7 +38,7 @@
           remote-asset (s/register sf a1)]
       (s/upload sf a1)
       (is (s/asset? remote-asset))
-      (is (s/did? (s/dido' remote-asset)))
+      (is (s/did? (s/did remote-asset)))
       (is (= con-str (s/to-string (s/asset-content remote-asset)))))))
 
 (deftest ^:integration prov-metadata

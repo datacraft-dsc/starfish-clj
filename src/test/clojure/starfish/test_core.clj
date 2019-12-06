@@ -8,13 +8,13 @@
 (deftest did-test
   (testing "DID"
     (testing "from Asset"
-      (is (sf/did? (sf/dido' (sf/memory-asset "abc")))))
+      (is (sf/did? (sf/did (sf/memory-asset "abc")))))
     (testing "from Agent"
-      (is (sf/did? (sf/dido' (MemoryAgent/create)))))
+      (is (sf/did? (sf/did (MemoryAgent/create)))))
     (testing "from string"
-      (is (sf/did? (sf/dido' (sf/random-did-string)))))
+      (is (sf/did? (sf/did (sf/random-did-string)))))
     (testing "from DID"
-      (is (sf/did? (sf/dido' (sf/random-did)))))))
+      (is (sf/did? (sf/did (sf/random-did)))))))
 
 (deftest did-scheme-test
   (testing "DID Scheme"
@@ -90,9 +90,13 @@
       (is (= "1234" (did-id full-did)))
       (is (= "foo/bar" (did-path full-did)))
       (is (= "fragment" (did-fragment full-did)))
-      (is (didable? full-did))
-      (is (= false (didable? "nonsense:ocn:1234")))
-      ))
+
+      (is (and (idid? full-did)
+               (some-did full-did)))
+
+      (is (and (idid? "nonsense:ocn:1234")
+               (not (some-did "nonsense:ocn:1234"))))))
+
   (testing "test HEX"
     (are [hex] (= hex (-> hex hex->bytes bytes->hex))
                "0123456789"
