@@ -51,11 +51,6 @@
   ([a]
    (instance? Agent a)))
 
-(defn did?
-  "Returns true if the argument is a W3C DID"
-  ([a]
-   (instance? DID a)))
-
 (defn job?
   "Returns true if the argument is a Job"
   ([a]
@@ -88,8 +83,15 @@
   (did [_]
     nil))
 
-(defn idid? [x]
+(defn idid?
+  "Returns true if x satisfies the IDid protocol."
+  [x]
   (satisfies? IDid x))
+
+(defn did?
+  "Returns true if the argument is a W3C DID."
+  ([a]
+   (instance? DID a)))
 
 ;;===================================
 ;; Utility functions, coercion etc.
