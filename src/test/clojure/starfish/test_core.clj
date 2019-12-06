@@ -8,13 +8,23 @@
 (deftest did-test
   (testing "DID"
     (testing "from Asset"
+      (is (sf/idid? (sf/memory-asset "abc")))
       (is (sf/did? (sf/did (sf/memory-asset "abc")))))
+
     (testing "from Agent"
+      (is (sf/idid? (MemoryAgent/create)))
       (is (sf/did? (sf/did (MemoryAgent/create)))))
+
     (testing "from string"
+      (is (sf/idid? ""))
+      (is (= nil (sf/did "")))
       (is (sf/did? (sf/did (sf/random-did-string)))))
+
     (testing "from DID"
-      (is (sf/did? (sf/did (sf/random-did)))))))
+      (is (sf/idid? (sf/random-did)))
+      (is (sf/did? (sf/did (sf/random-did))))
+      (let [d (sf/random-did)]
+        (is (= d (sf/did d)))))))
 
 (deftest did-scheme-test
   (testing "DID Scheme"
