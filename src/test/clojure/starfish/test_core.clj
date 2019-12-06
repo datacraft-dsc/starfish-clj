@@ -91,11 +91,8 @@
       (is (= "foo/bar" (did-path full-did)))
       (is (= "fragment" (did-fragment full-did)))
 
-      (is (and (idid? full-did)
-               (some-did full-did)))
-
-      (is (and (idid? "nonsense:ocn:1234")
-               (not (some-did "nonsense:ocn:1234"))))))
+      (is (and (idid? full-did) (did full-did)))
+      (is (and (idid? "nonsense:ocn:1234") (not (did "nonsense:ocn:1234"))))))
 
   (testing "test HEX"
     (are [hex] (= hex (-> hex hex->bytes bytes->hex))

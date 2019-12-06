@@ -71,7 +71,10 @@
 
   String
   (did [x]
-    (DID/parse x))
+    (try
+      (DID/parse x)
+      (catch Exception _
+        nil)))
 
   Agent
   (did [x]
@@ -79,16 +82,14 @@
 
   Asset
   (did [x]
-    (.getDID x)))
+    (.getDID x))
+
+  nil
+  (did [_]
+    nil))
 
 (defn idid? [x]
   (satisfies? IDid x))
-
-(defn some-did ^DID [x]
-  (try
-    (did x)
-    (catch Exception _
-      nil)))
 
 ;;===================================
 ;; Utility functions, coercion etc.
