@@ -521,11 +521,13 @@
                                                                         params result-param-name)})))
 
 (defn install
-  "Configures local resolver and registry."
-  [idid ddo make]
-  (.registerDID *resolver* (did idid) (json/write-str ddo))
-  (swap! *registry* #(assoc % (did-id idid) make))
-  nil)
+  "Install ddo for idid."
+  ([idid ddo make]
+   (install *resolver* *registry* idid ddo make))
+  ([resolver registry idid ddo make]
+   (.registerDID ^Resolver resolver (did idid) (json/write-str ddo))
+   (swap! registry #(assoc % (did-id idid) make))
+   nil))
 
 (defn get-agent
   (^Agent [idid]
