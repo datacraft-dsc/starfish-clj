@@ -471,10 +471,10 @@
 
 (defn remote-agent
   "Gets a remote agent with the provided DID"
-  ([did account]
-   (remote-agent *resolver* did account))
-  ([resolver did account]
-   (RemoteAgent/create resolver (did did) ^RemoteAccount account)))
+  ([idid account]
+   (remote-agent *resolver* idid account))
+  ([resolver idid account]
+   (RemoteAgent/create resolver (did idid) ^RemoteAccount account)))
 
 (defn digest
   "Computes the sha3_256 String hash of the byte representation of some data and returns this as a hex string.
