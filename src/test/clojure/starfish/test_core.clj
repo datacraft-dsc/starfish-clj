@@ -188,7 +188,7 @@
     ;; Generated metadata - `default-medatadata` - must be
     ;; equivalent to the one returned by the asset `metadata` function.
     (is (= (select-keys default-medatadata [:name :type :operation])
-           (select-keys (asset-metadata (in-memory-operation default-medatadata)) [:name :type :operation]))))
+           (select-keys (asset-metadata (memory-operation default-medatadata)) [:name :type :operation]))))
 
   (let [{:keys [name type operation] :as default-medatadata} (invokable-metadata #'demo-operation2
                                                                                  {:params {"asset-x" {:type "asset"}}})]
@@ -206,7 +206,7 @@
     ;; Generated metadata - `default-medatadata` - must be
     ;; equivalent to the one returned by the asset `metadata` function.
     (is (= (select-keys default-medatadata [:name :type :operation])
-           (select-keys (asset-metadata (in-memory-operation default-medatadata)) [:name :type :operation])))))
+           (select-keys (asset-metadata (memory-operation default-medatadata)) [:name :type :operation])))))
 
 (deftest remote-account-test
   (testing "Username & Password"

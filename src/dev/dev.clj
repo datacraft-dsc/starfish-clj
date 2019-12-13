@@ -14,6 +14,6 @@
   (sf/invokable-metadata #'demo-operation1)
   (sf/invokable-metadata #'demo-operation2)
 
-  (sf/asset-metadata (sf/in-memory-operation (sf/invokable-metadata #'demo-operation1)))
+  (sf/asset-metadata (sf/memory-operation (sf/invokable-metadata #'demo-operation1)))
 
   )

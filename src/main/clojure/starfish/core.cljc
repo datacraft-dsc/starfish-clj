@@ -319,7 +319,7 @@
                     (merge m {"results" (stringify-keys results)})
                     m))}))
 
-(defn in-memory-operation
+(defn memory-operation
   "Make an in-memory operation from the metadata map."
   [metadata]
   (let [f (-> (get-in metadata [:additionalInfo :function]) symbol resolve)]
