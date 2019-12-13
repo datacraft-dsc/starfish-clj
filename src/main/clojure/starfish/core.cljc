@@ -93,6 +93,9 @@
   ([a]
    (instance? DID a)))
 
+(defn- did-reader [s]
+  (DID/parse s))
+
 ;;===================================
 ;; Utility functions, coercion etc.
 
