@@ -521,7 +521,7 @@
                                                                         params result-param-name)})))
 
 (defn install
-  "Installs ddo for idid and registers constructor function.
+  "Install ddo for idid and register constructor function.
 
    'f' is a function responsible for creating an Agent instance
    given a resolver, did and ddo:
@@ -535,6 +535,9 @@
    nil))
 
 (defn get-agent
+  "Get an Agent instance for idid, or nil if there isn't one installed.
+
+   Lookup a resolver to get ddo for idid and call the constructor function."
   (^Agent [idid]
    (get-agent *resolver* *registry* idid))
   (^Agent [resolver registry idid]
