@@ -521,12 +521,17 @@
                                                                         params result-param-name)})))
 
 (defn install
-  "Install ddo for idid."
-  ([idid ddo make]
-   (install *resolver* *registry* idid ddo make))
-  ([resolver registry idid ddo make]
+  "Installs ddo for idid and registers constructor function.
+
+   'f' is a function responsible for creating an Agent instance
+   given a resolver, did and ddo:
+
+   (fn [resolver did ddo] ...)"
+  ([idid ddo f]
+   (install *resolver* *registry* idid ddo f))
+  ([resolver registry idid ddo f]
    (.registerDID ^Resolver resolver (did idid) (json/write-str ddo))
-   (swap! registry #(assoc % (did-id idid) make))
+   (swap! registry #(assoc % (did-id idid) f))
    nil))
 
 (defn get-agent
