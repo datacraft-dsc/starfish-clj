@@ -88,6 +88,11 @@
   [x]
   (satisfies? IDid x))
 
+(defn didable? [x]
+  (if x
+    (idid? x)
+    false))
+
 (defn did?
   "Returns true if the argument is a W3C DID."
   ([a]
