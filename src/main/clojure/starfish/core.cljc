@@ -1,4 +1,5 @@
 (ns starfish.core
+  (:refer-clojure :exclude [ident?])
   (:require [clojure.walk :refer [keywordize-keys stringify-keys]]
             [clojure.data.json :as json]
             [clojure.java.io :as io]
@@ -56,20 +57,17 @@
   ([a]
    (instance? Job a)))
 
-(defprotocol IDid
+(defprotocol Ident
   (did ^DID [x]))
 
-(extend-protocol IDid
+(extend-protocol Ident
   DID
   (did [x]
     x)
 
   String
   (did [x]
-    (try
-      (DID/parse x)
-      (catch Exception _
-        nil)))
+    (DID/parse x))
 
   Agent
   (did [x]
@@ -77,21 +75,15 @@
 
   Asset
   (did [x]
-    (.getDID x))
+    (.getDID x)))
 
-  nil
-  (did [_]
-    nil))
-
-(defn idid?
-  "Returns true if x satisfies the IDid protocol."
+(defn ident?
+  "Returns true if x:
+    - is a DID;
+    - or has a DID (e.g., Asset, Agent);
+    - or can be coerced to a DID (String)."
   [x]
-  (satisfies? IDid x))
-
-(defn didable? [x]
-  (if x
-    (idid? x)
-    false))
+  (satisfies? Ident x))
 
 (defn did?
   "Returns true if the argument is a W3C DID."
@@ -237,18 +229,18 @@
 
 (defn ddo-string
   "Gets a DDO for the given DID as a JSON formatted String. Uses the default resolver if resolver is not specified."
-  (^String [idid]
-   (ddo-string *resolver* idid))
-  (^String [^Resolver resolver idid]
-   (.getDDOString resolver (did idid))))
+  (^String [ident]
+   (ddo-string *resolver* ident))
+  (^String [^Resolver resolver ident]
+   (.getDDOString resolver (did ident))))
 
 (defn ddo-map
   "Gets a DDO for the given DID as a map. Uses the default resolver if resolver is not specified."
-  ([idid]
-   (ddo-map *resolver* idid))
-  ([resolver idid]
-   (if-let [ddos (ddo-string resolver idid)]
-     (read-json-string ddos))))
+  ([ident]
+   (ddo-map *resolver* ident))
+  ([resolver ident]
+   (if-let [ddo-str (ddo-string resolver ident)]
+     (read-json-string ddo-str))))
 
 (defn create-ddo
   "Creates a default DDO as a String for the given host address"
@@ -478,11 +470,11 @@
 ;; Agent functionality
 
 (defn remote-agent
-  "Gets a remote agent with the provided DID"
-  ([idid account]
-   (remote-agent *resolver* idid account))
-  ([resolver idid account]
-   (RemoteAgent/create resolver (did idid) ^RemoteAccount account)))
+  "Gets a remote agent with the provided DID."
+  ([ident account]
+   (remote-agent *resolver* ident account))
+  ([resolver ident account]
+   (RemoteAgent/create resolver (did ident) ^RemoteAccount account)))
 
 (defn digest
   "Computes the sha3_256 String hash of the byte representation of some data and returns this as a hex string.
@@ -529,27 +521,27 @@
                                                                         params result-param-name)})))
 
 (defn install
-  "Install ddo for idid and register constructor function.
+  "Install ddo for ident and register constructor function.
 
    'f' is a function responsible for creating an Agent instance
    given a resolver, did and ddo:
 
    (fn [resolver did ddo] ...)"
-  ([idid ddo f]
-   (install *resolver* *registry* idid ddo f))
-  ([resolver registry idid ddo f]
-   (.registerDID ^Resolver resolver (did idid) (json/write-str ddo))
-   (swap! registry #(assoc % (did-id idid) f))
+  ([ident ddo f]
+   (install *resolver* *registry* ident ddo f))
+  ([resolver registry ident ddo f]
+   (.registerDID ^Resolver resolver (did ident) (json/write-str ddo))
+   (swap! registry #(assoc % (did-id ident) f))
    nil))
 
 (defn get-agent
-  "Get an Agent instance for idid, or nil if there isn't one installed.
+  "Get an Agent instance for ident, or nil if there isn't one installed.
 
-   Lookup a resolver to get ddo for idid and call the constructor function."
-  (^Agent [idid]
-   (get-agent *resolver* *registry* idid))
-  (^Agent [resolver registry idid]
-   (when-let [ddo-str (ddo-string resolver idid)]
+   Lookup a resolver to get ddo for ident and call the constructor function."
+  (^Agent [ident]
+   (get-agent *resolver* *registry* ident))
+  (^Agent [resolver registry ident]
+   (when-let [ddo-str (ddo-string resolver ident)]
      (let [ddo (json/read-str ddo-str :key-fn str)
-           make (@registry (did-id idid))]
-       (make resolver (did idid) ddo)))))
+           make (@registry (did-id ident))]
+       (make resolver (did ident) ddo)))))

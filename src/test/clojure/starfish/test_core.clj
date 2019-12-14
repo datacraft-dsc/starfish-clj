@@ -8,27 +8,23 @@
 (deftest did-test
   (testing "DID"
     (testing "from Asset"
-      (is (sf/idid? (sf/memory-asset "abc")))
-      (is (sf/didable? (sf/memory-asset "abc")))
+      (is (sf/ident? (sf/memory-asset "abc")))
       (is (sf/did? (sf/did (sf/memory-asset "abc")))))
 
     (testing "from Agent"
-      (is (sf/idid? (MemoryAgent/create)))
-      (is (sf/didable? (MemoryAgent/create)))
+      (is (sf/ident? (MemoryAgent/create)))
       (is (sf/did? (sf/did (MemoryAgent/create)))))
 
     (testing "from string"
-      (is (sf/idid? ""))
-      (is (sf/didable? ""))
-      (is (= nil (sf/did "")))
+      (is (= true (sf/ident? "")))
+      (is (thrown? IllegalArgumentException (sf/did "")))
       (is (sf/did? (sf/did (sf/random-did-string)))))
 
     (testing "from nil"
-      (is (= true (sf/idid? nil)))
-      (is (= false (sf/didable? nil))))
+      (is (= false (sf/ident? nil))))
 
     (testing "from DID"
-      (is (sf/idid? (sf/random-did)))
+      (is (sf/ident? (sf/random-did)))
       (is (sf/did? (sf/did (sf/random-did))))
       (let [d (sf/random-did)]
         (is (= d (sf/did d)))))))
@@ -108,8 +104,8 @@
       (is (= "foo/bar" (did-path full-did)))
       (is (= "fragment" (did-fragment full-did)))
 
-      (is (and (idid? full-did) (did full-did)))
-      (is (and (idid? "nonsense:ocn:1234") (not (did "nonsense:ocn:1234"))))))
+      (is (and (ident? full-did) (did full-did)))
+      (is (ident? "nonsense:ocn:1234"))))
 
   (testing "test HEX"
     (are [hex] (= hex (-> hex hex->bytes bytes->hex))
