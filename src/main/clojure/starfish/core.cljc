@@ -81,7 +81,7 @@
   "Returns true if x:
     - is a DID;
     - or has a DID (e.g., Asset, Agent);
-    - or can be coerced to a DID (String)."
+    - or can be coerced to a DID (e.g., String)."
   [x]
   (satisfies? Ident x))
 
