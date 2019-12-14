@@ -58,6 +58,7 @@
    (instance? Job a)))
 
 (defprotocol Ident
+  "A value which can be used to construct a DID."
   (did ^DID [x]))
 
 (extend-protocol Ident
@@ -78,10 +79,13 @@
     (.getDID x)))
 
 (defn ident?
-  "Returns true if x:
-    - is a DID;
-    - or has a DID (e.g., Asset, Agent);
-    - or can be coerced to a DID (e.g., String)."
+  "Returns true if x is a value which can be used to construct a DID.
+
+   Currently supported value types are:
+    - DID;
+    - Asset;
+    - Agent;
+    - String."
   [x]
   (satisfies? Ident x))
 
