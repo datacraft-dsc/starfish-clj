@@ -25,13 +25,13 @@
 
     (testing "from nil"
       (is (= true (sf/idid? nil)))
-      (is (= false (sf/didable? nil)))))
+      (is (= false (sf/didable? nil))))
 
     (testing "from DID"
       (is (sf/idid? (sf/random-did)))
       (is (sf/did? (sf/did (sf/random-did))))
       (let [d (sf/random-did)]
-        (is (= d (sf/did d))))))
+        (is (= d (sf/did d)))))))
 
 (deftest did-scheme-test
   (testing "DID Scheme"

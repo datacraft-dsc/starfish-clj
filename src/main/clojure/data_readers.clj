@@ -1,1 +1,1 @@
-{dex/did starfish.core/did-reader}
+{starfish/did starfish.core/did-reader}
