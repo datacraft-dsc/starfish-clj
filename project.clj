@@ -27,12 +27,11 @@
   :deploy-repositories [["releases" :clojars]
                         ["snapshots" :clojars]]
 
-  :profiles {:dev {:source-paths ["src/main/clojure" "src/dev"]
+  :profiles {:dev {:source-paths ["src/dev"]
                    :resource-paths ["src/test/resources"]
                    :dependencies [[org.clojure/clojure "1.10.1"]
                                   [net.mikera/cljunit "0.7.0" :scope "test"]]}
 
              :test {:dependencies []
                     :java-source-paths ["src/main/java" "src/test/java"]
-                    ;; :source-paths ["src/main/clojure" "src/test/clojure"]
                     :resource-paths ["src/main/resources" "src/test/resources"]}})
