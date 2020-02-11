@@ -1,6 +1,51 @@
 (ns starfish.test-core
-  (:require [clojure.test :refer [is are testing deftest run-all-tests]])
-  (:require [starfish.core :refer :all]))
+  (:require [clojure.test :refer [is are testing deftest run-all-tests]]
+            [starfish.core :as sf :refer :all])
+  (:import (sg.dex.starfish.impl.remote RemoteAccount)
+           (sg.dex.starfish.impl.memory MemoryAgent)))
+
+(deftest did-test
+  (testing "DID"
+    (testing "from Asset"
+      (is (sf/did? (sf/did (sf/memory-asset "abc")))))
+    (testing "from Agent"
+      (is (sf/did? (sf/did (MemoryAgent/create)))))
+    (testing "from string"
+      (is (sf/did? (sf/did (sf/random-did-string)))))
+    (testing "from DID"
+      (is (sf/did? (sf/did (sf/random-did)))))))
+
+(deftest did-scheme-test
+  (testing "DID Scheme"
+    (is (= "did" (sf/did-scheme "did:op:123")))
+    (is (= "did" (sf/did-scheme (sf/random-did-string))))
+    (is (= "did" (sf/did-scheme (sf/random-did))))))
+
+(deftest did-method-test
+  (testing "DID Method"
+    (is (= "op" (sf/did-method "did:op:123")))
+    (is (= "dep" (sf/did-method (sf/random-did-string))))
+    (is (= "dep" (sf/did-method (sf/random-did))))))
+
+(deftest did-id-test
+  (testing "DID ID"
+    (is (= "123" (sf/did-id "did:op:123")))))
+
+(deftest did-path-test
+  (testing "DID Path"
+    (is (= "456" (sf/did-path "did:op:123/456")))
+    (is (= nil (sf/did-path "did:op:1234")))))
+
+(deftest did-fragment-test
+  (testing "DID Fragment"
+    (is (= "abc" (sf/did-fragment "did:op:123#abc")))
+    (is (= nil (sf/did-fragment "did:op:123")))
+    (is (= nil (sf/did-fragment "did:op:123/456")))))
+
+(deftest asset-id-test
+  (testing "Asset ID"
+    (is (= "456" (sf/asset-id "did:op:123/456")))
+    (is (thrown? java.lang.Error (sf/asset-id "did:op:123")))))
 
 ;;===================================
 ;; Utility functions, coercion etc.
@@ -25,6 +70,18 @@
       "{}"
       "{\"foo\\/bar\":{}}"
       ))
+  (are [json-val] (= json-val (-> json-val json-string read-json-string))
+      1
+      1.0
+      nil
+      false
+      "just a string"
+      ["foo" "bar"]
+      [1 2 3]
+      {:a 1 :b 2}
+      {}
+      {:a {:b 1} :c []}
+      )
   (testing "test DID"
     (let [full-did "did:ocn:1234/foo/bar#fragment"]
       (is (= "did" (did-scheme full-did)))
@@ -50,34 +107,103 @@
       ;; 9223372036854775807 Long/MAX_VALUE ERROR with Long in int->hex
       )))
 
+(deftest test-json-roundtrip
+  (let [rt #(read-json-string (json-string %))]
+    (are [x] (= x (rt x))
+         "Foo"
+         {:A "Foo" :B "Bar"}
+         [1 2 3]
+         true
+         false
+         nil
+         ["A" {} [] 0 true false [1] {:a "Baz"} nil]
+         0.0)
+    ))
+
 ;;===================================
 ;; Hash digest keccak
 
 (deftest test-hash-digest-keccak
   (testing "Hash digest keccak"
     (are [output input] (= output (digest input))
-      "c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
+      "a7ffc6f8bf1ed76651c14756a061d662f580ff4de43b49fa82d80a4b80f8434a"
       ""
 
-      "4e03657aea45a94fc7d47ba826c8d667c0d1e6e33a64a036ec44f58fa12d6c45"
+      "3a985da74fe225b2045c172d6bd390bd855f086e3e9d525b46bfe24511431532"
       "abc"
 
-      "953d0c27f84a9649b0e121099ffa9aeb7ed83e65eaed41d3627f895790c72d41"
+      "6b6ec8a93f763079ff903b707c7b28ca46da38c4d5b18b6fc11e9c8d8a97ca83"
       "EVWithdraw(address,uint256,bytes32)"
 
-      "a08302ed7c06ecccbbc8eb73b91f9a57e097e9c79cff0bfbb2597a9c25a1c439"
+      "97121be303a9ad92d0927e4a2effa527cd49fe45de1a4c9e967ef22b223f50af"
       "Niki")))
 
 (deftest asset-creation
   (testing "memory asset without metadata"
     (let [ast (memory-asset "abc")]
       (is (= "abc" (to-string (content ast))))))
+
   (testing "memory asset with metadata"
     (let [tagdata ["test" "data"]
           mdata {:tags tagdata}
           ast (memory-asset mdata "abc")]
       (is (= tagdata (:tags (metadata ast))))
       (is (= "abc" (to-string (content ast)))))))
+
+
+(defn demo-operation1
+  "Demo Operation 1"
+  [x]
+  nil)
+
+(defn demo-operation2
+  [asset-x]
+  nil)
+
+(deftest invokable-metadata-test
+  (let [{:keys [name type operation] :as default-medatadata} (invokable-metadata #'demo-operation1)]
+    ;; =>
+    {:name "Demo Operation 1",
+     :type "operation",
+     :dateCreated "2019-11-05T09:06:43.372606Z",
+     :operation {"modes" ["sync" "async"], "params" {"x" {"type" "json"}}},
+     :additionalInfo {:function "starfish.test-core/demo-operation1"}}
+
+    (is (= "Demo Operation 1" name))
+    (is (= "operation" type))
+    (is (= {"modes" ["sync" "async"], "params" {"x" {"type" "json"}}} operation))
+
+    ;; Generated metadata - `default-medatadata` - must be
+    ;; equivalent to the one returned by the asset `metadata` function.
+    (is (= (select-keys default-medatadata [:name :type :operation])
+           (select-keys (metadata (in-memory-operation default-medatadata)) [:name :type :operation]))))
+
+  (let [{:keys [name type operation] :as default-medatadata} (invokable-metadata #'demo-operation2
+                                                                                 {:params {"asset-x" {:type "asset"}}})]
+    ;; =>
+    {:name "Unnamed Operation",
+     :type "operation",
+     :dateCreated "2019-11-05T09:07:02.878426Z",
+     :operation {"modes" ["sync" "async"], "params" {"asset-x" {"type" "asset"}}},
+     :additionalInfo {:function "starfish.test-core/demo-operation2"}}
+
+    (is (= "Unnamed Operation" name))
+    (is (= "operation" type))
+    (is (= {"modes" ["sync" "async"], "params" {"asset-x" {"type" "asset"}}} operation))
+
+    ;; Generated metadata - `default-medatadata` - must be
+    ;; equivalent to the one returned by the asset `metadata` function.
+    (is (= (select-keys default-medatadata [:name :type :operation] )
+           (select-keys (metadata (in-memory-operation default-medatadata)) [:name :type :operation])))))
+
+(deftest remote-account-test
+  (testing "Username & Password"
+    (let [credentials (.getCredentials ^RemoteAccount (remote-account "foo" "bar"))]
+      (is (= #{"username" "password"} (set (keys credentials))))))
+
+  (testing "Token"
+    (let [credentials (.getCredentials ^RemoteAccount (remote-account "x"))]
+      (is (= #{"token"} (set (keys credentials)))))))
 
 (comment
   (run-all-tests)
