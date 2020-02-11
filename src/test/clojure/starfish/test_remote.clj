@@ -6,7 +6,8 @@
 (deftest remote-agent-test
   (testing "Remote Instantiation with DID"
     (let [d (random-did)
-          ra (remote-agent d "{}" nil)]
+          bad-ddo "{}"
+          ra (remote-agent d bad-ddo nil)]
       (is (instance? RemoteAgent ra))
       (is (= d (did ra)))
-      )))
+      (is (= bad-ddo (ddo-string d))))))
