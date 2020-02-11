@@ -1,13 +1,9 @@
 (defproject sg.dex/starfish-clj "0.7.7"
   :url "https://github.com/DEX-Company/starfish-clj"
-  :dependencies [[sg.dex/starfish-java "0.7.8" :exclusions [[org.web3j/utils]
-                                                            [org.web3j/crypto]]]
-                 [org.web3j/utils "4.1.1"]
-                 [org.web3j/crypto "4.1.1"]
+  :dependencies [[sg.dex/starfish-java "0.8.0"]
                  [org.clojure/data.json "0.2.6"]
                  [org.clojure/data.csv "0.1.4"]
                  [clojurewerkz/propertied "1.3.0"]
-                 [org.bouncycastle/bcprov-jdk15on "1.62"]
 
                  ;; Used to fix JCL issues with Apache HTTP logging via JCL
                  [org.slf4j/jcl-over-slf4j "1.7.28"]]

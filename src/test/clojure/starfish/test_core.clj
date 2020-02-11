@@ -24,8 +24,8 @@
 (deftest did-method-test
   (testing "DID Method"
     (is (= "op" (sf/did-method "did:op:123")))
-    (is (= "op" (sf/did-method (sf/random-did-string))))
-    (is (= "op" (sf/did-method (sf/random-did))))))
+    (is (= "dep" (sf/did-method (sf/random-did-string))))
+    (is (= "dep" (sf/did-method (sf/random-did))))))
 
 (deftest did-id-test
   (testing "DID ID"

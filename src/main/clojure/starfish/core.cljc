@@ -15,7 +15,7 @@
            [sg.dex.crypto
             Hash]
            [sg.dex.starfish.util
-            DID Hex Utils RemoteAgentConfig ProvUtil DDOUtil JSON]
+            DID Hex Utils ProvUtil DDOUtil JSON]
            [sg.dex.starfish
             Asset DataAsset Invokable Agent Job Listing Resolver Operation Purchase]
            [sg.dex.starfish.impl.memory
@@ -31,7 +31,7 @@
 (def BYTE-ARRAY-CLASS (Class/forName "[B"))
 
 ;; TODO: use proper public APi to get resolver instance
-(def ^{:dynamic true :tag Resolver}  *resolver* (sg.dex.starfish.impl.memory.LocalResolverImpl.))
+(def ^{:dynamic true :tag Resolver}  *resolver* (sg.dex.starfish.impl.squid.DexResolver/create))
 
 (declare content asset? get-asset get-agent)
 
@@ -206,6 +206,12 @@
   (^String [a]
     (.getFragment (did a))))
 
+(defn without-path
+  "Gets a DID without the path and fragment"
+  (^DID [a]
+    (let [d (did a)]
+      (.withoutPath d))))
+
 (defn asset-id
   "Gets the Asset ID for an asset or DID as a String.
 
@@ -262,9 +268,12 @@
 ;; Account
 
 (defn remote-account
-  ([token]
-   (let [^java.util.Map credentials (doto (java.util.HashMap.)
-                                      (.put "token" token))]
+  "Create a remote account with the specified credential map or username/password"
+  ([credentials-or-token]
+   (let [^java.util.Map credentials (if (string? credentials-or-token)
+                                      (doto (java.util.HashMap.)
+                                        (.put "token" credentials-or-token))
+                                      (into {} credentials-or-token))]
      (RemoteAccount/create (Utils/createRandomHexString 32) credentials)))
   ([username password]
    (let [^java.util.Map credentials (doto (java.util.HashMap.)
@@ -447,11 +456,18 @@
 ;; Agent functionality
 
 (defn remote-agent
-  "Gets a remote agent with the provided DID"
-  ([local-did ddo ^RemoteAccount remote-account]
-   (RemoteAgentConfig/getRemoteAgent ddo (did local-did) remote-account))
-  ([local-did ddo username password]
-   (RemoteAgentConfig/getRemoteAgent ddo (did local-did) username password)))
+  "Gets a remote agent with the provided DID, DDO and Account. If the current resolver is local,
+   install the specified DDO."
+  ([agent-did ddo ^RemoteAccount remote-account]
+   ;; TODO check DDO parameter?
+   (let [^Resolver res *resolver*
+         ^DID adid (without-path (did agent-did))
+         _ (when (instance? sg.dex.starfish.impl.memory.LocalResolverImpl res)
+             (.registerDID res adid ddo))
+         ]
+     (RemoteAgent/connect res adid remote-account)))
+  ([agent-did ddo username password]
+   (remote-agent agent-did ddo (remote-account username password))))
 
 (defn get-asset
   "Gets an asset from a remote agent, given an Asset ID as a String or DID."
@@ -467,7 +483,7 @@
   (^Agent [^Resolver resolver agent-did]
    (cond
      (agent? agent-did) agent-did
-     (did? agent-did) (RemoteAgent/create resolver ^DID agent-did)
+     (did? agent-did) (RemoteAgent/connect resolver ^DID agent-did nil)
      :else (throw (IllegalArgumentException. (str "Invalid did: " (class agent-did)))))))
 
 (defn digest
