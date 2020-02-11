@@ -418,7 +418,7 @@
   (^Asset [data]
    (cond
      (asset? data) data
-     (did? data) (get-asset (get-agent ^DID data) data)
+     (did? data) (get-asset data)
      (string? data) (asset (did data))
      (nil? data) (throw (IllegalArgumentException. "Cannot convert nil to Asset")) 
      :else (error "Cannot coerce to Asset: " data))))
@@ -471,7 +471,10 @@
 
 (defn get-asset
   "Gets an asset from a remote agent, given an Asset ID as a String or DID."
-
+  ([full-did]
+    (let [d (did full-did)
+          ag (get-agent d)]
+      (get-asset ag (did-path d))))
   ([^Agent agent assetid]
     (let [^String id (if (string? assetid) assetid (asset-id assetid))]
       (.getAsset agent id)))) 
