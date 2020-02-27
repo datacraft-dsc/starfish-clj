@@ -18,8 +18,9 @@ buildNumber.properties
 !/.mvn/wrapper/maven-wrapper.jar
 /.project
 /.classpath
-/.settings/
+.settings/
 /codox
 /bin/
 /pom.xml.asc
 .cpcache/
+.vscode/

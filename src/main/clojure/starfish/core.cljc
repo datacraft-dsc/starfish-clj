@@ -31,7 +31,7 @@
 (def BYTE-ARRAY-CLASS (Class/forName "[B"))
 
 ;; TODO: use proper public APi to get resolver instance
-(def ^{:dynamic true :tag Resolver}  *resolver* (sg.dex.starfish.impl.squid.DexResolver/create))
+(def ^{:dynamic true :tag Resolver}  *resolver* (sg.dex.starfish.dexchain.DexResolver/create))
 
 (declare content asset? get-asset get-agent)
 

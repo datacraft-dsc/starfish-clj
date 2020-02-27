@@ -1,6 +1,6 @@
 (defproject sg.dex/starfish-clj "0.9.0-SNAPSHOT"
   :url "https://github.com/DEX-Company/starfish-clj"
-  :dependencies [[sg.dex/starfish-java "0.8.1"]
+  :dependencies [[sg.dex/starfish-java "0.8.2-SNAPSHOT"]
                  [org.clojure/data.json "0.2.7"]
                  [org.clojure/data.csv "0.1.4"]
                  [clojurewerkz/propertied "1.3.0"]
