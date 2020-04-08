@@ -1,5 +1,6 @@
 (ns dev
-  (:require [starfish.core :as sf]))
+  (:require [starfish.core :as sf]
+            [clojure.tools.namespace.repl :refer [refresh] :rename {refresh reset}]))
 
 (comment
   (defn demo-operation1

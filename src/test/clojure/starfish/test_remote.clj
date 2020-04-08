@@ -7,14 +7,43 @@
 (deftest remote-agent-test
   (testing "New Remote Agent"
     (binding [sf/*resolver* (LocalResolverImpl.)]
-      (let [random-did (sf/random-did)
-            empty-ddo-string "{}"
-            remote-agent (sf/remote-agent random-did empty-ddo-string nil)]
-        (is (instance? RemoteAgent remote-agent))
+      (testing "Missing DID"
+        (let [ex (try
+                   (sf/remote-agent nil)
+                   (catch Exception ex
+                     ex))]
+          (is (= "Can't get DID: " (ex-message ex)))
+          (is (instance? IllegalArgumentException ex))))
 
-        (testing "Agent DID"
-          (is (= random-did (sf/did remote-agent))))
+      (testing "Invalid DID"
+        (let [ex (try
+                   (sf/remote-agent {:did "foo"})
+                   (catch Exception ex
+                     ex))]
+          (is (= "Parse failure on invalid DID [foo]" (ex-message ex)))
+          (is (instance? IllegalArgumentException ex))))
 
-        (testing "Agent DDO"
-          (is (= {} (sf/ddo random-did)))
-          (is (= empty-ddo-string (sf/ddo-string random-did))))))))
+      (testing "Minimal"
+        (let [did (sf/random-did-string)
+              remote-agent (sf/remote-agent {:did did})]
+          (is (instance? RemoteAgent remote-agent))
+          (is (= did (str (sf/did remote-agent))))
+          (is (= (sf/did did) (sf/did remote-agent)))
+          (is (= nil (sf/ddo did)))
+          (is (= nil (sf/ddo-string did)))))
+
+      (testing "Minimal with Account"
+        (is (= {"username" "foo"
+                "password" "bar"}
+               (-> (sf/remote-agent {:did (sf/random-did)
+                                     :account (sf/remote-account "foo" "bar")})
+                   (.getAccount)
+                   (.getUserDataMap))))
+
+        (is (= {"username" "foo"
+                "password" "bar"}
+               (-> (sf/remote-agent {:did (sf/random-did)
+                                     :username "foo"
+                                     :password "bar"})
+                   (.getAccount)
+                   (.getUserDataMap))))))))

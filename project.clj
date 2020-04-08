@@ -27,6 +27,7 @@
   :profiles {:dev {:source-paths ["src/dev"]
                    :resource-paths ["src/test/resources"]
                    :dependencies [[org.clojure/clojure "1.10.1"]
+                                  [org.clojure/tools.namespace "1.0.0"]
                                   [net.mikera/cljunit "0.7.0" :scope "test"]]}
 
              :test {:dependencies []

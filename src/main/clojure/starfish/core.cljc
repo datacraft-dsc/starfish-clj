@@ -31,7 +31,6 @@
 
 (def BYTE-ARRAY-CLASS (Class/forName "[B"))
 
-;; TODO: use proper public APi to get resolver instance
 (def ^{:dynamic true :tag Resolver} *resolver* (DexResolver/create))
 
 (declare content asset? get-asset get-agent)
@@ -457,18 +456,19 @@
 ;; Agent functionality
 
 (defn remote-agent
-  "Gets a remote agent with the provided DID, DDO and Account. If the current resolver is local,
-   install the specified DDO."
-  ([agent-did ddo ^RemoteAccount remote-account]
-   ;; TODO check DDO parameter?
-   (let [^Resolver res *resolver*
-         ^DID adid (without-path (did agent-did))
-         _ (when (instance? sg.dex.starfish.impl.memory.LocalResolverImpl res)
-             (.registerDID res adid ddo))
-         ]
-     (RemoteAgent/connect res adid remote-account)))
-  ([agent-did ddo username password]
-   (remote-agent agent-did ddo (remote-account username password))))
+  "Gets a remote Agent with the provided DID and Account."
+  ([did username password]
+   (remote-agent {:did did
+                  :username username
+                  :password password}))
+  ([did ^RemoteAccount account]
+   (remote-agent {:did did
+                  :account account}))
+  ([{:keys [resolver did username password account]}]
+   (let [resolver (or resolver *resolver*)
+         did (without-path (starfish.core/did did))
+         account (or account (remote-account username password))]
+     (RemoteAgent/connect resolver did account))))
 
 (defn get-asset
   "Gets an asset from a remote agent, given an Asset ID as a String or DID."
