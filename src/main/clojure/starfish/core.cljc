@@ -2,14 +2,13 @@
   (:require [clojure.walk :refer [keywordize-keys stringify-keys]]
             [clojure.data.json :as json]
             [clojure.java.io :as io]
-            [starfish.utils :refer [error TODO]]
-            [clojure.string :as str])
+            [starfish.utils :refer [error TODO]])
   (:import [java.nio.charset
             StandardCharsets]
-           [java.io InputStream File] 
+           [java.io InputStream File]
            [java.time
             Instant]
-           [java.lang IllegalArgumentException] 
+           [java.lang IllegalArgumentException]
            [clojure.lang
             IFn]
            [sg.dex.crypto
@@ -24,7 +23,8 @@
             FileAsset]
            [sg.dex.starfish.impl.remote
             RemoteAgent RemoteAccount]
-           (sg.dex.starfish.impl.memory LocalResolverImpl)))
+           (sg.dex.starfish.impl.memory LocalResolverImpl)
+           (sg.dex.starfish.dexchain DexResolver)))
 
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* :warn-on-boxed)
@@ -32,7 +32,7 @@
 (def BYTE-ARRAY-CLASS (Class/forName "[B"))
 
 ;; TODO: use proper public APi to get resolver instance
-(def ^{:dynamic true :tag Resolver} *resolver* (LocalResolverImpl.))
+(def ^{:dynamic true :tag Resolver} *resolver* (DexResolver/create))
 
 (declare content asset? get-asset get-agent)
 
@@ -220,24 +220,24 @@
    preferable to use (did asset) for the asset DID if the intent is to obtain a full reference to the asset
    that includes the agent location."
   (^String [a]
-   (cond 
+   (cond
      (asset? a) (.getAssetID ^Asset a)
      (did? a) (or (did-path ^DID a) (error "DID does not contain an Asset ID in DID path"))
      (string? a) (asset-id (did a))
-     (nil? a) (error "Can't get Asset ID of null value") 
+     (nil? a) (error "Can't get Asset ID of null value")
      :else (error "Can't get asset ID of type " (class a)))))
 
 ;; ============================================================
 ;; DDO management
 
-(defn install-ddo 
+(defn install-ddo
   "Installs a DDO for an agent.
 
    DDO may be either a String or a Map, it will be coerced into a JSON String for installation."
   [did-value ddo]
   (let [^Resolver resolver *resolver*
         ^String ddo-string (cond
-                             (string? ddo) ddo 
+                             (string? ddo) ddo
                              (map? ddo) (json-string-pprint ddo)
                              :else (error "ddo value must be a String or Map"))
         did (did did-value)]
@@ -251,12 +251,12 @@
    (let [^DID d (did did-value)]
      (.getDDOString resolver d))))
 
-(defn ddo 
+(defn ddo
   "Gets a DDO for the given DID as a Clojure map. Uses the default resolver if resolver is not specified."
   (^String [did-value]
     (ddo *resolver* did-value))
   (^String [^Resolver resolver did-value]
-    (if-let [ddos (ddo-string resolver did-value)] 
+    (if-let [ddos (ddo-string resolver did-value)]
       (read-json-string ddos))))
 
 (defn create-ddo
@@ -381,17 +381,17 @@
    (let [params (format-params operation params)]
      (keywordize-keys (.invokeResult operation (stringify-keys params))))))
 
-(defn job-status 
+(defn job-status
   "Gets the status of a Job instance as a keyword. 
 
    Possible return values are defined by DEP6."
   ([^Job job]
-    (keyword (.getStatus job)))) 
+    (keyword (.getStatus job))))
 
-(defn job-id 
+(defn job-id
   "Gets the ID of a Job instance."
   ([^Job job]
-    (.getJobID job))) 
+    (.getJobID job)))
 
 (defn get-result
   "Gets the results of a job, as a map of keywords to assets / values.
@@ -399,7 +399,7 @@
    Blocks until results are ready"
   [^Job job]
   (let [res (.getResult job)]
-    (keywordize-keys res))) 
+    (keywordize-keys res)))
 
 (defn poll-result
   "Pools the results of a job, returning a map of keywords to assets / values if succeeded.
@@ -407,7 +407,7 @@
    Returns null if results are not yet available"
   [^Job job]
   (let [res (.pollResult job)]
-    (keywordize-keys res))) 
+    (keywordize-keys res)))
 
 ;; ==============================================================
 ;; Asset functionality
@@ -421,7 +421,7 @@
      (asset? data) data
      (did? data) (get-asset data)
      (string? data) (asset (did data))
-     (nil? data) (throw (IllegalArgumentException. "Cannot convert nil to Asset")) 
+     (nil? data) (throw (IllegalArgumentException. "Cannot convert nil to Asset"))
      :else (error "Cannot coerce to Asset: " data))))
 
 (defn memory-asset
@@ -434,9 +434,9 @@
              (MemoryAsset/create byte-data))))
   (^Asset [meta data]
    (let [byte-data (to-bytes data)]
-     (if (string? meta) 
+     (if (string? meta)
        (MemoryAsset/create byte-data ^String meta)
-       (let [^java.util.Map meta-map (stringify-keys meta)] 
+       (let [^java.util.Map meta-map (stringify-keys meta)]
          (MemoryAsset/create byte-data meta-map ))))))
 
 (defn file-asset
@@ -448,9 +448,9 @@
      (FileAsset/create file)))
   (^Asset [meta file]
    (let [^File file (io/file file)]
-     (if (string? meta) 
+     (if (string? meta)
        (FileAsset/create file ^String meta)
-       (let [^java.util.Map meta-map (stringify-keys meta)] 
+       (let [^java.util.Map meta-map (stringify-keys meta)]
          (FileAsset/create file meta-map ))))))
 
 ;; =======================================================
@@ -478,7 +478,7 @@
       (get-asset ag (did-path d))))
   ([^Agent agent assetid]
     (let [^String id (if (string? assetid) assetid (asset-id assetid))]
-      (.getAsset agent id)))) 
+      (.getAsset agent id))))
 
 (defn get-agent
   "Gets the DEP Agent agent for the given DID"
@@ -506,7 +506,7 @@
 (defn upload
   "Uploads any asset to an Agent. Registers the asset with the Agent if required.
 
-   Returns an Asset instance referring to the uploaded remote Asset." 
+   Returns an Asset instance referring to the uploaded remote Asset."
   (^Asset [^Agent agent a]
    (.uploadAsset agent (asset a))))
 
